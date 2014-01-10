@@ -1,0 +1,23 @@
+@import url("./reveal.js/css/reveal.min.css"); 
+@import url("./reveal.js/css/theme/moon.css"); 
+
+.reveal h1 { font-size: 2em; } 
+h1.title { font-size: 4em; } 
+.titleslide h1 { font-size: 3em; } 
+.reveal h2  { font-size: 1.3em; } 
+.reveal p { text-align: left; } 
+.reveal table { padding: 1em 1em 1em 3em; } 
+.reveal td { padding: 0.3em; } 
+.reveal th { padding: 0.3em; border-bottom: 2px solid gray; } 
+.reveal blockquote { 
+        text-align: left; 
+        width: 85%; 
+        border: none; 
+        box-shadow: none; 
+        background: none; 
+} 
+.reveal figure { margin: 1em; border: none; } 
+.reveal section img { border: none; } 
+.longquote blockquote { font-size: 0.8em; } 
+.reveal blockquote:before { content: ''; } 
+.reveal blockquote:after { content: ''; } 
