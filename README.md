@@ -19,10 +19,10 @@ Each directory contains a different set of files:
  - *lectureX.pdf* - lecture as PDF slides (beamer)
 
 ### Compiling
-To compile reveal.js presentation:
+#### To compile reveal.js presentation:
     pandoc -t revealjs -s lectureX.md -o lectureX.html --slide-level 2 -V revealjs-url:../reveal.js --css ../slides.css
 
-To compile PDF presentation:
+#### To compile PDF presentation:
     pandoc -t beamer -o lectureX.pdf lectureX.md --slide-level 2 -V theme:Berlin -V colortheme:beaver
 
 ### Viewing
