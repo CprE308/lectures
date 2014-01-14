@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <meta name="dcterms.date" content="2013-01-15" />
+  <title>Lecture 2</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 2</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">January 15, 2013</h3>
+</section>
+
+<section><section id="computer-hardware-review" class="titleslide slide level1"><h1>Computer Hardware Review</h1></section><section id="components-of-a-single-personal-computer" class="slide level2">
+<h1>Components of a single personal computer</h1>
+<figure>
+<img src="img/components_pc.png" />
+</figure>
+</section><section id="sample-cpu-architecture" class="slide level2">
+<h1>Sample CPU Architecture</h1>
+<ol type="a">
+<li>A three-stage pipeline</li>
+<li>A superscalar CPU</li>
+</ol>
+<figure>
+<img src="img/pipeline_arch.png" />
+</figure>
+</section><section id="typical-memory-hierarchy" class="slide level2">
+<h1>Typical memory hierarchy</h1>
+<figure>
+<img src="img/mem_hier.png" />
+</figure>
+<ul>
+<li>numbers shown are rough approximations</li>
+</ul>
+</section><section id="structure-of-a-disk-drive" class="slide level2">
+<h1>Structure of a disk drive</h1>
+<figure>
+<img src="img/disc_structure.png" />
+</figure>
+</section><section id="interrupts" class="slide level2">
+<h1>Interrupts</h1>
+<figure>
+<img src="img/interrupts.png" />
+</figure>
+<ol type="a">
+<li>Steps in starting an I/O device and getting an interrupt</li>
+<li>How the CPU is interrupted</li>
+</ol>
+</section><section id="structure-of-a-large-pentium-system" class="slide level2">
+<h1>Structure of a large Pentium system</h1>
+<figure>
+<img src="img/pentium_structure.png" />
+</figure>
+</section></section>
+<section><section id="programs-processes" class="titleslide slide level1"><h1>Programs &amp; Processes</h1></section><section id="program-vs.-process" class="slide level2">
+<h1>Program vs. Process</h1>
+<h3 id="a-process-is-a-program-in-execution">A process is a program in execution</h3>
+<ul>
+<li>Program is a piece of code</li>
+<li>Process has ``state'' (what could this state be?)</li>
+</ul>
+<h3 id="there-could-be-multiple-processes-all-simultaneously-executing-the-same-program">There could be multiple processes all simultaneously executing the same program</h3>
+<ul>
+<li>Coordinate accesses and sharing of resoures</li>
+<li>Sharing in time - CPU cycles</li>
+<li>Sharing in space - Memory</li>
+</ul>
+</section><section id="processes" class="slide level2">
+<h1>Processes</h1>
+<ul>
+<li>Process = program in execution
+<ul>
+<li>Address space: Program (text), data, stack</li>
+<li>Registers: Program counter, stack pointer, etc.</li>
+</ul></li>
+<li>Process can be created, suspended, restarted, killed (!)</li>
+<li>Process scheduler decides which process to run next among all the current processes</li>
+</ul>
+</section><section id="process-creation" class="slide level2">
+<h1>Process Creation</h1>
+<figure>
+<img src="img/process_creation.png" />
+</figure>
+<ul>
+<li>In UNIX, there is a way for one process to ``spawn'' more processes</li>
+<li>A process tree
+<ul>
+<li>Process A created two child processes, B and C</li>
+<li>Process B created three child processes, D, E, and F</li>
+</ul></li>
+</ul>
+</section><section id="memory-sharing" class="slide level2">
+<h1>Memory Sharing</h1>
+<figure>
+<img src="img/memory_sharing.png" />
+</figure>
+</section></section>
+<section><section id="files" class="titleslide slide level1"><h1>Files</h1></section><section id="mounting-files-unix" class="slide level2">
+<h1>Mounting Files (UNIX)</h1>
+<figure>
+<img src="img/mounting_files.png" />
+</figure>
+<ul>
+<li>Before mounting,
+<ul>
+<li>files on floppy are inaccessible</li>
+</ul></li>
+<li>After mounting floppy on b,
+<ul>
+<li>files on floppy are part of file hierarchy</li>
+</ul></li>
+</ul>
+</section><section id="inter-process-communication-unix" class="slide level2">
+<h1>Inter process communication (UNIX)</h1>
+<figure>
+<img src="img/pipe.png" />
+</figure>
+<ul>
+<li>A <em>pipe</em> is like a pseudo file</li>
+<li>Processes set up a pipe in advance</li>
+<li>Processes read from or write to a pipe</li>
+</ul>
+</section></section>
+<section><section id="system-calls" class="titleslide slide level1"><h1>System Calls</h1></section><section id="structure-of-unix" class="slide level2">
+<h1>Structure of UNIX</h1>
+<figure>
+<img src="img/structure.png" />
+</figure>
+</section><section id="system-calls-1" class="slide level2">
+<h1>System Calls</h1>
+<ul>
+<li>Interface between the user and the operating system (kernel)</li>
+<li>Handle processes, files, directories, time, input/output</li>
+<li>Switch processor from user to kernel mode
+<ul>
+<li>In <em>User mode</em>, some instructions are forbidden</li>
+<li>In <em>Kernel mode</em>, all instructions are allowed</li>
+</ul></li>
+</ul>
+</section><section id="example" class="slide level2">
+<h1>Example</h1>
+<ul>
+<li><p>Read from file</p>
+<p>n = read(fd, buffer, nbytes);</p></li>
+<li><p>Change directory</p>
+<p>s = chdir(dirname);</p></li>
+<li><p>Get time</p>
+<p>s = time(&amp;seconds);</p></li>
+</ul>
+</section><section id="system-calls-for-file-management" class="slide level2">
+<h1>System Calls for File Management</h1>
+<figure>
+<img src="img/file_management.png" />
+</figure>
+</section><section id="system-calls-for-directory-management" class="slide level2">
+<h1>System Calls for Directory Management</h1>
+<figure>
+<img src="img/directory_management.png" />
+</figure>
+</section><section id="system-calls-for-miscellaneous-tasks" class="slide level2">
+<h1>System Calls for Miscellaneous Tasks</h1>
+<figure>
+<img src="img/misc_calls.png" />
+</figure>
+</section><section id="quick-questions" class="slide level2">
+<h1>Quick Questions</h1>
+<h3 id="do-these-belong-in-the-os">Do these belong in the OS?</h3>
+<ul>
+<li class="fragment">Text editor</li>
+<li class="fragment">Compiler</li>
+<li class="fragment">Web browser</li>
+<li class="fragment">Shell</li>
+<li class="fragment">Email client</li>
+<li class="fragment">Program which copies files</li>
+<li class="fragment">Device driver (program which controls a hardware device)</li>
+</ul>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
