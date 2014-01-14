@@ -6,7 +6,7 @@ This repo contains all lecture slides for CprE 308 - Spring 2014.
 | Week | Topic | Slides |
 |:----:|:-----:|:------:|
 | 1 | Introduction | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture1/lecture1.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture1/lecture1.pdf?raw=true) |
-|   | Hardware Review / Process Intro | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture2/lecture2.html) | [PDF](https://github.com/CprE308/lectures/blob/master/lecture2/lecture2.pdf?raw=true) |
+|   | Hardware Review / Process Intro | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture2/lecture2.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture2/lecture2.pdf?raw=true) |
 
 ------------
 
