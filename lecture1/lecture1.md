@@ -92,3 +92,20 @@ Anybody who directly communicates with the floppy disk controller must deal with
  - On August 12, 1981, IBM introduced its new revolution in a box, the ``Personal Computer'' complete with a brand new operating system from Microsoft and a 16-bit computer operating system called MS-DOS 1.0. 
  - ``I don't think it's that significant.'' - Tandy president John Roach on IBM's entry into the microcomputer field.
  - ``If you are intelligent and know how to apply your intelligence you can accomplish anything'' – Bill Gates
+
+## The Operating System Zoo
+
+ - Personal computer operating systems
+    - Single user (usually), performance, GUIs.
+    - MS-DOS, Windows, Linux
+ - Server operating systems
+    - Focus on networking
+    - Linux, SunOS, Windows NT
+ - Multiprocessor operating systems
+ - Real-time operating systems
+    - Hard versus soft real-time OS
+ - Embedded operating systems
+    - Memory, power constraints
+ - Smart card operating systems
+    - Extreme resource constraints
+
