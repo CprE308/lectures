@@ -73,7 +73,11 @@
 # Files
 
 ## Mounting Files (UNIX)
+<!---
+Files organized in directories with a hierarchy, like a tree.  Top is called Root directory.  Process runs in working directory.
 
+More about files in Chapter 4.
+-->
 ![](img/mounting_files.png)
 
  - Before mounting,
@@ -92,6 +96,11 @@
 # System Calls
 
 ## Structure of UNIX
+<!---
+Shell is the 'command interpreter' - primary interface between user and OS.
+
+Example: cat *.txt | sort
+-->
 
 ![](img/structure.png)
 
@@ -117,11 +126,18 @@
     s = time(&seconds);
 
 ## System Calls for File Management
-
+<!---
+First have to open file with fd. OS keeps track of file mode, size, times, etc.
+-->
 ![](img/file_management.png)
 
 ## System Calls for Directory Management
+<!---
+First two create and remove directories.
 
+For linking: discuss i-nodes.
+Each file has unique number, called i-number that identifies it -> index into table of i-nodes.  Conceptually, a directory is a set of (i-number, ASCII name) pairs.
+-->
 ![](img/directory_management.png)
 
 ## System Calls for Miscellaneous Tasks

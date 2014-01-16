@@ -114,6 +114,11 @@
 </section></section>
 <section><section id="files" class="titleslide slide level1"><h1>Files</h1></section><section id="mounting-files-unix" class="slide level2">
 <h1>Mounting Files (UNIX)</h1>
+<!---
+Files organized in directories with a hierarchy, like a tree.  Top is called Root directory.  Process runs in working directory.
+
+More about files in Chapter 4.
+-->
 <figure>
 <img src="img/mounting_files.png" />
 </figure>
@@ -140,6 +145,12 @@
 </section></section>
 <section><section id="system-calls" class="titleslide slide level1"><h1>System Calls</h1></section><section id="structure-of-unix" class="slide level2">
 <h1>Structure of UNIX</h1>
+<!---
+Shell is the 'command interpreter' - primary interface between user and OS.
+
+Example: cat *.txt | sort
+-->
+
 <figure>
 <img src="img/structure.png" />
 </figure>
@@ -166,11 +177,20 @@
 </ul>
 </section><section id="system-calls-for-file-management" class="slide level2">
 <h1>System Calls for File Management</h1>
+<!---
+First have to open file with fd. OS keeps track of file mode, size, times, etc.
+-->
 <figure>
 <img src="img/file_management.png" />
 </figure>
 </section><section id="system-calls-for-directory-management" class="slide level2">
 <h1>System Calls for Directory Management</h1>
+<!---
+First two create and remove directories.
+
+For linking: discuss i-nodes.
+Each file has unique number, called i-number that identifies it -> index into table of i-nodes.  Conceptually, a directory is a set of (i-number, ASCII name) pairs.
+-->
 <figure>
 <img src="img/directory_management.png" />
 </figure>
