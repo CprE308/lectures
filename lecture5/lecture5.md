@@ -67,18 +67,28 @@
 # Memory Basics
 
 ## Two Types of Memory
+<!---
+Draw on board as we introdude.  Stack at top, text/data at bottom, heap elsewhere.
+-->
+. . .
 
 ### Stack:
  - Automatically allocated and deallocated
  - Local variables, parameters
  - Used to implement function calls
 
+. . .
+
 ### Heap:
  - Manually allocated and deallocated (sometimes not!)
  - Dynamic sized data structures
  - Used for data structures whose size is hard to predict
 
+
 ## Example C Program
+<!---
+Main function calls f.  Function f places a,b on stack.  Then the return value is placed in special register (or also on stack).
+-->
 ```c
 int main() {
     int a;
@@ -96,6 +106,9 @@ int f() {
 
 
 ## Example C Program (2)
+<!---
+Another example, but with one more layer of stack calls.
+-->
 ```c
 int main() {
     int a;
@@ -120,6 +133,9 @@ int g() {
 ```
 
 ## Fibonacci Numbers
+<!---
+Fibonacci example.  Show stack trace with n=3.
+-->
 ```c
 int fib(int n) {
     if (n < 0) return 0;
@@ -129,26 +145,41 @@ int fib(int n) {
 }
 ```
 
-## Slightly Modified
+## Using the Heap
+<!---
+Demonstrate how the heap works.
+-->
 ```c
 int main() {
     int i;
     int *c = (int*) malloc(10*sizeof(int));
     for(i=0;i<10;i++)
-        c[i] = i*i:
+        c[i] = i*i;
     free(c);
 }
 ```
 
 ## Linked Lists
- - Computer Game
- - Maintain list of all moves made by the player
- - Memory requirement unknown
- - Use dynamic memory, or the ``heap''
+<!---
+Explain what Linked Lists are.  Here are some things we can do with them.
+-->
+
+>  - Computer Game
+    - Maintain list of all moves made by the player
+>  - Memory requirement unknown
+    - Use dynamic memory, or the ``heap''
 
 ## Where would the following go?
- - Parameters, Return values
- - Global variables
+<!---
+Explain where each goes.
+Parameters, Return values on stack.
+Global variables in 'data'
+User input probably on heap.
+-->
+
+> - Parameters, Return values
+> - Global variables
+> - User Input
 
 ## Garbage Collection
  - No need to explicitly deallocate memory 

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <meta name="dcterms.date" content="2013-01-22" />
+  <title>Lecture 5</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+    </style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 5</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">January 22, 2013</h3>
+</section>
+
+<section><section id="review-from-last-week" class="titleslide slide level1"><h1>Review from Last Week</h1></section><section id="processes" class="slide level2">
+<h1>Processes</h1>
+<ul>
+<li>Process = program in execution
+<ul>
+<li>Address space: Program (text), data, stack</li>
+<li>Registers: Program counter, stack pointer, etc.</li>
+</ul></li>
+<li>Process can be created, suspended, restarted, killed (!)</li>
+<li>Process scheduler decides which process to run next among all the current processes</li>
+</ul>
+</section><section id="process-creation" class="slide level2">
+<h1>Process Creation</h1>
+<figure>
+<img src="img/process_creation.png" />
+</figure>
+<ul>
+<li>In UNIX, there is a way for one process to ``spawn'' more processes</li>
+<li>A process tree
+<ul>
+<li>Process A created two child processes, B and C</li>
+<li>Process B created three child processes, D, E, and F</li>
+</ul></li>
+</ul>
+</section><section id="inter-process-communication-unix" class="slide level2">
+<h1>Inter process communication (UNIX)</h1>
+<figure>
+<img src="img/pipe.png" />
+</figure>
+<ul>
+<li>A <em>pipe</em> is like a pseudo file</li>
+<li>Processes set up a pipe in advance</li>
+<li>Processes read from or write to a pipe</li>
+</ul>
+</section><section id="structure-of-unix" class="slide level2">
+<h1>Structure of UNIX</h1>
+<figure>
+<img src="img/structure.png" />
+</figure>
+</section><section id="system-calls" class="slide level2">
+<h1>System Calls</h1>
+<ul>
+<li>Interface between the user and the operating system (kernel)</li>
+<li>Handle processes, files, directories, time, input/output</li>
+<li>Switch processor from user to kernel mode
+<ul>
+<li>In <em>User mode</em>, some instructions are forbidden</li>
+<li>In <em>Kernel mode</em>, all instructions are allowed</li>
+</ul></li>
+</ul>
+</section><section id="example" class="slide level2">
+<h1>Example</h1>
+<ul>
+<li><p>Read from file</p>
+<p>n = read(fd, buffer, nbytes);</p></li>
+<li><p>Change directory</p>
+<p>s = chdir(dirname);</p></li>
+<li><p>Get time</p>
+<p>s = time(&amp;seconds);</p></li>
+</ul>
+</section><section id="mounting-files-unix" class="slide level2">
+<h1>Mounting Files (UNIX)</h1>
+<figure>
+<img src="img/mounting_files.png" />
+</figure>
+<ul>
+<li>Before mounting,
+<ul>
+<li>files on floppy are inaccessible</li>
+</ul></li>
+<li>After mounting floppy on b,
+<ul>
+<li>files on floppy are part of file hierarchy</li>
+</ul></li>
+</ul>
+</section><section id="todays-topics" class="slide level2">
+<h1>Today's Topics</h1>
+<ul>
+<li>Memory Basics - Stack and Heap</li>
+<li>Process Address Space</li>
+</ul>
+</section></section>
+<section><section id="memory-basics" class="titleslide slide level1"><h1>Memory Basics</h1></section><section id="two-types-of-memory" class="slide level2">
+<h1>Two Types of Memory</h1>
+<!---
+Draw on board as we introdude.  Stack at top, text/data at bottom, heap elsewhere.
+-->
+<div class="fragment">
+<h3 id="stack">Stack:</h3>
+<ul>
+<li>Automatically allocated and deallocated</li>
+<li>Local variables, parameters</li>
+<li>Used to implement function calls</li>
+</ul>
+<p>. . .</p>
+<h3 id="heap">Heap:</h3>
+<ul>
+<li>Manually allocated and deallocated (sometimes not!)</li>
+<li>Dynamic sized data structures</li>
+<li>Used for data structures whose size is hard to predict</li>
+</ul>
+</div>
+</section><section id="example-c-program" class="slide level2">
+<h1>Example C Program</h1>
+<!---
+Main function calls f.  Function f places a,b on stack.  Then the return value is placed in special register (or also on stack).
+-->
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> main() {
+    <span class="dt">int</span> a;
+    a = f();
+}</code></pre>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> f() {
+    <span class="dt">int</span> a,b;
+    a = <span class="dv">10</span>; b=<span class="dv">10</span>;
+    <span class="kw">return</span> (a*b);
+}</code></pre>
+</section><section id="example-c-program-2" class="slide level2">
+<h1>Example C Program (2)</h1>
+<!---
+Another example, but with one more layer of stack calls.
+-->
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> main() {
+    <span class="dt">int</span> a;
+    a = f();
+}</code></pre>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> f() {
+    <span class="dt">int</span> a,
+    a = <span class="dv">10</span>;
+    <span class="kw">return</span> (a*g());
+}</code></pre>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> g() {
+    <span class="dt">int</span> a;
+    a=<span class="dv">100</span>;
+    <span class="kw">return</span> (a);
+}</code></pre>
+</section><section id="fibonacci-numbers" class="slide level2">
+<h1>Fibonacci Numbers</h1>
+<!---
+Fibonacci example.  Show stack trace with n=3.
+-->
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> fib(<span class="dt">int</span> n) {
+    <span class="kw">if</span> (n &lt; <span class="dv">0</span>) <span class="kw">return</span> <span class="dv">0</span>;
+    <span class="kw">if</span> (n ==<span class="dv">0</span>) <span class="kw">return</span> <span class="dv">1</span>;
+    <span class="kw">if</span> (n==<span class="dv">1</span>) <span class="kw">return</span> <span class="dv">1</span>;
+    <span class="kw">return</span> (fib(n<span class="dv">-1</span>)+fib(n<span class="dv">-2</span>));
+}</code></pre>
+</section><section id="using-the-heap" class="slide level2">
+<h1>Using the Heap</h1>
+<!---
+Demonstrate how the heap works.
+-->
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> main() {
+    <span class="dt">int</span> i;
+    <span class="dt">int</span> *c = (<span class="dt">int</span>*) malloc(<span class="dv">10</span>*<span class="kw">sizeof</span>(<span class="dt">int</span>));
+    <span class="kw">for</span>(i=<span class="dv">0</span>;i&lt;<span class="dv">10</span>;i++)
+        c[i] = i*i;
+    free(c);
+}</code></pre>
+</section><section id="linked-lists" class="slide level2">
+<h1>Linked Lists</h1>
+<!---
+Explain what Linked Lists are.  Here are some things we can do with them.
+-->
+
+<ul>
+<li class="fragment">Computer Game
+<ul>
+<li class="fragment">Maintain list of all moves made by the player</li>
+</ul></li>
+<li class="fragment">Memory requirement unknown
+<ul>
+<li class="fragment">Use dynamic memory, or the ``heap''</li>
+</ul></li>
+</ul>
+</section><section id="where-would-the-following-go" class="slide level2">
+<h1>Where would the following go?</h1>
+<!---
+Explain where each goes.
+Parameters, Return values on stack.
+Global variables in 'data'
+User input probably on heap.
+-->
+
+<ul>
+<li class="fragment">Parameters, Return values</li>
+<li class="fragment">Global variables</li>
+<li class="fragment">User Input</li>
+</ul>
+</section><section id="garbage-collection" class="slide level2">
+<h1>Garbage Collection</h1>
+<ul>
+<li>No need to explicitly deallocate memory
+<ul>
+<li>i.e. no need for free() or equivalent</li>
+</ul></li>
+<li>No memory leaks</li>
+<li>Automatic Garbage Collection</li>
+<li>A key feature of Java is its garbage-collected heap</li>
+</ul>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
