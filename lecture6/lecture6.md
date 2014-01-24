@@ -2,15 +2,13 @@
 % CprE 308
 % January 24, 2013
 
-# Memory Basics Review
-Include information here to clarify Stack/Heap/Data/BSS, etc.
+# Intro
 
 ## Today's Topics
  - Process Creation
- - File System Interface
  - System Calls for processes/files
 
-# Process Creation
+# Process Address Space
 
 ## Process
  - Address Space
@@ -21,6 +19,16 @@ Include information here to clarify Stack/Heap/Data/BSS, etc.
 ![](img/address_space.png)
 
  - More about Different Segments: [http://www.informit.com/articles/article.asp?p=173438](http://www.informit.com/articles/article.asp?p=173438)
+
+## Address Space, Explained
+ - Text - Actual program code
+ - Data - Two Sections
+    - Initialized - static and global variables with nonzero values
+    - Uninitialized - (BSS: Block Started by Symbol) static and global variables
+ - Stack - Local Variables, function parameters, 
+ - Heap - Dynamic variables
+
+# Process Creation - Fork
 
 ## The fork() system call
 ```c
@@ -33,6 +41,13 @@ pid_t fork(void); // prototype for fork
     - In the child - `fork` returns a 0
 
 ## Example
+<!---
+Fork example: example_fork.c
+I am the parent
+ERROR!
+I am the child
+ERROR!
+-->
 ```c
 #include <unistd.h>
 #include <stdio.h>
@@ -80,10 +95,15 @@ void main(void) {
  - When a process exits, the OS delivers a termination status to the parent process
 
 ## Waiting
+<!---
+wait(&status) === waitpid(-1, &status, 0)
+-->
  - Parent processes often wait for their child process to end
  - Parent processes do that via a `wait()` call
     - `pid_t wait(int * status);`
     - `pid_t waitpid( pid_t pid int* status,...);`
+
+# Process Switching - Exec
 
 ## Switching Programs
  - `fork()` creates a new process
@@ -94,10 +114,15 @@ void main(void) {
 ![](img/exec.png)
 
 ## `exec()` example
+<!---
+Exec example: example_exec.c
+-->
 ```c
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 main() {
-  printf("executing ln\n");
+  printf("executing ls\n");
   execl("/bin/ls", "ls", "-l", (char*)0);
   /* if execl returns, the call failed */
   perror("execl failed to run ls");
@@ -109,6 +134,9 @@ main() {
 ![](img/process_management.png)
 
 ## More `fork()`
+<!---
+Fork example: example_fork2.c
+-->
  - How many processes does this piece of code create?
 
 ```c
@@ -131,7 +159,7 @@ void main(void) {
 
 . . .
 
-### Fork Bomb!
+#### Fork Bomb!
 
 ## Fork/Exec Example
 ```c
@@ -163,6 +191,9 @@ while (TRUE) {	/* repeat forever */
 ```
 
 ## What is the output of this?
+<!---
+In some order: 2 0s, 4 1s, 8 2s
+-->
 ```c
 int main() {
    int i;
