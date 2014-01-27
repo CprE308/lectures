@@ -75,21 +75,14 @@ Worker_thread(req) {
  - Thread = "Lightweight process"
 
 ## The Thread Model
-### Per process Items
- - Address Space
- - Global variables
- - Open files
- - Child processes
- - Pending alarms
- - Signals and signal handlers
- - Accounting information
 
-### Per thread items
- - Program counter
- - Reigsters
- - Stack
- - State
-
-
-
+| Per process Items | Per thread items |
+|-------------------|------------------|
+| Address space | Program counter |
+| Global variables | Registers |
+| Open files | Stack |
+| Child processes | State |
+| Pending alarms | |
+| Signals and signal handlers | |
+| Accounting information | |
 
