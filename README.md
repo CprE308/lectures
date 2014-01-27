@@ -9,7 +9,7 @@ This repo contains all lecture slides for CprE 308 - Spring 2014.
 |   | Hardware Review / Process Intro | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture2/lecture2.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture2/lecture2.pdf?raw=true) |
 | 2 | Process Memory Basics | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture5/lecture5.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture5/lecture5.pdf?raw=true) |
 |   | Process Creation | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture6/lecture6.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture6/lecture6.pdf?raw=true) |
-|   | File System Interface | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture7/lecture7.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture7/lecture7.pdf?raw=true) |
+| 3 | File System Interface | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture7/lecture7.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture7/lecture7.pdf?raw=true) |
 
 ------------
 
