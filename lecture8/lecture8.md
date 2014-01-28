@@ -12,6 +12,9 @@
 # Multiprogramming
 
 ## Processes and Multiprogramming
+<!---
+If process spends fraction p waiting for I/O, then probability that all n processes are waiting is p^n.  Thus utilization is 1-p^n.  Graph on page 94.
+-->
  - Multiprogramming
     - Many processes executing in parallel
  - Imagine not having it (DOS)
@@ -23,10 +26,11 @@
 ![](img/multi_space.png)
 
 ## Well..we still have only one processor
- - Will the following get sped up with multiprogramming
-    - Four compilations running in parallel
-    - A compliation and a text editor
-    - Four parallel internet downloads
+Will the following get sped up with multiprogramming?
+
+> - Four compilations running in parallel
+> - A compilation and a text editor
+> - Four parallel internet downloads
 
 ## The Process Model
 ![](img/process_model.png)
@@ -52,17 +56,18 @@ When do processes get terminated?
 
 ## Implementation of Multiprogramming
  - Context Switch
-    - Requires (CPU) taken away from one process and given to another
+    - Resources (CPU) taken away from one process and given to another
  - Save the context of previous process and restore context of new process
 
 ## Process Context?
- - Contents of Reigsters
+ - Contents of Registers
  - Program Counter
  - Stack Pointer
  - Process State
  - Open file descriptors
  - ...
- - Operating System stores process contexts in *Process Table* - one entry per process
+
+Operating System stores process contexts in *Process Table* - one entry per process
 
 ## When to Switch Context
  - When a process waits for I/O
@@ -85,7 +90,7 @@ When do processes get terminated?
 How would you force a process to give up the processor to another process?
 
 ## Interrupt Driven Context Switch
- - Interrupt occurs (timer or I/O0
+ - Interrupt occurs (timer or I/O)
  - Each interrupt has its own service procedure (address given by interrupt vector)
  - Save some context and then jump to interrupt service procedure
  - **Scheduler** might context switch after the interrupt is serviced
@@ -98,10 +103,15 @@ How would you force a process to give up the processor to another process?
  4. Assembly language procedure sets up new stack.
  5. C interrupt service runs (typically reads and buffers input).
  6. Scheduler decides which process is to run next.
- 7. C prodecure returns to the assembly code.
+ 7. C procedure returns to the assembly code.
  8. Assembly language procedure starts up new current process.
 
 ## Some Questions
- - Why can't we voluntarily change to privleged (kernel) mode?
- - Why do we need a separate kernel stack for each process?
- - Is the scheduler a separate process?
+<!---
+1. We don't trust user programs.
+2. Each process has its own info (task_struct) to keep track of
+3. No - it generally runs inside the kernel, but could be implemented as a process.
+-->
+> - Why can't we voluntarily change to privileged (kernel) mode?
+> - Why do we need a separate kernel stack for each process?
+> - Is the scheduler a separate process?
