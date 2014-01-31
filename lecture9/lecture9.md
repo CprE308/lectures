@@ -11,21 +11,11 @@
 
 # Threads
 
-## Steps in Making a System Call
-![](img/system_call.png)
-
- - There are 11 steps in making the system call
-
-    `read(fd,buffer,nbytes)`
-
 ## The need for Threads
  - Think Performance
     - High performance web server
     - Web Browser
  - Not able to (easily) overlap I/O and computation in a single process
-
-## Background Processing: Emacs
-Bad emacs clipart??
 
 ## Parallel Merge Sort
 ![](img/merge_sort.png)
@@ -33,10 +23,11 @@ Bad emacs clipart??
 ## Threads
  - Multiple "threads" of control within a single process
  - Threads share process address space
- - Why not use multiple processes?
-    - Process creation expensive
-    - Each process needs memory, lots of state
-    - We don't need all that...
+
+## Why not multiple processes?
+> - Process creation expensive
+> - Each process needs memory, lots of state
+> - We don't need all that...
 
 ## Process vs. Threads
 ![](img/process_v_thread.png)
@@ -65,12 +56,12 @@ Worker_thread(req) {
 ```
 
 ## Threads
- - Multiple threads in the same address space
-    - Each thread has its own stack, registers, program counter
- - All threads within a process share the same text (code) and data segment
+> - Multiple threads in the same address space
+>    - Each thread has its own stack, registers, program counter
+>  - All threads within a process share the same text (code) and data segment
 
 ## Process vs Threads
- - Creating a new thread 100 times chaper than creating a new process
+ - Creating a new thread 100 times cheaper than creating a new process
  - Switching between two threads also chaper
  - Thread = "Lightweight process"
 
