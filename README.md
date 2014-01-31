@@ -11,6 +11,7 @@ This repo contains all lecture slides for CprE 308 - Spring 2014.
 |   | Process Creation | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture6/lecture6.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture6/lecture6.pdf?raw=true) |
 | 3 | File System Interface | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture7/lecture7.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture7/lecture7.pdf?raw=true) |
 |   | Multiprogramming | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture8/lecture8.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture8/lecture8.pdf?raw=true) |
+|   | Threads Introduction | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture9/lecture9.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture9/lecture9.pdf?raw=true) |
 
 ------------
 
