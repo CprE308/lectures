@@ -71,7 +71,7 @@ int pthread_create(
   // The function writes the thread id in tid
   pthread_t *tid,
   // The addr. of a thread_attr object is passed in tattr
-  const pthread _attr_t *tattr,
+  const pthread_attr_t *tattr,
   // The thread runs a function passed in start_routine
   void* (* start_routine) (void*),
   // The start routine's arguments are passed with arg
@@ -81,10 +81,10 @@ int pthread_create(
 ## Creating a Thread
 ```c
 start_servers() {
-  pthread_t thread;
+  pthread_t thread[nr_of_server_threads];
   int i;
   for (i = 0; i < nr_of_server_threads; i++)
-    pthread_create(&thread, // thread ID
+    pthread_create(&thread[i], // thread ID
       0, // default attributes
       server, // start_routine
       argument); // argument
@@ -188,7 +188,7 @@ ret = pthread_create(&tid, &tattr, start_routine, arg);
 -->
  - The attributes of a thread are held in a thread attribute object, which is a struct defined in `pthread.h`
  - You can declare a pthread attribute in your code, but it can only be initialized or modified by the following functions:
-    - `int pthread_attr_init(pthread_att_t *attr);`
+    - `int pthread_attr_init(pthread_attr_t *attr);`
     - `pthread_attr_setstackaddr();`
     - `pthread_attr_setstacksize();`
     - `pthread_attr_setdetachstate();`

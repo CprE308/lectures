@@ -161,7 +161,7 @@ pthread_t could be anything, on my system it's an unsigned long int
   <span class="co">// The function writes the thread id in tid</span>
   pthread_t *tid,
   <span class="co">// The addr. of a thread_attr object is passed in tattr</span>
-  <span class="dt">const</span> pthread _attr_t *tattr,
+  <span class="dt">const</span> pthread_attr_t *tattr,
   <span class="co">// The thread runs a function passed in start_routine</span>
   <span class="dt">void</span>* (* start_routine) (<span class="dt">void</span>*),
   <span class="co">// The start routine&#39;s arguments are passed with arg</span>
@@ -169,10 +169,10 @@ pthread_t could be anything, on my system it's an unsigned long int
 </section><section id="creating-a-thread" class="slide level2">
 <h1>Creating a Thread</h1>
 <pre class="sourceCode c"><code class="sourceCode c">start_servers() {
-  pthread_t thread;
+  pthread_t thread[nr_of_server_threads];
   <span class="dt">int</span> i;
   <span class="kw">for</span> (i = <span class="dv">0</span>; i &lt; nr_of_server_threads; i++)
-    pthread_create(&amp;thread, <span class="co">// thread ID</span>
+    pthread_create(&amp;thread[i], <span class="co">// thread ID</span>
       <span class="dv">0</span>, <span class="co">// default attributes</span>
       server, <span class="co">// start_routine</span>
       argument); <span class="co">// argument</span>
@@ -278,7 +278,7 @@ ret = pthread_create(&tid, &tattr, start_routine, arg);
 <li>The attributes of a thread are held in a thread attribute object, which is a struct defined in <code>pthread.h</code></li>
 <li>You can declare a pthread attribute in your code, but it can only be initialized or modified by the following functions:
 <ul>
-<li><code>int pthread_attr_init(pthread_att_t *attr);</code></li>
+<li><code>int pthread_attr_init(pthread_attr_t *attr);</code></li>
 <li><code>pthread_attr_setstackaddr();</code></li>
 <li><code>pthread_attr_setstacksize();</code></li>
 <li><code>pthread_attr_setdetachstate();</code></li>
