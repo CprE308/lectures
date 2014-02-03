@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <title>Lecture 10</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+    </style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 10</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">February 3, 2013</h3>
+</section>
+
+<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section><section id="todays-topics" class="slide level2">
+<h1>Today's Topics</h1>
+<ul>
+<li>Review</li>
+<li>Thread Starting</li>
+<li>Thread Attributes</li>
+<li>Thread Stopping</li>
+<li>Thread Examples</li>
+</ul>
+</section></section>
+<section><section id="review" class="titleslide slide level1"><h1>Review</h1></section><section id="threads" class="slide level2">
+<h1>Threads</h1>
+<ul>
+<li>Need to have multi-programming
+<ul>
+<li>Many processes executing in parallel</li>
+</ul></li>
+<li>Why not use multiple processes?
+<ul>
+<li>Process creation expensive</li>
+<li>Each process needs memory, lots of state</li>
+<li>We don't need all that...</li>
+</ul></li>
+<li>Multiple &quot;threads&quot; of control within a single process</li>
+<li>Threads share process address space</li>
+</ul>
+</section><section id="process-vs.-threads" class="slide level2">
+<h1>Process vs. Threads</h1>
+<figure>
+<img src="img/process_v_thread.png" />
+</figure>
+</section><section id="the-thread-model" class="slide level2">
+<h1>The Thread Model</h1>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Per process Items</th>
+<th style="text-align: left;">Per thread items</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Address space</td>
+<td style="text-align: left;">Program counter</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Global variables</td>
+<td style="text-align: left;">Registers</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Open files</td>
+<td style="text-align: left;">Stack</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Child processes</td>
+<td style="text-align: left;">State</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Pending alarms</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Signals and signal handlers</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Accounting information</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</section><section id="threads-1" class="slide level2">
+<h1>Threads</h1>
+<ul>
+<li><p>Threads = Parallelism within the same process</p></li>
+<li>Will the following benefit from multiple threads?
+<ul>
+<li>Multiplying huge matrices on a single processor</li>
+<li>The same problem on multiple processors</li>
+<li>UNIX Shell</li>
+</ul></li>
+</ul>
+</section></section>
+<section><section id="implementing-threads" class="titleslide slide level1"><h1>Implementing Threads</h1></section><section id="threads-standards" class="slide level2">
+<h1>Threads Standards</h1>
+<!---
+nptl -> Native POSIX Thread Library after Linux 2.6
+-->
+ 
+<ul>
+<li>The POSIX standard describes general thread behavior, and the functions which control threads
+<ul>
+<li>Individual operating systems are allowed some freedom in how threads are implemented, and hence how they behave</li>
+</ul></li>
+<li>POSIX 1003.4a -&gt; 1003.1c
+<ul>
+<li>variants</li>
+</ul></li>
+<li>Microsoft
+<ul>
+<li>Win32</li>
+</ul></li>
+</ul>
+</section><section id="create-a-pthread" class="slide level2">
+<h1>Create a pthread</h1>
+<!---
+pthread_t could be anything, on my system it's an unsigned long int
+-->
+ 
+<ul>
+<li>Use <code>pthread_create()</code> to add a new thread of control to the current process.</li>
+</ul>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> pthread_create(
+  <span class="co">// The function writes the thread id in tid</span>
+  pthread_t *tid,
+  <span class="co">// The addr. of a thread_attr object is passed in tattr</span>
+  <span class="dt">const</span> pthread _attr_t *tattr,
+  <span class="co">// The thread runs a function passed in start_routine</span>
+  <span class="dt">void</span>* (* start_routine) (<span class="dt">void</span>*),
+  <span class="co">// The start routine&#39;s arguments are passed with arg</span>
+  <span class="dt">void</span> *arg);</code></pre>
+</section><section id="creating-a-thread" class="slide level2">
+<h1>Creating a Thread</h1>
+<pre class="sourceCode c"><code class="sourceCode c">start_servers() {
+  pthread_t thread;
+  <span class="dt">int</span> i;
+  <span class="kw">for</span> (i = <span class="dv">0</span>; i &lt; nr_of_server_threads; i++)
+    pthread_create(&amp;thread, <span class="co">// thread ID</span>
+      <span class="dv">0</span>, <span class="co">// default attributes</span>
+      server, <span class="co">// start_routine</span>
+      argument); <span class="co">// argument</span>
+}
+
+<span class="dt">void</span> *server(<span class="dt">void</span> *arg) {
+  <span class="kw">while</span>(<span class="dv">1</span>) {
+    <span class="co">/* get and handle request */</span>
+  }
+}</code></pre>
+</section><section id="example" class="slide level2">
+<h1>Example</h1>
+<!---
+What's wrong with this example?  Multiple arguments, and thread ending
+-->
+<pre class="sourceCode c"><code class="sourceCode c">func(<span class="dt">int</span> r_in, <span class="dt">int</span> r_out, <span class="dt">int</span> l_in, <span class="dt">int</span> l_out) {
+  pthread_t in_thread, out_thread;
+
+  pthread_create(&amp;in_thread,
+    <span class="dv">0</span>,
+    incoming,
+    r_in, l_out);
+  pthread_create(&amp;out_thread,
+    <span class="dv">0</span>,
+    outgoing,
+    l_in, r_out);
+}</code></pre>
+</section><section id="complications" class="slide level2">
+<h1>Complications</h1>
+<pre class="sourceCode c"><code class="sourceCode c">func(<span class="dt">int</span> r_in, <span class="dt">int</span> r_out, <span class="dt">int</span> l_in, <span class="dt">int</span> l_out) {
+  pthread_t in_thread, out_thread;
+
+  pthread_create(&amp;in_thread,
+    <span class="dv">0</span>,
+    incoming,
+    r_in, l_out);  <span class="co">// Can&#39;t do this ...</span>
+  pthread_create(&amp;out_thread,
+    <span class="dv">0</span>,
+    outgoing,
+    l_in, r_out); <span class="co">// Can&#39;t do this ...</span>
+  <span class="co">/* How do we wait till they&#39;re done? */</span>
+}</code></pre>
+</section><section id="multiple-arguments" class="slide level2">
+<h1>Multiple Arguments</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">typedef</span> <span class="kw">struct</span> {
+  <span class="dt">int</span> first, second;
+} two_ints_t;
+
+func(<span class="dt">int</span> r_in, <span class="dt">int</span> r_out, <span class="dt">int</span> l_in, <span class="dt">int</span> l_out) {
+  pthread_t in_thread, out_thread;
+  two_ints_t in={r_in, l_out}, out={l_in, r_out};
+  pthread_create(&amp;in_thread,
+    <span class="dv">0</span>,
+    incoming,
+    &amp;in);                       
+  ...
+}</code></pre>
+</section></section>
+<section><section id="thread-attributes" class="titleslide slide level1"><h1>Thread Attributes</h1></section><section id="thread-attributes-1" class="slide level2">
+<h1>Thread attributes</h1>
+<!---
+In linux, there is no PTHREAD_SCOPE_PROCESS, so PTHREAD_SCOPE_SYSTEM is used, such that every thread is scheduled as if it were a process by the scheduler.
+
+Will talk about detaching more later when we talk about ending threads.
+-->
+
+<p>Some POSIX thread (pthread) attributes include:</p>
+<ul>
+<li>A thread may have local or global scope of contention
+<ul>
+<li>That is, it may compete with all threads in the system for CPU time, or it may compete only with threads in the same task (process)</li>
+</ul></li>
+<li>A thread has a priority for scheduling
+<ul>
+<li>Threads may use several scheduling methods, some of which use priority</li>
+</ul></li>
+<li>A thread may be detached
+<ul>
+<li>Only non-detached threads may be joined</li>
+<li><code>join</code> is to wait as thread is to process</li>
+</ul></li>
+</ul>
+</section><section id="the-thread-attribute-object" class="slide level2">
+<h1>The thread attribute object</h1>
+<!---
+pthread_attr_t tattr;
+pthread_t tid;
+void *start_routine;
+void arg
+int ret;
+
+// initialized with default attributes
+ret = pthread_attr_init(&tattr);
+
+// call an appropriate functions to alter a default value
+ret = pthread_attr_*(&tattr,SOME_ATRIBUTE_VALUE_PARAMETER);
+
+// create the thread
+ret = pthread_create(&tid, &tattr, start_routine, arg);
+-->
+ 
+<ul>
+<li>The attributes of a thread are held in a thread attribute object, which is a struct defined in <code>pthread.h</code></li>
+<li>You can declare a pthread attribute in your code, but it can only be initialized or modified by the following functions:
+<ul>
+<li><code>int pthread_attr_init(pthread_att_t *attr);</code></li>
+<li><code>pthread_attr_setstackaddr();</code></li>
+<li><code>pthread_attr_setstacksize();</code></li>
+<li><code>pthread_attr_setdetachstate();</code></li>
+</ul></li>
+</ul>
+</section><section id="the-thread-attribute-object-cont" class="slide level2">
+<h1>The thread attribute object (cont)</h1>
+<ul>
+<li>Creating a thread using a <code>NULL</code> attribute argument has the same effect as using a default attribute:
+<ul>
+<li>Non-detached (joinable)</li>
+<li>With a default stack and stack size</li>
+<li>With the parent's priority</li>
+</ul></li>
+<li>To create threads with other attributes, the generating attribute object must be modified using the <code>pthread_attr_set</code> functions</li>
+</ul>
+</section><section id="thread-attributes-2" class="slide level2">
+<h1>Thread Attributes</h1>
+<pre class="sourceCode c"><code class="sourceCode c">pthread_t thread;
+pthread_attr_t thr_attr;
+
+pthread_attr_init(&amp;thr_attr);
+
+...
+<span class="co">/* establish some attributes */</span>
+...
+pthread_create(&amp;thread, &amp;thr_attr, startroutine, arg);
+...</code></pre>
+<p>Contrast this approach vs providing a long list of parameters</p>
+</section><section id="stack-size" class="slide level2">
+<h1>Stack Size</h1>
+<pre class="sourceCode c"><code class="sourceCode c">pthread_t thread;
+pthread_attr_t thr_attr;
+
+pthread_attr_init(&amp;thr_attr);
+pthread_attr_setstacksize(&amp;thr_attr, <span class="dv">20</span>*<span class="dv">1024</span>*<span class="dv">1024</span>);
+...
+pthread_create(&amp;thread, &amp;thr_attr, startroutine, arg);
+...</code></pre>
+</section><section id="scheduling-policy" class="slide level2">
+<h1>Scheduling policy</h1>
+<!---
+Example, even though this is the default.
+-->
+<pre><code>/* set the scheduling policy to SCHED_OTHER */
+pthread_attr_init(&amp;thr_attr);
+ret = pthread_attr_setschedpolicy(&amp;thr_attr, SCHED_OTHER);
+pthread_create(&amp;thread, &amp;thr_attr, startroutine, arg);</code></pre>
+</section></section>
+<section><section id="ending-threads" class="titleslide slide level1"><h1>Ending threads</h1></section><section id="something-wrong-with-this" class="slide level2">
+<h1>Something wrong with this</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">void</span> func(<span class="dt">int</span> r_in, <span class="dt">int</span> r_out, <span class="dt">int</span> l_in, <span class="dt">int</span> l_out)
+{
+  pthread_t in_thread, out_thread;
+  two_ints_t in = {r_in, l_out}, out={l_in, r_out};
+
+  pthread_create(&amp;in_thread, <span class="dv">0</span>, incoming, &amp;in);
+  pthread_create(&amp;out_thread, <span class="dv">0</span>, outgoing, &amp;out);
+
+  <span class="kw">return</span>;
+}</code></pre>
+</section><section id="when-is-it-done" class="slide level2">
+<h1>When Is It Done?</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">void</span> func(<span class="dt">int</span> r_in, <span class="dt">int</span> r_out, <span class="dt">int</span> l_in, <span class="dt">int</span> l_out)
+{
+  pthread_t in_thread, out_thread;
+  two_ints_t in = {r_in, l_out}, out={l_in, r_out};
+
+  pthread_create(&amp;in_thread, <span class="dv">0</span>, incoming, &amp;in);
+  pthread_create(&amp;out_thread, <span class="dv">0</span>, outgoing, &amp;out);
+
+  pthread_join(in_thread, <span class="dv">0</span>);
+  pthread_join(out_thread, <span class="dv">0</span>);
+}</code></pre>
+</section><section id="waiting-for-pthreads" class="slide level2">
+<h1>Waiting for pthreads</h1>
+<ul>
+<li>Use <code>pthread_join()</code> to wait for a thread to terminate.</li>
+<li><p>Prototype:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> pthread_join(
+  thread_t tid,
+  <span class="dt">void</span> **status);</code></pre></li>
+<li>The <code>pthread_join()</code> function blocks the calling thread until the thread specified by <code>tid</code> terminates. The specified thread must be
+<ul>
+<li>in the current process, and</li>
+<li>non-detached</li>
+</ul></li>
+</ul>
+</section><section id="waiting-for-pthreads-cont" class="slide level2">
+<h1>Waiting for pthreads (cont)</h1>
+<ul>
+<li>The exit status of the thread specified by <code>tid</code> is written to <code>status</code> when <code>pthread_join()</code> returns successfully.</li>
+<li>Multiple threads cannot wait for the same thread to terminate. If they try to, one thread returns successfully and the others fall with an error of <code>ESRCH</code></li>
+</ul>
+</section><section id="termination" class="slide level2">
+<h1>Termination</h1>
+<p><code>pthread_exit((void *) value);</code></p>
+<p><code>return((void*) value);</code></p>
+<p><code>pthread_join(thread, (void**) &amp;value);</code></p>
+</section><section id="finishing-up" class="slide level2">
+<h1>Finishing Up</h1>
+<ul>
+<li>An important special case arises when the initial thread - the one calling <code>main()</code> - returns from <code>main()</code> or calls <code>exit()</code>.</li>
+<li>This action causes the entire process to terminate, along with all its threads. So take care to ensure that the initial thread does not return from <code>main()</code> prematurely.</li>
+<li>Note that when the main thread merely calls <code>pthread_exit()</code> it terminates only itself - the other threads in the process, as well as the process, continue to exist
+<ul>
+<li>The process terminates when all its threads terminates.</li>
+</ul></li>
+</ul>
+</section><section id="detached-threads" class="slide level2">
+<h1>Detached Threads</h1>
+<pre class="sourceCode c"><code class="sourceCode c">start_servers() {
+  pthread_t thread;
+  <span class="dt">int</span> t;
+  <span class="kw">for</span> ( i=<span class="dv">0</span>; i &lt; nr_of_server_threads; i++) {
+    pthread_create(&amp;thread, <span class="dv">0</span>, server, <span class="dv">0</span>);
+    pthread_detach(thread);
+  }
+  ...
+}
+
+server() {
+  ...
+}</code></pre>
+</section></section>
+<section><section id="examples" class="titleslide slide level1"><h1>Examples</h1></section><section id="example-1" class="slide level2">
+<h1>Example 1</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#include &lt;stdio.h&gt;</span>
+<span class="ot">#include &lt;pthread.h&gt;</span>
+<span class="ot">#include &lt;string.h&gt;</span>
+<span class="ot">#define M 3</span>
+<span class="ot">#define N 4</span>
+<span class="ot">#define P 5</span>
+
+<span class="dt">int</span> A[M][N];
+<span class="dt">int</span> B[N][P];
+<span class="dt">int</span> C[M][P];
+
+<span class="dt">void</span> *matmult(<span class="dt">void</span> *);</code></pre>
+</section><section id="example-pt-2" class="slide level2">
+<h1>Example pt 2</h1>
+<pre class="sourceCode c"><code class="sourceCode c">main() {
+  <span class="dt">int</span> i,error; pthread_t thr[M];
+  <span class="co">/* initialize the matrices ... */</span>
+  <span class="kw">for</span>( i=<span class="dv">0</span>; i&lt;M; i++) {  <span class="co">// create the worker threads</span>
+    <span class="kw">if</span> (error = pthread_create(
+        &amp;thr[i], <span class="dv">0</span>, matmult, (<span class="dt">void</span> *)i)) {
+      fprintf(stderr, <span class="st">&quot;pthread_create: %s&quot;</span>, strerror(error));
+      exit(<span class="dv">1</span>);
+    }
+  }
+  <span class="kw">for</span>( i=<span class="dv">0</span>; i&lt;M; i++) <span class="co">// wait for workers to finish jobs</span>
+    pthread_join(thr[i],<span class="dv">0</span>);
+  <span class="co">/* print the results ... */</span>
+} <span class="co">// end main</span></code></pre>
+</section><section id="example-pt-3" class="slide level2">
+<h1>Example pt 3</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">void</span> *matmult(<span class="dt">void</span> *arg) {
+  <span class="dt">int</span> row = (<span class="dt">int</span>) arg;
+  <span class="dt">int</span> col;
+  <span class="dt">int</span> i;
+  <span class="dt">int</span> t;
+
+  <span class="kw">for</span>(col=<span class="dv">0</span>; col &lt; P; col++) {
+    t=<span class="dv">0</span>;
+    <span class="kw">for</span>( i=<span class="dv">0</span>; i&lt;N; i++)
+      t += A[row][i] * B[i][col];
+    C[row][col] = t;
+  }
+  <span class="kw">return</span>(<span class="dv">0</span>);
+}</code></pre>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
