@@ -390,6 +390,11 @@ pthread_create(&amp;thread, &amp;thr_attr, startroutine, arg);</code></pre>
 </ul>
 </section><section id="detached-threads" class="slide level2">
 <h1>Detached Threads</h1>
+<!---
+Can also use: 
+
+pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+-->
 <pre class="sourceCode c"><code class="sourceCode c">start_servers() {
   pthread_t thread;
   <span class="dt">int</span> t;

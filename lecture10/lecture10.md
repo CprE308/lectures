@@ -299,6 +299,11 @@ int pthread_join(
     - The process terminates when all its threads terminates.
 
 ## Detached Threads
+<!---
+Can also use: 
+
+pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+-->
 ```c
 start_servers() {
   pthread_t thread;
