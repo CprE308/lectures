@@ -33,6 +33,13 @@
 A user-level threads package
 
 ## User Space
+<!---
+In theory, can use select call to see if system call will block, but requires changes to libraries.
+
+Also, page faults: If instruction is not in memory, we have to get it from disk, thus blocking the entire process, not just the thread.
+
+Once a trap to system call occurs, it's not much work to switch threads.
+-->
  - Good:
     - Thread related actions are fast (no system calls)
     - Can be used in OSes which don't implement threads
@@ -98,6 +105,11 @@ Multiplexing user-level threads onto kernel-level threads
 | Signal wait| 37 | 441 | 1,840
 
 ## Threads Performance Observations
+<!---
+Info on Linux: Does not differentiate between processes/threads, everything is a schedulable task.
+
+Uses clone() system call, with different levels of sharing: CLONE_FILES, CLONE_VM (share memory space).
+-->
 > - While there is a significant speedup by using KLT multithreading compared to single-threaded processes, there is an additional speedup by using ULTs
 > - However, whether or not the additional speedup is realized depends on the nature of the applications involved
 > - If most of the thread switches require kerenel mode access, then ULT may not perform much better than KLT
