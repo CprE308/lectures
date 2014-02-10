@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <meta name="dcterms.date" content="2013-02-10" />
+  <title>Lecture 13</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+    </style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 13</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">February 10, 2013</h3>
+</section>
+
+<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section><section id="todays-topics" class="slide level2">
+<h1>Today's Topics</h1>
+<ul>
+<li>Mutual Exclusion (Mutex)</li>
+<li>Implementing Mutex</li>
+</ul>
+</section></section>
+<section><section id="threads-and-mutual-exclusion" class="titleslide slide level1"><h1>Threads and Mutual Exclusion</h1></section><section id="threads-and-mutual-exclusion-1" class="slide level2">
+<h1>Threads and Mutual Exclusion</h1>
+<!---
+What is result of this code?
+Load, Add, Store
+-->
+ 
+<ul>
+<li><p>Thread 1</p>
+<pre class="sourceCode c"><code class="sourceCode c">x = x + <span class="dv">1</span>;
+  <span class="co">/*</span>
+<span class="co">    ld  r1,x</span>
+<span class="co">    add r1,1</span>
+<span class="co">    st  r1,x</span>
+<span class="co">  */</span></code></pre></li>
+<li><p>Thread 2</p>
+<pre class="sourceCode c"><code class="sourceCode c">x = x + <span class="dv">1</span>;
+  <span class="co">/* same assembly code  */</span></code></pre></li>
+</ul>
+<div class="fragment">
+<p>Final value of x could be 1 or 2 depending on the interleaving</p>
+</div>
+</section><section id="protect-shared-variables" class="slide level2">
+<h1>Protect Shared Variables</h1>
+<!---
+Atomic: Can't (shouldn't) be broken down further, all or nothing.  Appears to rest of system as happening at the same time.
+-->
+ 
+<ul>
+<li>If written by many threads, then:
+<ul>
+<li>Each write should be &quot;atomic&quot;</li>
+<li>Ensure other threads don't interfere with a <em>sequence of instructions</em></li>
+<li>A mutex of a &quot;lock&quot; associated with this variable</li>
+</ul></li>
+</ul>
+</section><section id="protect-shared-variables-1" class="slide level2">
+<h1>Protect Shared Variables</h1>
+<ul>
+<li><p>Thread 1</p>
+<pre class="sourceCode c"><code class="sourceCode c">lock(mutex);
+x = x + <span class="dv">1</span>;
+unlock(mutex);</code></pre></li>
+<li><p>Thread 2</p>
+<pre class="sourceCode c"><code class="sourceCode c">lock(mutex);
+x = x + <span class="dv">1</span>;
+unlock(mutex);</code></pre></li>
+</ul>
+</section><section id="does-this-need-mutual-exclusion" class="slide level2">
+<h1>Does this need mutual exclusion?</h1>
+<ul>
+<li><p>Thread 1</p>
+<pre class="sourceCode c"><code class="sourceCode c">my_balance = my_balance + <span class="dv">1</span>;
+your_balance = your_balance - <span class="dv">1</span>;</code></pre></li>
+<li><p>Thread 2</p>
+<pre class="sourceCode c"><code class="sourceCode c">total = my_balance + your_balance;</code></pre></li>
+</ul>
+<div class="fragment">
+<p>Yes. Interleaving may cause thread 2 to see an inconsistent state.</p>
+</div>
+</section><section id="do-we-need-mutual-exclusion" class="slide level2">
+<h1>Do we need mutual exclusion?</h1>
+<ul>
+<li><p>Thread 1</p>
+<pre class="sourceCode c"><code class="sourceCode c">x = x + <span class="dv">1</span>;</code></pre></li>
+<li><p>Thread 2</p>
+<pre class="sourceCode c"><code class="sourceCode c">y = x;</code></pre></li>
+</ul>
+<div class="fragment">
+<p>No. Since the reads and writes are atomic.</p>
+</div>
+</section><section id="code-with-the-mutex" class="slide level2">
+<h1>Code with the mutex</h1>
+<p>Mutex <code>b_mutex</code> protects <code>my_balance</code> and <code>your_balance</code></p>
+<ul>
+<li><p>Thread 1</p>
+<pre class="sourceCode c"><code class="sourceCode c">lock(b_mutex);
+my_balance = my_balance + <span class="dv">1</span>;
+your_balance = your_balance - <span class="dv">1</span>;
+unlock(b_mutex);</code></pre></li>
+<li><p>Thread 2</p>
+<pre class="sourceCode c"><code class="sourceCode c">lock(b_mutex);
+total = my_balance + your_balance;
+unlock(b_mutex);</code></pre></li>
+</ul>
+</section><section id="mutex-and-critical-section" class="slide level2">
+<h1>Mutex and Critical Section</h1>
+<p>Only one thread can be in the critical section at a time</p>
+<ul>
+<li><p>Thread 1</p>
+<pre class="sourceCode c"><code class="sourceCode c">Enter_Mutex();
+Critical_Section();
+Exit_Mutex();</code></pre></li>
+<li><p>Thread 2</p>
+<pre class="sourceCode c"><code class="sourceCode c">Enter_Mutex();
+Critical_Section();
+Exit_Mutex();</code></pre></li>
+</ul>
+</section></section>
+<section><section id="implementing-mutex" class="titleslide slide level1"><h1>Implementing Mutex</h1></section><section id="our-problem" class="slide level2">
+<h1>Our Problem</h1>
+<!---
+Put criteria on board.
+-->
+ 
+<ul>
+<li>How to implement <code>enter_mutex()</code> and <code>exit_mutex()</code>?
+<ul>
+<li>User space (no OS support)</li>
+<li>Inside the kernel</li>
+</ul></li>
+<li>Solution should satisfy
+<ul>
+<li>No two threads in the critical region at the same time</li>
+</ul></li>
+</ul>
+</section><section id="software-user-space-solution-1" class="slide level2">
+<h1>Software (user space) Solution 1</h1>
+<!---
+Won't work - we still have the same issues.  Both processes might read 'busy' as 0 and think they're good at the same time, and then both set it to 1 and enter critical section together.
+-->
+
+<pre class="sourceCode c"><code class="sourceCode c">Enter Mutex:
+    <span class="kw">while</span> (busy == <span class="dv">1</span>);
+    busy = <span class="dv">1</span>;
+Critical Section:
+    account_balance++;
+Exit Mutex:
+    busy = <span class="dv">0</span>;</code></pre>
+<p><code>busy</code> is a (shared) global variable.</p>
+<div class="fragment">
+<ul>
+<li>No good, why?</li>
+</ul>
+</div>
+</section><section id="software-user-space-solution-2" class="slide level2">
+<h1>Software (user space) Solution 2</h1>
+<ul>
+<li><p>Thread 1</p>
+<pre class="sourceCode c"><code class="sourceCode c">Enter Mutex:
+    <span class="kw">while</span> (turn == <span class="dv">2</span>);
+Critical Section:
+Exit Mutex:
+    turn = <span class="dv">2</span>;</code></pre></li>
+<li><p>Thread 2</p>
+<pre class="sourceCode c"><code class="sourceCode c">Enter Mutex:
+    <span class="kw">while</span> (turn == <span class="dv">1</span>);
+Critical Section:
+Exit Mutex:
+    turn = <span class="dv">1</span>;</code></pre></li>
+</ul>
+<p><code>turn</code> is a (shared) global variable.</p>
+</section><section id="problems-with-solution-2" class="slide level2">
+<h1>Problems with Solution 2</h1>
+<ul>
+<li>Threads have to strictly alternate</li>
+<li>One thread wanting to enter the critical section might have to wait for another which does not want to</li>
+</ul>
+</section><section id="problem-statement-refined" class="slide level2">
+<h1>Problem Statement Refined</h1>
+<p>A solution to mutual exclusion should satisfy four conditions:</p>
+<ol type="1">
+<li>No two processes simultaneously in critical region</li>
+<li>No assumptions made about speeds of CPUs</li>
+<li>No process running outside its critical region may block another process</li>
+<li>No process must wait forever to enter its critical region</li>
+</ol>
+</section><section id="concurrent-threads" class="slide level2">
+<h1>Concurrent Threads</h1>
+<!---
+Simple example of something that needs to work - v should be 0 at the end.
+-->
+<p>Initially, <code>v=0</code>.</p>
+<ul>
+<li><p>Thread 1:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">for</span>(i = <span class="dv">0</span>; i&lt; <span class="dv">10</span>; i++)
+  v = v<span class="dv">+1</span></code></pre></li>
+<li><p>Thread 2:</p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">for</span>(i = <span class="dv">0</span>; i&lt; <span class="dv">10</span>; i++)
+  v = v<span class="dv">-1</span></code></pre></li>
+</ul>
+</section><section id="solutions-to-mutual-exclusion" class="slide level2">
+<h1>Solutions to Mutual Exclusion</h1>
+<ul>
+<li>Dekker's Algorithm - 1960's</li>
+<li>Peterson's Algorithm - 1981</li>
+<li>Hardware support (TSL)</li>
+</ul>
+</section><section id="petersons-solution" class="slide level2">
+<h1>Peterson's Solution</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#define FALSE 0</span>
+<span class="ot">#define TRUE 1</span>
+<span class="ot">#define N 2</span>
+
+<span class="dt">int</span> turn;
+<span class="dt">int</span> interested[N];</code></pre>
+</section><section id="petersons-solution-cont." class="slide level2">
+<h1>Peterson's Solution (cont.)</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">void</span> enter_region(<span class="dt">int</span> process); <span class="co">/* 0 or 1 */</span>
+{
+  <span class="dt">int</span> other;
+  other = <span class="dv">1</span> - process;
+  interested[process] = TRUE; <span class="co">/* show interest */</span>
+  turn = process; <span class="co">/* set flag */</span>
+  <span class="kw">while</span> (turn == process &amp;&amp; interested[other] == TRUE)
+}
+
+<span class="dt">void</span> leave_region(<span class="dt">int</span> process) <span class="co">/* who is leaving */</span>
+{
+  interested[process] = FALSE; <span class="co">/* indicate departure */</span>
+}</code></pre>
+</section><section id="hardware-support-tsl" class="slide level2">
+<h1>Hardware Support: TSL</h1>
+<ul>
+<li>New Instruction: <code>TSL R, Lock</code>
+<ul>
+<li>TSL = &quot;Test and Set Lock&quot;</li>
+<li>R = register</li>
+<li>Lock = memory location</li>
+</ul></li>
+<li>Atomically (atomic = nothing can interfere)
+<ul>
+<li>Read Lock into R</li>
+<li>Store a non-zero value into Lock</li>
+</ul></li>
+</ul>
+</section><section id="mutual-exclusion-using-tsl" class="slide level2">
+<h1>Mutual Exclusion using TSL</h1>
+<!---
+Also, lock the memory bus
+-->
+<p>Hardware Support with <code>TSL</code> (Test and Set Lock) Instruction</p>
+<pre class="sourceCode c"><code class="sourceCode c">  TSL Reg, Lock</code></pre>
+<ul>
+<li>Copy value of memory location <code>Lock</code> into Register <code>Reg</code></li>
+<li>Simultaneously write non-zero value into <code>Lock</code></li>
+</ul>
+</section><section id="tsl-example" class="slide level2">
+<h1>TSL Example</h1>
+<!---
+Why is this different from other assembly code?  Only one instruction
+-->
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/* set lock to non-zero, proceed if it was 0 earlier */</span>
+enter_region:
+  TSL Reg, Lock <span class="co">/* Use TSL Instruction */</span>
+  <span class="kw">if</span> (Reg != <span class="dv">0</span>) then <span class="co">/* not the first to set to zero */</span>
+    Jump enter_region <span class="co">/* try again */</span>
+  <span class="co">/* else proceed */</span>
+
+<span class="co">/* Critical section */</span>
+<span class="co">/* Increment Account Balance */</span>
+
+exit_region:
+  Lock = <span class="dv">0</span></code></pre>
+</section><section id="problem" class="slide level2">
+<h1>Problem</h1>
+<ul>
+<li>Busy waiting</li>
+</ul>
+<div class="fragment">
+<ul>
+<li>Solution: yield to another thread if unable to lock first time</li>
+</ul>
+</div>
+</section><section id="eliminate-busy-waiting" class="slide level2">
+<h1>Eliminate Busy Waiting</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/* set lock to non-zero, proceed if it was 0 earlier */</span>
+enter_region:
+  TSL Reg, Lock <span class="co">/* Use TSL Instruction */</span>
+  <span class="kw">if</span> (Reg != <span class="dv">0</span>) then { <span class="co">/* not the first to set to zero */</span>
+    thread_yield(); <span class="co">/* let somebody else run */</span>
+    Jump enter_region <span class="co">/* try again */</span>
+  }
+    <span class="co">/* else proceed */</span>
+
+<span class="co">/* Critical section */</span>
+<span class="co">/* Increment Account Balance */</span>
+
+exit_region:
+  Lock = <span class="dv">0</span></code></pre>
+</section><section id="another-solution-disable-interrupts" class="slide level2">
+<h1>Another Solution: Disable Interrupts</h1>
+<!---
+Timer's can't go off, so only one thread will run
+-->
+ 
+<ul>
+<li>Disable interrupts during critical section
+<ul>
+<li>Prevent context switch</li>
+<li>Enable interrupts after critical section</li>
+</ul></li>
+<li>Good: No busy waiting</li>
+<li>Problems?</li>
+</ul>
+</section><section id="problem-1" class="slide level2">
+<h1>Problem</h1>
+<!---
+Kernel itself might disable interrupts for a few instructions.
+-->
+ 
+<ul>
+<li>Critical Section must be short
+<ul>
+<li>No multiprogramming possible during critical section</li>
+</ul></li>
+<li>Cannot trust users to have a short critical section</li>
+<li>Used inside the kernel for mutual exclusion</li>
+</ul>
+</section><section id="multiprocessors" class="slide level2">
+<h1>Multiprocessors</h1>
+<!---
+TSL works because we lock the memory bus.
+-->
+ 
+<ul>
+<li>Disabling Interrupts doesn't work
+<ul>
+<li>Preventing a context switch doesn't ensure that only one process is running</li>
+</ul></li>
+<li>Use hardware support: TSL
+<ul>
+<li>Usually multiprocessors come equipped with such instructions</li>
+</ul></li>
+</ul>
+</section><section id="disabling-interrupts-use-in-mutex_lock-uniprocessor-only" class="slide level2">
+<h1>Disabling Interrupts: Use in <code>mutex_lock</code> (uniprocessor only)</h1>
+<ul>
+<li>mutex is a data structure inside the kernel</li>
+<li><code>mutex_lock()</code> traps into the kernel
+<ul>
+<li>Disable interrupts</li>
+<li>Set Lock</li>
+<li>If(unsuccessful) then: enable interrupts, <code>thread_yield()</code>, try again</li>
+<li>Enable Interrupts</li>
+</ul></li>
+</ul>
+</section><section id="summary-of-mutex-implementations" class="slide level2">
+<h1>Summary of Mutex Implementations</h1>
+<ul>
+<li>Software Solution
+<ul>
+<li>General solution - works anywhere</li>
+</ul></li>
+<li>Disabling interrupts
+<ul>
+<li>Single processor only</li>
+<li>Use only in kernel mode</li>
+</ul></li>
+<li>Test and set lock
+<ul>
+<li>General solution - works on multiprocessors</li>
+<li>Be careful to avoid busy waiting</li>
+</ul></li>
+</ul>
+</section><section id="mutex-usage-in-posix-threads" class="slide level2">
+<h1>Mutex usage in POSIX Threads</h1>
+<pre class="sourceCode c"><code class="sourceCode c">pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
+<span class="co">// shared by both threads</span>
+
+<span class="dt">int</span> x; <span class="co">// also shared</span>
+
+pthread_mutex_lock(&amp;m);
+x = x + <span class="dv">1</span>;
+pthread_mutex_unlock(&amp;m);</code></pre>
+</section><section id="taking-multiple-locks" class="slide level2">
+<h1>Taking Multiple Locks</h1>
+<ul>
+<li><p>Thread 1</p>
+<pre class="sourceCode c"><code class="sourceCode c">proc1() {
+  pthread_mutex_lock(&amp;m1);
+  <span class="co">/* Use object 1 */</span>
+  pthread_mutex_lock(&amp;m2);
+  <span class="co">/* Use objects 1 and 2 */</span>
+  pthread_mutex_unlock(&amp;m2);
+  pthread_mutex_unlock(&amp;m1);
+}</code></pre></li>
+</ul>
+</section><section id="taking-multiple-locks-thread-2" class="slide level2">
+<h1>Taking Multiple Locks (Thread 2)</h1>
+<ul>
+<li><p>Thread 2</p>
+<pre class="sourceCode c"><code class="sourceCode c">proc2() {
+  pthread_mutex_lock(&amp;m2);
+  <span class="co">/* Use object 2 */</span>
+  pthread_mutex_lock(&amp;m1);
+  <span class="co">/* Use objects 1 and 2 */</span>
+  pthread_mutex_unlock(&amp;m1);
+  pthread_mutex_unlock(&amp;m2);
+}</code></pre></li>
+</ul>
+</section><section id="deadlock" class="slide level2">
+<h1>Deadlock</h1>
+<figure>
+<img src="img/deadlock.png" />
+</figure>
+</section><section id="dealing-with-deadlock" class="slide level2">
+<h1>Dealing with Deadlock</h1>
+<ul>
+<li>Hard
+<ul>
+<li>is the system deadlocked?</li>
+<li>will this move lead to deadlock?</li>
+</ul></li>
+<li>Easy
+<ul>
+<li>restrict use of mutexes so that deadlock can't happen</li>
+</ul></li>
+</ul>
+</section><section id="posix-mutexes" class="slide level2">
+<h1>POSIX mutexes</h1>
+<h3 id="man-pthread_mutex_init-on-your-linux-machine"><code>man pthread_mutex_init</code> on your Linux machine</h3>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> pthread_mutex_init(pthread_mutex_t *mutex,
+  <span class="dt">const</span> pthread_mutexattr_t  *mutexattr);
+<span class="dt">int</span> pthread_mutex_lock(pthread_mutex_t *mutex);
+<span class="dt">int</span> pthread_mutex_trylock(pthread_mutex_t *mutex);
+<span class="dt">int</span> pthread_mutex_unlock(pthread_mutex_t *mutex);
+<span class="dt">int</span> pthread_mutex_destroy(pthread_mutex_t *mutex);</code></pre>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
