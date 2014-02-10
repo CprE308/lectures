@@ -13,6 +13,8 @@ This repo contains all lecture slides for CprE 308 - Spring 2014.
 |   | Multiprogramming | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture8/lecture8.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture8/lecture8.pdf?raw=true) |
 |   | Threads Introduction | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture9/lecture9.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture9/lecture9.pdf?raw=true) |
 | 4 | Threads Implementation | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture10/lecture10.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture10/lecture10.pdf?raw=true) |
+|   | User and Kernel Threads | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture12/lecture12.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture12/lecture12.pdf?raw=true) |
+| 5 | Mutual Exclusion | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture13/lecture13.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture13/lecture13.pdf?raw=true) |
 
 ------------
 
