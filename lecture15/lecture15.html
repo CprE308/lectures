@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <meta name="dcterms.date" content="2013-02-14" />
+  <title>Lecture 15</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+    </style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 15</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">February 14, 2013</h3>
+</section>
+
+<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section><section id="recap" class="slide level2">
+<h1>Recap</h1>
+<ul>
+<li>Previously introduced Threads implementation</li>
+<li>Mentioned Deadlocks...</li>
+</ul>
+</section><section id="todays-topics" class="slide level2">
+<h1>Today's Topics</h1>
+<ul>
+<li>Producer Consumer</li>
+<li>Sleep and Wakeup</li>
+</ul>
+</section></section>
+<section><section id="producer-consumer" class="titleslide slide level1"><h1>Producer-Consumer</h1></section><section id="producer-consumer-1" class="slide level2">
+<h1>Producer-Consumer</h1>
+<figure>
+<img src="img/prod_cons.png" />
+</figure>
+<ul>
+<li>Mutual Exclusion</li>
+<li>Buffer Full</li>
+<li>Buffer Empty</li>
+</ul>
+</section><section id="how-is-this-solution" class="slide level2">
+<h1>How is this solution?</h1>
+<h3 id="section"></h3>
+<h4 id="section-1"></h4>
+<h5 id="producer">Producer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  item = produce();
+  insert(item,buffer);
+  count++;
+}</code></pre>
+<h4 id="section-2"></h4>
+<h5 id="consumer">Consumer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  item = remove(buffer);
+  count--;
+  consume(item);
+}</code></pre>
+</section><section id="how-about-this" class="slide level2">
+<h1>How about this?</h1>
+<!---
+Trying to add mutexes.  Prevents weird buffer accesses, but doesn't prevent filling buffer or trying to read from an empty buffer.
+-->
+<h3 id="section-3"></h3>
+<h4 id="section-4"></h4>
+<h5 id="producer-1">Producer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  item = produce();
+  lock(mutex);
+  insert(item,buffer);
+  count++;
+  unlock(mutex);
+}</code></pre>
+<h4 id="section-5"></h4>
+<h5 id="consumer-1">Consumer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  lock(mutex);
+  item = remove(buffer);
+  count--;
+  unlock(mutex);
+  consume(item);
+}</code></pre>
+</section><section id="producer-consumer-2" class="slide level2">
+<h1>Producer-Consumer</h1>
+<ul>
+<li>Cannot be solved by mutexes alone</li>
+<li>Need a way to block till some condition is satisfied
+<ul>
+<li>Condition variables (preferred with <code>pthreads</code>)</li>
+<li>Semaphores (not part of the <code>pthreads</code> package)</li>
+</ul></li>
+</ul>
+</section></section>
+<section><section id="sleep-and-wakeup" class="titleslide slide level1"><h1>Sleep and Wakeup</h1></section><section id="sleep-and-wakeup-variables" class="slide level2">
+<h1>Sleep and Wakeup Variables</h1>
+<h5 id="shared-variables">Shared Variables</h5>
+<ul>
+<li>count (number of items in buffer)</li>
+<li>buffer</li>
+<li>N (maximum size of buffer)</li>
+</ul>
+</section><section id="sleep-and-wakeup-example" class="slide level2">
+<h1>Sleep and Wakeup Example</h1>
+<!---
+Still not great: unrestricted buffer access.
+-->
+<h3 id="section-6"></h3>
+<h4 id="section-7"></h4>
+<h5 id="producer-2">Producer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  item = produce();
+  <span class="kw">if</span>(count==N)
+    sleep();
+  insert(item,buffer);
+  count++;
+  <span class="kw">if</span>(count==<span class="dv">1</span>)
+    wakeup(consumer);
+}</code></pre>
+<h4 id="section-8"></h4>
+<h5 id="consumer-2">Consumer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  <span class="kw">if</span>(count==<span class="dv">0</span>)
+    sleep();
+  item = remove(buffer);
+  count--;
+  <span class="kw">if</span>(count==N<span class="dv">-1</span>)
+    wakeup(producer)
+  consume(item);
+}</code></pre>
+</section><section id="sleep-and-wakeup-example-with-locks" class="slide level2">
+<h1>Sleep and Wakeup Example with Locks</h1>
+<!---
+Sleep/Wakeup not necessarily system calls, perhaps a library.
+
+This example is also bad.  If consumer reads 0 right before a context switch, the producer will insert an item and send a wakeup that isn't seen by the consumer.  The consumer then starts again, still sees zero, and sleeps.  The producer continues producing until the buffer fills up and then both sleep.
+
+Possible solution: wakeup waiting bit. In above scenario, producer sets bit to 1.  When consumer then sleeps, it turns bit off and stays awake.  "Piggy Bank" of staying awake.
+-->
+<h3 id="section-9"></h3>
+<h4 id="section-10"></h4>
+<h5 id="producer-3">Producer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  item = produce();
+  <span class="kw">if</span>(count==N)
+    sleep();
+  lock(mutex);
+  insert(item,buffer);
+  count++;
+  unlock(mutex);
+  <span class="kw">if</span>(count==<span class="dv">1</span>)
+    wakeup(consumer);
+}</code></pre>
+<h4 id="section-11"></h4>
+<h5 id="consumer-3">Consumer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  <span class="kw">if</span>(count==<span class="dv">0</span>)
+    sleep();
+  lock(mutex);
+  item = remove(buffer);
+  count--;
+  unlock(mutex);
+  <span class="kw">if</span>(count==N<span class="dv">-1</span>)
+    wakeup(producer)
+  consume(item);
+}</code></pre>
+</section></section>
+<section><section id="semaphores" class="titleslide slide level1"><h1>Semaphores</h1></section><section id="semaphore-interface" class="slide level2">
+<h1>Semaphore: Interface</h1>
+<!---
+Down (P) -> sleep - like checking the wakeup bit
+Up (V) -> Wakeup - like telling the other process to wakeup, adding to the 'piggy bank'
+-->
+<h3 id="section-12"></h3>
+<h4 id="section-13"></h4>
+<ul>
+<li>S: Integer value</li>
+<li><p><code>Down(S)</code>:</p>
+<pre class="sourceCode c"><code class="sourceCode c">when(S&gt;<span class="dv">0</span>)
+  S = S - <span class="dv">1</span>;</code></pre></li>
+<li><p><code>Up(S)</code>:</p>
+<pre class="sourceCode c"><code class="sourceCode c">S = S + <span class="dv">1</span>;</code></pre></li>
+</ul>
+<h4 id="section-14"></h4>
+<h5 id="section-15"></h5>
+<ul>
+<li>Atomic actions</li>
+<li>Down might block</li>
+<li>Up never blocks</li>
+</ul>
+</section><section id="semaphore-implementation" class="slide level2">
+<h1>Semaphore: Implementation</h1>
+<!---
+Disable interrupts in kernel for implementation.  Will be short, so okay.
+-->
+<p><code>Down(S)</code></p>
+<ul>
+<li><code>If(S=0)</code> then
+<ul>
+<li>Suspend thread, put into a waiting queue</li>
+<li>Schedule another thread to run</li>
+</ul></li>
+<li>Else decrement <code>S</code> and return</li>
+</ul>
+<p><code>Up(S)</code></p>
+<ul>
+<li>Increment <code>S</code></li>
+<li>If any threads in waiting queue, then
+<ul>
+<li>release one of them (make it runnable)</li>
+</ul></li>
+</ul>
+<p>Both the above are done <strong>atomically</strong></p>
+</section><section id="producer-consumer-using-semaphores" class="slide level2">
+<h1>Producer Consumer using Semaphores</h1>
+<h5 id="shared-variables-1">Shared Variables</h5>
+<ul>
+<li>count (number of items in buffer)</li>
+<li>buffer</li>
+<li>N (maximum size of buffer)</li>
+</ul>
+<h5 id="semaphores-1">Semaphores</h5>
+<ul>
+<li>Empty - semaphore initialized to N (number of free slots in buffer)</li>
+<li>Full - semaphore initialized to zero (number of items in buffer)</li>
+</ul>
+</section><section id="producer-consumer-using-semaphores-example" class="slide level2">
+<h1>Producer Consumer using Semaphores (Example)</h1>
+<h3 id="section-16"></h3>
+<h4 id="section-17"></h4>
+<h5 id="producer-4">Producer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  item = produce();
+  down(Empty);
+  lock(mutex);
+  insert(item,buffer);
+  count++;
+  unlock(mutex);
+  up(Full);
+}</code></pre>
+<h4 id="section-18"></h4>
+<h5 id="consumer-4">Consumer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  down(Full);
+  lock(mutex);
+  item = remove(buffer);
+  count--;
+  unlock(mutex);
+  up(Empty);
+  consume(item);
+}</code></pre>
+</section><section id="blocking-mutex---special-case-of-semaphore" class="slide level2">
+<h1>(Blocking) Mutex - Special case of Semaphore</h1>
+<ul>
+<li>Initialize Semaphore <code>S=1</code></li>
+<li>Lock Mutex = <code>Down(S)</code></li>
+<li>Unlock Mutex = <code>Up(S)</code></li>
+<li>One Difference:
+<ul>
+<li>With <code>pthread_mutexes</code>, only the thread which currently holds the lock can unlock it</li>
+<li>Semaphores have no such restriction</li>
+</ul></li>
+</ul>
+</section><section id="example-game" class="slide level2">
+<h1>Example (Game)</h1>
+<ul>
+<li>Computer Game with multiple players</li>
+<li>Not more than 2 players in a room</li>
+<li>Semaphore <code>S</code>, initialize <code>S=2</code></li>
+<li>Player executes
+<ul>
+<li><code>Down(S)</code> before entering</li>
+<li><code>Up(S)</code> while leaving</li>
+</ul></li>
+</ul>
+</section><section id="producer-consumer-using-semaphores-with-mutexes" class="slide level2">
+<h1>Producer Consumer using Semaphores with Mutexes</h1>
+<h3 id="section-19"></h3>
+<h4 id="section-20"></h4>
+<h5 id="producer-5">Producer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  item = produce();
+  down(Empty);
+  down(mutex);
+  insert(item,buffer);
+  up(mutex);
+  up(Full);
+}</code></pre>
+<h4 id="section-21"></h4>
+<h5 id="consumer-5">Consumer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  down(Full);
+  down(mutex);
+  item = remove(buffer);
+  up(mutex);
+  up(Empty);
+  consume(item);
+}</code></pre>
+</section><section id="example-web-server" class="slide level2">
+<h1>Example (Web Server)</h1>
+<ul>
+<li>Web Server can handle only 10 threads at a time
+<ul>
+<li>Multiple points where threads are being created</li>
+<li>How to ensure no more than 10 active threads?</li>
+</ul></li>
+</ul>
+<div class="fragment">
+<ul>
+<li>Semaphore with initial value = 10
+<ul>
+<li><code>Down()</code> before thread creation</li>
+<li><code>Up()</code> once thread finishes</li>
+</ul></li>
+</ul>
+</div>
+</section><section id="posix-semaphores" class="slide level2">
+<h1>POSIX Semaphores</h1>
+<h5 id="man-sem_overview"><code>man sem_overview</code></h5>
+<ul>
+<li><code>int sem_init(sem_t *sem, int pshared, unsigned int value);</code></li>
+<li><code>int sem_wait(sem_t *sem); /* decrement */</code></li>
+<li><code>int sem_trywait(sem_t *sem);</code></li>
+<li><code>int sem_post(sem_t *sem); /* increment */</code></li>
+<li><code>int sem_getvalue(sem_t *sem, int *sval);</code></li>
+<li><code>int sem_destroy(sem_t *sem);</code></li>
+</ul>
+</section><section id="question" class="slide level2">
+<h1>Question</h1>
+<ul>
+<li>What if we changed the order of <code>lock()</code> and <code>down()</code> in producer/consumer example?</li>
+</ul>
+</section><section id="switching-lock-and-down" class="slide level2">
+<h1>Switching <code>lock()</code> and <code>down()</code></h1>
+<!---
+Why is order important?
+
+If consumer locks mutex first, it's possible that down actually sleeps on an empty buffer.  The producer would never be able to add anything to the buffer and we'd have deadlock.
+-->
+<h3 id="section-22"></h3>
+<h4 id="section-23"></h4>
+<h5 id="producer-6">Producer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  item = produce();
+  down(Empty);
+  lock(mutex);
+  insert(item,buffer);
+  count++;
+  unlock(mutex);
+  up(Full);
+}</code></pre>
+<h4 id="section-24"></h4>
+<h5 id="consumer-6">Consumer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  lock(mutex);
+  down(Full);
+  item = remove(buffer);
+  count--;
+  unlock(mutex);
+  up(Empty);
+  consume(item);
+}</code></pre>
+</section><section id="semaphore-example-implementing-wait-system-call" class="slide level2">
+<h1>Semaphore Example: Implementing <code>wait()</code> system call</h1>
+<ul>
+<li>Parent process does a <code>wait()</code> system call on child
+<ul>
+<li>wait till child finishes before exiting</li>
+</ul></li>
+<li>What if parent executed <code>wait()</code> after child exited?
+<ul>
+<li>wait should return immediately</li>
+</ul></li>
+</ul>
+</section><section id="solution-semaphore" class="slide level2">
+<h1>Solution: Semaphore</h1>
+<ul>
+<li>Semaphore <code>zombie</code>: initialize to 0</li>
+<li>Parent: <code>down(zombie)</code> inside <code>wait()</code></li>
+<li>Child: <code>up(zombie)</code> upon exiting</li>
+</ul>
+</section></section>
+<section><section id="condition-variables" class="titleslide slide level1"><h1>Condition Variables</h1></section><section id="condition-variables-1" class="slide level2">
+<h1>Condition Variables</h1>
+<ul>
+<li>Allows a thread to wait till a condition is satisfied</li>
+<li>Testing if the condition must be done within a mutex</li>
+<li>With every condition variable, a mutex is associated</li>
+</ul>
+</section><section id="condition-variables-code" class="slide level2">
+<h1>Condition variables Code</h1>
+<!---
+Alternative to cond_signal is pthread_cond_broadcast(&condition_variable);
+-->
+ 
+<ul>
+<li><code>pthread_cond_t condition_variable</code></li>
+<li><code>pthread_mutex_t mutex;</code></li>
+</ul>
+<h3 id="section-25"></h3>
+<h4 id="section-26"></h4>
+<h5 id="waiting-thread">Waiting Thread</h5>
+<pre class="sourceCode c"><code class="sourceCode c">pthread_mutex_t(&amp;mutex);
+<span class="kw">while</span>(!cond. satisfied) {
+  pthread_cond_wait(
+    &amp;condition_variable,
+    &amp;mutex);
+}
+pthread_mutex_unlock(
+  &amp;mutex);</code></pre>
+<h4 id="section-27"></h4>
+<h5 id="signaling-thread">Signaling Thread</h5>
+<pre class="sourceCode c"><code class="sourceCode c">pthread_mutex_lock(&amp;mutex);
+<span class="co">/* change variable value */</span>
+<span class="kw">if</span>(cond. satisfied) {
+  pthread_cond_signal(
+    &amp;condition_variable);
+}
+pthread_mutex_unlock(
+  &amp;mutex);</code></pre>
+</section><section id="condition-variable-and-mutex" class="slide level2">
+<h1>Condition variable and mutex</h1>
+<ul>
+<li>A mutex is passed into wait: <code>pthread_cond_wait(cond_var,mutex)</code></li>
+<li>Mutex is released before t he thread sleeps</li>
+<li>Mutex is locked again before <code>pthread_cond_wait()</code> returns</li>
+<li>Safe to use <code>pthread_cond_wait()</code> in a while loop and check condition again before proceeding</li>
+</ul>
+</section><section id="example-usage" class="slide level2">
+<h1>Example Usage</h1>
+<ul>
+<li>Write a program using two threads
+<ul>
+<li>Thread 1 prints &quot;hello&quot;</li>
+<li>Thread 2 prints &quot;world&quot;</li>
+<li>Thread 2 should wait till thread 1 finishes before printing</li>
+</ul></li>
+<li>Use a condition variable</li>
+</ul>
+</section><section id="solved-using-condition-variables" class="slide level2">
+<h1>Solved using condition variables</h1>
+<h3 id="section-28"></h3>
+<h4 id="section-29"></h4>
+<h5 id="global">Global</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> thread1_done = <span class="dv">0</span>;
+pthread_cond_t cv;
+pthread_mutex_t mutex;</code></pre>
+<p>. . .</p>
+<h5 id="thread-1">Thread 1</h5>
+<pre class="sourceCode c"><code class="sourceCode c">printf(<span class="st">&quot;hello&quot;</span>);
+pthread_mutex_lock(&amp;mutex);
+thread1_done = <span class="dv">1</span>;
+pthread_cond_signal(cv);
+pthread_mutex_unlock(
+  &amp;mutex);</code></pre>
+<p>. . .</p>
+<h4 id="section-30"></h4>
+<h5 id="thread-2">Thread 2</h5>
+<pre class="sourceCode c"><code class="sourceCode c">pthread_mutex_lock(&amp;mutex);
+<span class="kw">while</span>(thread1_done == <span class="dv">0</span>) {
+  pthread_cond_wait(
+    &amp;cv, &amp;mutex);
+}
+printf(<span class="st">&quot; world</span><span class="ch">\n</span><span class="st">&quot;</span>);
+pthread_mutex_unlock(
+  &amp;mutex);</code></pre>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>

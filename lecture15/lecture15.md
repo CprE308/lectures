@@ -43,6 +43,9 @@ while(TRUE) {
 }
 ```
 ## How about this?
+<!---
+Trying to add mutexes.  Prevents weird buffer accesses, but doesn't prevent filling buffer or trying to read from an empty buffer.
+-->
 ###
 ####
 ##### Producer
@@ -82,6 +85,9 @@ while(TRUE) {
  - N (maximum size of buffer)
 
 ## Sleep and Wakeup Example
+<!---
+Still not great: unrestricted buffer access.
+-->
 ###
 ####
 ##### Producer
@@ -101,7 +107,7 @@ while(TRUE) {
 ```c
 while(TRUE) {
   if(count==0)
-    sleep;
+    sleep();
   item = remove(buffer);
   count--;
   if(count==N-1)
@@ -111,6 +117,13 @@ while(TRUE) {
 ```
 
 ## Sleep and Wakeup Example with Locks
+<!---
+Sleep/Wakeup not necessarily system calls, perhaps a library.
+
+This example is also bad.  If consumer reads 0 right before a context switch, the producer will insert an item and send a wakeup that isn't seen by the consumer.  The consumer then starts again, still sees zero, and sleeps.  The producer continues producing until the buffer fills up and then both sleep.
+
+Possible solution: wakeup waiting bit. In above scenario, producer sets bit to 1.  When consumer then sleeps, it turns bit off and stays awake.  "Piggy Bank" of staying awake.
+-->
 ###
 ####
 ##### Producer
@@ -132,7 +145,7 @@ while(TRUE) {
 ```c
 while(TRUE) {
   if(count==0)
-    sleep;
+    sleep();
   lock(mutex);
   item = remove(buffer);
   count--;
@@ -146,6 +159,10 @@ while(TRUE) {
 # Semaphores
 
 ## Semaphore: Interface
+<!---
+Down (P) -> sleep - like checking the wakeup bit
+Up (V) -> Wakeup - like telling the other process to wakeup, adding to the 'piggy bank'
+-->
 ###
 ####
  - S: Integer value
@@ -160,11 +177,15 @@ S = S + 1;
 ```
 
 ####
+#####
  - Atomic actions
  - Down might block
  - Up never blocks
 
 ## Semaphore: Implementation
+<!---
+Disable interrupts in kernel for implementation.  Will be short, so okay.
+-->
 `Down(S)`
 
  - `If(S=0)` then
@@ -235,6 +256,32 @@ while(TRUE) {
     - `Down(S)` before entering
     - `Up(S)` while leaving
 
+## Producer Consumer using Semaphores with Mutexes
+###
+####
+##### Producer
+```c
+while(TRUE) {
+  item = produce();
+  down(Empty);
+  down(mutex);
+  insert(item,buffer);
+  up(mutex);
+  up(Full);
+}
+```
+####
+##### Consumer
+```c
+while(TRUE) {
+  down(Full);
+  down(mutex);
+  item = remove(buffer);
+  up(mutex);
+  up(Empty);
+  consume(item);
+}
+```
 ## Example (Web Server)
  - Web Server can handle only 10 threads at a time
     - Multiple points where threads are being created
@@ -255,40 +302,15 @@ while(TRUE) {
  - `int sem_getvalue(sem_t *sem, int *sval);`
  - `int sem_destroy(sem_t *sem);`
 
-## Questions
+## Question
  - What if we changed the order of `lock()` and `down()` in producer/consumer example?
- - What if we changed the order of the `unlock()` and `up()`?
 
 ## Switching `lock()` and `down()`
-###
-####
-##### Producer
-```c
-while(TRUE) {
-  item = produce();
-  down(Empty);
-  lock(mutex);
-  insert(item,buffer);
-  count++;
-  unlock(mutex);
-  up(Full);
-}
-```
-####
-##### Consumer
-```c
-while(TRUE) {
-  lock(mutex);
-  down(Full);
-  item = remove(buffer);
-  count--;
-  unlock(mutex);
-  up(Empty);
-  consume(item);
-}
-```
+<!---
+Why is order important?
 
-## Switching `unlock()` and `up()`
+If consumer locks mutex first, it's possible that down actually sleeps on an empty buffer.  The producer would never be able to add anything to the buffer and we'd have deadlock.
+-->
 ###
 ####
 ##### Producer
@@ -307,12 +329,12 @@ while(TRUE) {
 ##### Consumer
 ```c
 while(TRUE) {
-  down(Full);
   lock(mutex);
+  down(Full);
   item = remove(buffer);
   count--;
-  up(Empty);
   unlock(mutex);
+  up(Empty);
   consume(item);
 }
 ```
@@ -392,6 +414,9 @@ int thread1_done = 0;
 pthread_cond_t cv;
 pthread_mutex_t mutex;
 ```
+
+. . .
+
 ##### Thread 1
 ```c
 printf("hello");
@@ -401,10 +426,13 @@ pthread_cond_signal(cv);
 pthread_mutex_unlock(
   &mutex);
 ```
+
+. . . 
+
 ####
 ##### Thread 2
 ```c
-pthread_mutex_lock(mutex);
+pthread_mutex_lock(&mutex);
 while(thread1_done == 0) {
   pthread_cond_wait(
     &cv, &mutex);
