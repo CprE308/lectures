@@ -15,6 +15,7 @@ This repo contains all lecture slides for CprE 308 - Spring 2014.
 | 4 | Threads Implementation | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture10/lecture10.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture10/lecture10.pdf?raw=true) |
 |   | User and Kernel Threads | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture12/lecture12.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture12/lecture12.pdf?raw=true) |
 | 5 | Mutual Exclusion | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture13/lecture13.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture13/lecture13.pdf?raw=true) |
+|   | Producer/Consumer | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture15/lecture15.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture15/lecture15.pdf?raw=true) |
 
 ------------
 
@@ -30,9 +31,12 @@ Each directory contains a different set of files:
 ### Compiling
 #### To compile reveal.js presentation:
     pandoc -t revealjs -s lectureX.md -o lectureX.html --slide-level 2 -V revealjs-url:../reveal.js --css ../slides.css
+    
 
 #### To compile PDF presentation:
     pandoc -t beamer -o lectureX.pdf lectureX.md --slide-level 2 -V theme:Berlin -V colortheme:beaver
+    
+Note: I currently use a custom version of pandoc to enable side-by-side columns: https://github.com/brianpeck/pandoc
 
 ### Viewing
 To view the slides in a browser, click the link in the above table.
