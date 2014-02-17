@@ -36,7 +36,7 @@ while(TRUE) {
   count++;
   unlock(mutex);
   up(Full);
-}
+
 ```
 ####
 ##### Consumer
