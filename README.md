@@ -16,6 +16,8 @@ This repo contains all lecture slides for CprE 308 - Spring 2014.
 |   | User and Kernel Threads | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture12/lecture12.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture12/lecture12.pdf?raw=true) |
 | 5 | Mutual Exclusion | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture13/lecture13.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture13/lecture13.pdf?raw=true) |
 |   | Producer/Consumer | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture15/lecture15.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture15/lecture15.pdf?raw=true) |
+| 6 | Readers/Writers | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture17/lecture17.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture17/lecture17.pdf?raw=true) |
+|   | Dining Philosophers | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture18/lecture18.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture18/lecture18.pdf?raw=true) |
 
 ------------
 
