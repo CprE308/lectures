@@ -6,7 +6,7 @@
 
 ## Review
  - Producer Consumer using Semaphores
- - Condition Variable
+ - Condition Variables
 
 ## Today's Topics
  - Dining Philosophers
@@ -94,35 +94,28 @@ proc2() {
 ## Dining Philosophers
 ![](img/philosophers.png)
 
-Problem: need two chopsticsk to eat
-
 ## First Pass at a Solution
- - One Mutex for each chopstick
+One Mutex for each chopstick
 
+ - Philosopher i:
 ```c
-Philosopher i:
-
 while(1) {
   Think();
-
   lock(Left_Chopstick);
   lock(Right_Chopstick);
-
   Eat();
-
   unlock(Left_Chopstick);
   unlock(Right_Chopstick);
 }
 ```
 
-## Results
-
 . . .
 
-*Deadlock!*
+##### Deadlock!
 
 ## One Possible Solution
- - Use a mutex for the whole dinner table
+Use a mutex for the whole dinner table
+
  - Philosopher i:
 ```c
 lock(table);
@@ -132,19 +125,18 @@ unlock(table);
 
 . . .
 
- - Performance Problem!
+##### Performance Problem!
 
 ## Another Solution
+ - Philosopher i:
 ```c
-Philosopher i:
   Think();
   unsuccessful = 1;
   while(unsuccessful) {
     lock(left_chopstick);
     if(try_lock(right_chopstick)) 
       unsuccessful = 0;
-    else 
-      unlock(left_chopstick);
+    else unlock(left_chopstick);
   }
   Eat();
   unlock(left_chopstick);
@@ -153,7 +145,7 @@ Philosopher i:
 
 . . . 
 
-Problem: starvation if unfavorable scheduling
+##### Starvation if unfavorable scheduling
 
 ## In Practice
  - Starvation will probably not occur
@@ -162,4 +154,45 @@ Problem: starvation if unfavorable scheduling
     - Unlikely that our random delays will be in sync too many times
 
 ## Solution with Random Delays
-TODO
+ - Philosopher i:
+```c
+  Think();
+  while(unsuccessful) {
+    wait(random());
+    lock(left_chopstick);
+    if(try_lock(right_chopstick)) 
+      unsuccessful = 0;
+    else unlock(left_chopstick);
+  }
+  Eat();
+  unlock(left_chopstick);
+  unlock(right_chopstick);
+}
+```
+
+## Another Solution?
+<!---
+Does this work?  For 3, 4, 5..?
+Works, but may have starvation, also unfairness
+-->
+Suppose two philosophers
+
+##### Philosopher 1:
+```c
+lock(left_chopstick);
+lock(right_chopstick);
+```
+##### Philosopher 2:
+```c
+lock(right_chopstick);
+lock(left_chopstick);
+```
+
+## Yet Another Solution Idea
+<!---
+Driven by states.
+-->
+ - Do not try to take forks one after another
+    - Don't have each fork protected by a different mutex
+ - Try to grab both forks at the same time
+ - Text has details (pg. 166)
