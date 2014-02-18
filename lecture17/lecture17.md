@@ -151,37 +151,40 @@ pthread_mutex_unlock(
 ##### Reader
 ```c
 while(1) {
-  down(protector)
+  down(&protector)
   rc++;
-  if(rc == 1) // first reader
-  down(database);
-  up(protector);
-  read();
-  down(protector);
+  if(rc == 1) // first
+    down(&database);
+  up(&protector);
+  read_data();
+  down(&protector);
   rc--;
-  if(rc == 0) then // last one
-  up(database);
-  up(protector);
-  ...
+  if(rc == 0) then // last
+    up(&database);
+  up(&protector);
 }
 ```
 
 ####
-##### Writer
-```c
-while(1) {
-  generate_data();
-  down(database);
-  write();
-  up(database);
-}
-```
+**Initialized Variables**
 
-##### Initialized Variables
  - Two semaphores:
     - Database (init 1)
     - Protector (init 1)
  - rc = 0
+
+. . .
+
+##### Writer
+```c
+while(1) {
+  generate_data();
+  down(&database);
+  write_data();
+  up(&database);
+}
+```
+
 
 ## Writer Starvation
  - Readers might continuously enter while a writer waits
@@ -190,7 +193,12 @@ while(1) {
  - What is a fair solution?
     - Give a specification
 
+# Message Passing
+
 ## Message Passing
+<!---
+Need in some situations with no shared memory, perhaps separate computers
+-->
  - No shared variables
  - Two primitives:
     - `send(destination,message)`
