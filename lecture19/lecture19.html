@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <meta name="dcterms.date" content="2013-02-24" />
+  <title>Lecture 19 - Deadlocks</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+    </style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 19 - Deadlocks</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">February 24, 2013</h3>
+</section>
+
+<section><section id="review" class="titleslide slide level1"><h1>Review</h1></section><section id="review-1" class="slide level2">
+<h1>Review</h1>
+<ul>
+<li>Three Examples of Deaclock
+<ul>
+<li>Multiple Mutex Locks</li>
+<li>Producer-Consumer Problem</li>
+<li>Dining PHilosopher Problem</li>
+</ul></li>
+</ul>
+</section><section id="review-producer-consumer-using-semaphores" class="slide level2">
+<h1>Review: Producer Consumer using Semaphores</h1>
+<h5 id="shared-variables">Shared Variables</h5>
+<ul>
+<li>count (number of items in buffer)</li>
+<li>buffer</li>
+<li>N (maximum size of buffer)</li>
+</ul>
+<h5 id="semaphores">Semaphores</h5>
+<ul>
+<li>Empty - semaphore initialized to N (number of free slots in buffer)</li>
+<li>Full - semaphore initialized to zero (number of items in buffer)</li>
+</ul>
+</section><section id="review-producer-consumer-using-semaphores-example" class="slide level2">
+<h1>Review: Producer Consumer using Semaphores (Example)</h1>
+<h3 id="section"></h3>
+<h4 id="section-1"></h4>
+<h5 id="producer">Producer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  item = produce();
+  down(Empty);
+  lock(mutex);
+  insert(item,buffer);
+  count++;
+  unlock(mutex);
+  up(Full);</code></pre>
+<h4 id="section-2"></h4>
+<h5 id="consumer">Consumer</h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
+  down(Full);
+  lock(mutex);
+  item = remove(buffer);
+  count--;
+  unlock(mutex);
+  up(Empty);
+  consume(item);
+}</code></pre>
+</section><section id="review-taking-multiple-locks" class="slide level2">
+<h1>Review: Taking Multiple Locks</h1>
+<h3 id="section-3"></h3>
+<h4 id="section-4"></h4>
+<h5 id="thread-a">Thread A</h5>
+<pre class="sourceCode c"><code class="sourceCode c">proc1() {
+  pthread_mutex_lock(&amp;m1);
+  <span class="co">/* use object 1 */</span>
+  pthread_mutex_lock(&amp;m2);
+  <span class="co">/* use objects 1 and 2 */</span>
+  pthread_mutex_unlock(&amp;m2);
+  pthread_mutex_unlock(&amp;m1);
+}</code></pre>
+<h4 id="section-5"></h4>
+<h5 id="thread-b">Thread B</h5>
+<pre class="sourceCode c"><code class="sourceCode c">proc2() {
+  pthread_mutex_lock(&amp;m2);
+  <span class="co">/* use object 2 */</span>
+  pthread_mutex_lock(&amp;m1);
+  <span class="co">/* use objects 1 and 2 */</span>
+  pthread_mutex_unlock(&amp;m1);
+  pthread_mutex_unlock(&amp;m2);
+}</code></pre>
+</section><section id="dining-philosophers" class="slide level2">
+<h1>Dining Philosophers</h1>
+<figure>
+<img src="img/philosophers.png" />
+</figure>
+</section></section>
+<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section><section id="deadlocks" class="slide level2">
+<h1>Deadlocks</h1>
+<p>Chapter 6</p>
+<ol type="1">
+<li>Resources</li>
+<li>Introduction to Deadlocks</li>
+<li>The Ostrich Algorithm</li>
+<li>Deadlock detection and recovery</li>
+<li>Deadlock avoidance</li>
+<li>Deadlock prevention</li>
+<li>Other issues</li>
+</ol>
+</section><section id="resources" class="slide level2">
+<h1>Resources</h1>
+<ul>
+<li>Examples of computer resources
+<ul>
+<li>printers</li>
+<li>tape drives</li>
+<li>tables</li>
+</ul></li>
+<li>Processes need access to resources in reasonable order</li>
+<li>Suppose a process holds resource A and requests resource B
+<ul>
+<li>At same time another process holds B and requests A</li>
+<li>Both are blocked and remain so</li>
+</ul></li>
+</ul>
+</section><section id="resources-cont" class="slide level2">
+<h1>Resources (Cont)</h1>
+<ul>
+<li>Deadlocks occur when...
+<ul>
+<li>Process are granted exclusive access to devices</li>
+<li>We refer to these devices generally as <em>resources</em></li>
+</ul></li>
+<li>Preemptable resources
+<ul>
+<li>Can be taken away from a process with no ill effects</li>
+</ul></li>
+<li>Nonpreemptable resources
+<ul>
+<li>will cause the process to fail if taken away</li>
+</ul></li>
+</ul>
+</section><section id="resource-cont" class="slide level2">
+<h1>Resource (Cont)</h1>
+<ul>
+<li>Sequences of events required to use a resource
+<ol type="1">
+<li>Request the resource</li>
+<li>Use the resource</li>
+<li>Release the resource</li>
+</ol></li>
+<li>Must wait if request is denied
+<ul>
+<li>Requesting process may be blocked</li>
+<li>May fail with error code</li>
+</ul></li>
+</ul>
+</section><section id="introduction-to-deadlocks" class="slide level2">
+<h1>Introduction to Deadlocks</h1>
+<ul>
+<li>Formal definition:</li>
+</ul>
+<blockquote>
+<p>A set of processes is deadlocked if each process in the set is waiting for an event that only another process in the set can cause.</p>
+</blockquote>
+<ul>
+<li>Usually the event is release of a currently held resource</li>
+<li>None of the processes can...
+<ul>
+<li>run</li>
+<li>release resources</li>
+<li>be awakened</li>
+</ul></li>
+</ul>
+</section><section id="four-conditions-for-deadlock" class="slide level2">
+<h1>Four Conditions for Deadlock</h1>
+<!---
+What happens when each of the conditions is false?  Why would we not have deadlock.  Necessary and sufficient?
+-->
+ 
+<ol type="1">
+<li>Mutual Exclusion condition
+<ul>
+<li>each resource assigned to 1 process or is available</li>
+</ul></li>
+<li>Hold and wait condition
+<ul>
+<li>process holding resources can request additional</li>
+</ul></li>
+<li>No preemption condition
+<ul>
+<li>previously granted resources cannot be forcibly taken away</li>
+</ul></li>
+<li>Circular wait condition
+<ul>
+<li>must be a circular chain of 2 or more processes</li>
+<li>each is waiting for resource held by next members of the chain</li>
+</ul></li>
+</ol>
+</section></section>
+<section><section id="modeling" class="titleslide slide level1"><h1>Modeling</h1></section><section id="deadlock-modeling" class="slide level2">
+<h1>Deadlock Modeling</h1>
+<!---
+Processes are circles
+Resources are squares
+-->
+ 
+<ul>
+<li>Modeled with directed graphs</li>
+</ul>
+<figure>
+<img src="img/modeling.png" />
+</figure>
+<ul>
+<li>resource R assigned to process A</li>
+<li>process B is requesting/waiting for resource S</li>
+<li>process C and D are in deadlock over resources T and U</li>
+</ul>
+</section><section id="deadlock-modeling-1" class="slide level2">
+<h1>Deadlock Modeling</h1>
+<figure>
+<img src="img/how_deadlock_occurs.png" alt="How deadlock occurs" /><figcaption>How deadlock occurs</figcaption>
+</figure>
+</section><section id="deadlock-strategies" class="slide level2">
+<h1>Deadlock Strategies</h1>
+<h5 id="strategies-for-dealing-with-deadlocks">Strategies for dealing with deadlocks</h5>
+<ol type="1">
+<li>Just ignore the problem altogether</li>
+<li>Detection and recovery</li>
+<li>Dynamic avoidance
+<ul>
+<li>careful resource allocation</li>
+</ul></li>
+<li>Prevention
+<ul>
+<li>Negating one of the four necessary conditions</li>
+</ul></li>
+</ol>
+</section></section>
+<section><section id="ostrich-algorithm" class="titleslide slide level1"><h1>Ostrich Algorithm</h1></section><section id="ostrich-algorithm-1" class="slide level2">
+<h1>Ostrich Algorithm</h1>
+<!---
+As an engineer, might be valuable if costs to fix outweigh benefits.
+-->
+<p>Stick your head in the sand</p>
+<ul>
+<li>Pretend there is no problem at all</li>
+</ul>
+</section></section>
+<section><section id="detection" class="titleslide slide level1"><h1>Detection</h1></section><section id="deadlock-detection-and-recovery" class="slide level2">
+<h1>Deadlock Detection and Recovery</h1>
+<p>Do not attempt to <em>prevent</em> deadlocks</p>
+<ul>
+<li>Instead, detect after the fact and then recover</li>
+</ul>
+</section><section id="deadlock-detection" class="slide level2">
+<h1>Deadlock Detection</h1>
+<ul>
+<li>Suppose you were given
+<ul>
+<li>The resource currently held by each</li>
+<li>The additional resources each process wants</li>
+</ul></li>
+<li>Question:
+<ul>
+<li>Is the system deadlocked?</li>
+</ul></li>
+</ul>
+</section><section id="detection-with-one-resource-of-each-type" class="slide level2">
+<h1>Detection with One Resource of Each Type</h1>
+<!---
+Basic Algorithm: Do depth-first search from each node, looking for cycles
+
+Mention multiple resources before moving to next slide.
+-->
+<figure>
+<img src="img/detection_one_type.png" />
+</figure>
+<ul>
+<li>Note the resource ownership and requests</li>
+<li>A cycle can be found within the graph, denoting deadlock</li>
+</ul>
+</section><section id="deadlock-detection-rule-algorithm" class="slide level2">
+<h1>Deadlock Detection Rule (Algorithm)</h1>
+<ul>
+<li>Is there some order of execution of the processes which allows all of them to complete?
+<ul>
+<li>If yes, then not deadlocked</li>
+<li>If no such order exists, then deadlocked</li>
+</ul></li>
+<li>After each process finishes, it releases resources back to the system</li>
+</ul>
+</section><section id="example-1" class="slide level2">
+<h1>Example 1</h1>
+<figure>
+<img src="img/detection_ex1.png" />
+</figure>
+<div class="fragment">
+<p>Not deadlocked, since P3 can run, releasing resources for P2, which releases resource to P1 upon finishing</p>
+</div>
+</section><section id="example-2" class="slide level2">
+<h1>Example 2</h1>
+<figure>
+<img src="img/detection_ex2.png" />
+</figure>
+<div class="fragment">
+<p>Deadlocked, since nobody can make progress</p>
+</div>
+</section><section id="example-3" class="slide level2">
+<h1>Example 3</h1>
+<figure>
+<img src="img/detection_ex3.png" />
+</figure>
+<div class="fragment">
+<p>Deadlocked:</p>
+<ul>
+<li>Let P3 complete</li>
+<li>P3 releases resources. But then, nobody else can proceed</li>
+</ul>
+</div>
+</section><section id="detection-with-multiple-resources-of-each-type" class="slide level2">
+<h1>Detection with Multiple Resources of Each Type</h1>
+<!---
+P - processes
+E - vector of number of (existing) resources per class
+A - available resource vector
+C - matrix of current allocation. i-th row for Pi
+R - request matrix. i-th row for Pi
+Cij # of instances of resource j held by process i
+
+\sum_{i=1}^n C_{ij} + A_j = E_j
+-->
+<figure>
+<img src="img/detection_multiple_types_1.png" />
+</figure>
+<p>Data structures needed by deadlock detection algorithm</p>
+</section><section id="detection-with-multiple-resources-of-each-type-cont." class="slide level2">
+<h1>Detection with Multiple Resources of Each Type (cont.)</h1>
+<!---
+Algorithm:
+1. Look for unmakred process, P_i, for which i-th row of R is \leq A
+2. If process found, add i-th row of C to A, mark process, go back to 1.
+3. If no such process exists, algorithm terminates
+
+Use this algorithm for previous examples to solve formally.
+-->
+<figure>
+<img src="img/detection_multiple_types_2.png" />
+</figure>
+<p>An example for the deadlock detection algorithm</p>
+</section><section id="recovery-from-deadlock" class="slide level2">
+<h1>Recovery from Deadlock</h1>
+<ul>
+<li>Recovery through Preemption
+<ul>
+<li>Take resource away from owner and give it to another</li>
+</ul></li>
+<li>Recovery through Rollback
+<ul>
+<li>Roll back execution to checkpoint</li>
+</ul></li>
+<li>Recovery through Killing-Process
+<ul>
+<li>Kill process to break cycle</li>
+</ul></li>
+</ul>
+</section></section>
+<section><section id="avoidance" class="titleslide slide level1"><h1>Avoidance</h1></section><section id="deadlock-avoidance" class="slide level2">
+<h1>Deadlock Avoidance</h1>
+<ul>
+<li>Be very conservative when granting resources</li>
+<li>Don't grant a resource if it could lead to a <em>potential deadlock</em></li>
+<li>Not very practical, since this is too much overhead for granting resources</li>
+</ul>
+</section><section id="resource-trajectories" class="slide level2">
+<h1>Resource Trajectories</h1>
+<figure>
+<img src="img/avoidance.png" />
+</figure>
+</section><section id="safe-and-unsafe-states" class="slide level2">
+<h1>Safe and Unsafe States</h1>
+<!---
+Safe - guarantee that we can finish
+Unsafe - no guarantee that we can finish, but not necessarily deadlocked
+-->
+<figure>
+<img src="img/safe_unsafe_1.png" />
+</figure>
+<p>Demonstration that the state in (a) is safe</p>
+</section><section id="safe-and-unsafe-states-cont." class="slide level2">
+<h1>Safe and Unsafe States (cont.)</h1>
+<figure>
+<img src="img/safe_unsafe_2.png" />
+</figure>
+<p>Demonstration that the state in (b) is not safe</p>
+</section><section id="the-bankers-algorithm-for-a-single-resource" class="slide level2">
+<h1>The Banker's Algorithm for a Single Resource</h1>
+<!---
+Algorithm:
+before giving resource, make sure that the state is safe, by checking to make sure there is a path to completion.
+-->
+<figure>
+<img src="img/bankers.png" />
+</figure>
+<div class="fragment">
+<ul>
+<li>Three resource allocation states
+<ul>
+<li>Safe</li>
+<li>Safe</li>
+<li>Unsafe</li>
+</ul></li>
+</ul>
+</div>
+</section><section id="bankers-algorithm-for-multiple-resources" class="slide level2">
+<h1>Banker's Algorithm for Multiple Resources</h1>
+<!---
+Algorithm:
+1. Look for row R whose unmet resource needs smaller than A (available).  If no row exists, system will eventually deadlock.
+2.  Assume process of chosen row requests all resources and finishes.  Mark as terminated and add resources to A.
+3. Repeat 1 and 2 until all marked terminated  or no process is left whose needs can be met.
+-->
+<figure>
+<img src="img/bankers_multiple.png" />
+</figure>
+<p>Example of a banker's algorithm with multiple resources</p>
+</section></section>
+<section><section id="prevention" class="titleslide slide level1"><h1>Prevention</h1></section><section id="deadlock-prevention" class="slide level2">
+<h1>Deadlock Prevention</h1>
+<ul>
+<li>Attacking the mutual exclusion condition</li>
+<li>Attacking the hold and wait condition</li>
+<li>Attacking the no preemption condition</li>
+<li>Attacking the circular wait condition</li>
+</ul>
+</section><section id="attacking-the-mutual-exclusion-condition" class="slide level2">
+<h1>Attacking the Mutual Exclusion Condition</h1>
+<p>Somehow allow multiple processes to use resources</p>
+<ul>
+<li>Example: Printer Spooling</li>
+</ul>
+</section><section id="attacking-the-hold-and-wait-condition" class="slide level2">
+<h1>Attacking the Hold and Wait Condition</h1>
+<ul>
+<li>Require processes to request resources before starting
+<ul>
+<li>a process never has to wait for what it needs</li>
+</ul></li>
+<li>Problems
+<ul>
+<li>may not have required resources at start of run</li>
+<li>also ties up resources other processes could be using</li>
+</ul></li>
+<li>Variation:
+<ul>
+<li>process must give up all resources</li>
+<li>then request all immediately needed</li>
+</ul></li>
+</ul>
+</section><section id="attacking-the-no-preemption-condition" class="slide level2">
+<h1>Attacking the No Preemption Condition</h1>
+<ul>
+<li>This is not a viable option</li>
+<li>Consider a process given the printer
+<ul>
+<li>halfway through its job</li>
+<li>now forcibly take away printer</li>
+<li>!????</li>
+<li>Profit(?)</li>
+</ul></li>
+</ul>
+</section><section id="attacking-the-circular-wait-condition" class="slide level2">
+<h1>Attacking the Circular Wait Condition</h1>
+<figure>
+<img src="img/attack_circular_wait.png" />
+</figure>
+<ul>
+<li>Normally ordered resources</li>
+<li>A resource graph</li>
+</ul>
+</section><section id="deadlock-prevention-summaries" class="slide level2">
+<h1>Deadlock Prevention summaries</h1>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Mutual exclusion</td>
+<td style="text-align: left;">Spool everything</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Hold and wait</td>
+<td style="text-align: left;">Request all resources initially</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">No preemption</td>
+<td style="text-align: left;">Take resources away</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Circular wait</td>
+<td style="text-align: left;">Order resources numerically</td>
+</tr>
+</tbody>
+</table>
+</section><section id="nonresource-deadlocks" class="slide level2">
+<h1>Nonresource Deadlocks</h1>
+<ul>
+<li>Possible for two processes to deadlock
+<ul>
+<li>each is waiting for the other to do some task</li>
+</ul></li>
+<li>Can happen with semaphores
+<ul>
+<li>each process required to do a <code>down()</code> on two semaphores (<em>mutex</em> and another)</li>
+<li>if done in wrong order, deadlock results</li>
+</ul></li>
+</ul>
+</section><section id="other-issues" class="slide level2">
+<h1>Other Issues</h1>
+<ul>
+<li>Two-phase locking</li>
+<li>Communication deadlocks</li>
+<li>Livelock</li>
+<li>Starvation</li>
+</ul>
+</section><section id="communication-deadlocks" class="slide level2">
+<h1>Communication Deadlocks</h1>
+<figure>
+<img src="img/communication_deadlocks.png" alt="A resource deadlock in a network" /><figcaption>A resource deadlock in a network</figcaption>
+</figure>
+</section><section id="livelock" class="slide level2">
+<h1>Livelock</h1>
+<h3 id="section-6"></h3>
+<h4 id="section-7"></h4>
+<h5 id="section-8"></h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">void</span> process_1(<span class="dt">void</span>) {
+  enter_region(&amp;resource_1);
+  enter_region(&amp;resource_2);
+  use_both_resources();
+  leave_region(&amp;resource_2);
+  leave_region(&amp;resource_1);
+}</code></pre>
+<h4 id="section-9"></h4>
+<h5 id="section-10"></h5>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="dt">void</span> process_2(<span class="dt">void</span>) {
+  enter_region(&amp;resource_2);
+  enter_region(&amp;resource_1);
+  use_both_resources();
+  leave_region(&amp;resource_1);
+  leave_region(&amp;resource_2);
+}</code></pre>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>

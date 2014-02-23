@@ -202,6 +202,8 @@ Do not attempt to *prevent* deadlocks
 ## Detection with One Resource of Each Type
 <!---
 Basic Algorithm: Do depth-first search from each node, looking for cycles
+
+Mention multiple resources before moving to next slide.
 -->
 ![](img/detection_one_type.png)
 
@@ -285,6 +287,10 @@ An example for the deadlock detection algorithm
 ![](img/avoidance.png)
 
 ## Safe and Unsafe States
+<!---
+Safe - guarantee that we can finish
+Unsafe - no guarantee that we can finish, but not necessarily deadlocked
+-->
 ![](img/safe_unsafe_1.png)
 
 Demonstration that the state in (a) is safe
@@ -295,7 +301,13 @@ Demonstration that the state in (a) is safe
 Demonstration that the state in (b) is not safe
 
 ## The Banker's Algorithm for a Single Resource
+<!---
+Algorithm:
+before giving resource, make sure that the state is safe, by checking to make sure there is a path to completion.
+-->
 ![](img/bankers.png)
+
+. . .
 
  - Three resource allocation states
     - Safe
@@ -303,6 +315,12 @@ Demonstration that the state in (b) is not safe
     - Unsafe
 
 ## Banker's Algorithm for Multiple Resources
+<!---
+Algorithm:
+1. Look for row R whose unmet resource needs smaller than A (available).  If no row exists, system will eventually deadlock.
+2.  Assume process of chosen row requests all resources and finishes.  Mark as terminated and add resources to A.
+3. Repeat 1 and 2 until all marked terminated  or no process is left whose needs can be met.
+-->
 ![](img/bankers_multiple.png)
 
 Example of a banker's algorithm with multiple resources
