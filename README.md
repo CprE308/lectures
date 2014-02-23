@@ -18,6 +18,7 @@ This repo contains all lecture slides for CprE 308 - Spring 2014.
 |   | Producer/Consumer | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture15/lecture15.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture15/lecture15.pdf?raw=true) |
 | 6 | Readers/Writers | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture17/lecture17.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture17/lecture17.pdf?raw=true) |
 |   | Dining Philosophers | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture18/lecture18.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture18/lecture18.pdf?raw=true) |
+| 7 | Deadlocks | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture19/lecture19.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture19/lecture19.pdf?raw=true) |
 
 ------------
 
