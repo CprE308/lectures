@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <meta name="dcterms.date" content="2014-02-10" />
+  <title>Lecture 25 - Process Scheduling</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 25 - Process Scheduling</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">February 10, 2014</h3>
+</section>
+
+<section><section id="process-scheduling-basics" class="titleslide slide level1"><h1>Process Scheduling Basics</h1></section><section id="processthread-states" class="slide level2">
+<h1>Process/Thread States</h1>
+<figure>
+<img src="img/scheduling.png" />
+</figure>
+<figure>
+<img src="img/states.png" />
+</figure>
+</section><section id="scheduling" class="slide level2">
+<h1>Scheduling</h1>
+<figure>
+<img src="img/scheduling_1.png" />
+</figure>
+<p>Different Types of jobs have different demands</p>
+<ul>
+<li>A CPU-bound process</li>
+<li>an I/O bound process</li>
+</ul>
+</section><section id="preemption" class="slide level2">
+<h1>Preemption</h1>
+<ul>
+<li>Non-preemptive Scheduling: Processes run until they have finished or block for I/O</li>
+<li>Preemptive Scheduling: Can forcibly suspend a process and switch to another</li>
+<li>Clock Interrupt helps in implementing preemption
+<ul>
+<li>Overhead of preemption</li>
+</ul></li>
+</ul>
+</section><section id="process-scheduling" class="slide level2">
+<h1>Process Scheduling</h1>
+<p><strong>Basic Question</strong>: Which process goes next?</p>
+<ul>
+<li>Personal Computer
+<ul>
+<li>Few processes, interactive, low response time</li>
+</ul></li>
+<li>Batch Systems (Compute Servers)
+<ul>
+<li>Many processes, not interactive, throughput is important</li>
+</ul></li>
+<li>Real Time Systems
+<ul>
+<li>Guaranteed response times, meet deadlines</li>
+</ul></li>
+</ul>
+</section><section id="scheduling-algorithm-goals" class="slide level2">
+<h1>Scheduling Algorithm Goals</h1>
+<ul>
+<li>Minimize Response time</li>
+<li>Maximize throughput i.e. number of jobs/hour</li>
+<li>Fairness among jobs, users(?)</li>
+<li>Maximize CPU utilization</li>
+<li>Minimize Context Switch Overhead</li>
+</ul>
+</section></section>
+<section><section id="batch-scheduling" class="titleslide slide level1"><h1>Batch Scheduling</h1></section><section id="first-come-first-serve-fcfs" class="slide level2">
+<h1>First Come First Serve (FCFS)</h1>
+<ul>
+<li>Maintain queue of processes</li>
+<li>Schedule first in queue</li>
+<li>Scheduled job executes until it finishes or blocks for I/O</li>
+<li>Simple, easy to implement</li>
+<li>Not good for mix of short and long jobs
+<ul>
+<li>Example: a short job arriving soon after a long one</li>
+</ul></li>
+</ul>
+</section><section id="shortest-job-first-batch-systems-non-preemptive" class="slide level2">
+<h1>Shortest Job First (batch systems, non-preemptive)</h1>
+<ul>
+<li><p>Suppose 3 jobs arrive: length 8,2,1</p></li>
+<li><p>Shortest Job First:</p></li>
+</ul>
+<figure>
+<img src="img/sjf_2.png" />
+</figure>
+<p>Sum of response times=15</p>
+<ul>
+<li>Scheduler X:</li>
+</ul>
+<figure>
+<img src="img/sjf_3.png" />
+</figure>
+<p>Sum of response times=29</p>
+</section><section id="shortest-remaining-time-next-preemptive" class="slide level2">
+<h1>Shortest Remaining Time Next (preemptive)</h1>
+<ul>
+<li>Next schedule the job with the shortest time to completion</li>
+<li>Fairness problems: A long job might be continually pre-empted by many short jobs</li>
+</ul>
+</section></section>
+<section><section id="interactive-scheduling" class="titleslide slide level1"><h1>Interactive Scheduling</h1></section><section id="realistically-.-.-." class="slide level2">
+<h1>Realistically . . .</h1>
+<ul>
+<li>Jobs don't run to completion
+<ul>
+<li>run till they block for user input</li>
+</ul></li>
+<li>Don't know the length of &quot;jobs&quot;</li>
+<li>How long is that?
+<ul>
+<li>Predict using past behavior</li>
+<li><span class="math"><em>g</em><em>u</em><em>e</em><em>s</em><em>s</em> = ∑(<em>T</em><sub><em>i</em></sub>)/<em>n</em></span></li>
+</ul></li>
+</ul>
+</section><section id="mean-guessing" class="slide level2">
+<h1>Mean Guessing</h1>
+<figure>
+<img src="img/mean_guessing.png" />
+</figure>
+</section><section id="exponential-averaging" class="slide level2">
+<h1>Exponential Averaging</h1>
+<ul>
+<li><span class="math"><em>g</em><em>u</em><em>e</em><em>s</em><em>s</em><sub><em>i</em></sub> = <em>a</em>(<em>n</em><em>e</em><em>w</em>_<em>d</em><em>a</em><em>t</em><em>a</em>) + (1 − <em>a</em>)(<em>g</em><em>u</em><em>e</em><em>s</em><em>s</em><sub><em>i</em> − 1</sub>)</span>
+<ul>
+<li><span class="math"><em>a</em></span>: weight given to new data</li>
+<li><span class="math">(1 − <em>a</em>)</span>: weight given to previous guess</li>
+</ul></li>
+</ul>
+</section><section id="round-robin-interactive-systems" class="slide level2">
+<h1>Round Robin (Interactive Systems)</h1>
+<figure>
+<img src="img/rr.png" />
+</figure>
+<ul>
+<li>Give CPU time to each process by turn</li>
+<li>Quantum = CPU time alloted every turn</li>
+<li>How is this better than shortest remaining time next for long jobs?</li>
+<li>How to choose the value of the quantum?
+<ul>
+<li>Too small might mean high context switch overhead</li>
+<li>Too large might mean bad response times</li>
+</ul></li>
+</ul>
+</section><section id="priority-scheduling" class="slide level2">
+<h1>Priority Scheduling</h1>
+<p>Different Priorities</p>
+<ul>
+<li>Background process sending mail vs:</li>
+<li>Shell process accepting input</li>
+</ul>
+<p>Requirement:</p>
+<ul>
+<li>Schedule jobs with highest priority first</li>
+<li>Issues: high priority jobs should not overwhelm the others
+<ul>
+<li>Might decrease priority with time</li>
+</ul></li>
+</ul>
+</section><section id="multiple-queues---static-version" class="slide level2">
+<h1>Multiple Queues - static version</h1>
+<figure>
+<img src="img/mq_static.png" />
+</figure>
+<ul>
+<li>Lower priority queues don't run if higher priority queues non-empty</li>
+<li>Could time slice between queues</li>
+</ul>
+</section><section id="multiple-queues---dynamic-version" class="slide level2">
+<h1>Multiple Queues - dynamic version</h1>
+<figure>
+<img src="img/mq_dynamic.png" />
+</figure>
+<ul>
+<li>Process enters high priority level</li>
+<li>If takes more than 1 quantum, move to second highest priority, ...</li>
+</ul>
+</section><section id="multiple-queues---dynamic-version-1" class="slide level2">
+<h1>Multiple Queues - dynamic version</h1>
+<ul>
+<li>Higher priority = faster service, but short service times</li>
+<li>Reduce number of context switches for long processes</li>
+<li>What about a process which became interactive after a long bout of computation
+<ul>
+<li>Increase priority?</li>
+</ul></li>
+</ul>
+</section><section id="lottery-scheduling-another-implementation-priorities" class="slide level2">
+<h1>Lottery Scheduling: Another implementation priorities</h1>
+<ul>
+<li>Example: 3 processes, priorities 2,3,5</li>
+<li>Distribute 20,30,50 tickets respectively</li>
+<li>System holds &quot;lottery&quot; 50 times per second
+<ul>
+<li>Winner gets 20 ms of CPU time</li>
+</ul></li>
+<li>Gives probabilistic guarantees</li>
+</ul>
+</section></section>
+<section><section id="real-time-scheduling" class="titleslide slide level1"><h1>Real-time Scheduling</h1></section><section id="real-time-scheduling-1" class="slide level2">
+<h1>Real-time scheduling</h1>
+<ul>
+<li>Provide time guarantees</li>
+<li>Upper bound on response times
+<ul>
+<li>Programmer's job</li>
+<li>Every level of the system</li>
+</ul></li>
+<li>Soft versus hard real-time
+<ul>
+<li>Streaming mp3 player versus air-traffic controller</li>
+</ul></li>
+</ul>
+</section><section id="cpu-scheduling-summary" class="slide level2">
+<h1>CPU Scheduling: Summary</h1>
+<ul>
+<li>FCFS</li>
+<li>Shortest job first, shortest remaining job next</li>
+<li>Round robin - context switch overhead</li>
+<li>Priority scheduling
+<ul>
+<li>Multi-level queues</li>
+<li>Lottery Scheduling</li>
+</ul></li>
+<li>Real-time schedule - schedulability</li>
+</ul>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
