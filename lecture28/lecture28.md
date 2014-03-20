@@ -4,7 +4,7 @@
 
 # Memory Management
 
-## Memory Management
+## Overview
 Ideal World (for the programmer):
 
  - I'm the only process in the world
@@ -28,7 +28,7 @@ Real World
     - Relocation: User memory references should lead to real memory locations
 
 ## Memory Fence
-pic
+![](img/fence.png)
 
 ## The Relocation Problem
  - Your Program is complied and linked
@@ -38,16 +38,18 @@ pic
  - One solution: at loading time, update all the addresses to reflect correct physical addresses
     - Still does not ensure protection
 
+# Address Space
+
 ## The Address Space Concept
  - Protect processes from one another
  - Protect the OS from user processes
  - Provide efficient management of available storage
 
 ## Base and Bounds Registers
-pic
+![](img/base_bound.png)
 
 ## Swapping
-pic
+![](img/swapping.png)
 
 ## Address Space
  - Each process has it's own "address space" - set of addresses the program generates
@@ -59,11 +61,13 @@ pic
     - Some pages in memory, some on the disk
  - Processes can run fast as long as all their active pages are in memory (compare with swapping)
 
+# Virtual Memory
+
 ## Virtual Memory
-pic
+![](img/virtual_memory.png)
 
 ## Memory Management Unit (MMU)
-pic
+![](img/mmu.png)
 
 ## Virtual memory
  1. Process generates a "virtual address"
@@ -89,6 +93,8 @@ Lookup the virtual address
     - OS loads the required page into memory from secondary storage
     - Instruction is re-started
 
+# Address Translation
+
 ## Address Translation Problem
  - Given the virtual address
  - To find:
@@ -97,10 +103,18 @@ Lookup the virtual address
  - Constraint: Space overhead of translation should be small
 
 ## Page Tables
-pic
+###
+####
+ - 64K Virtual Address Space
+    - Divided into 16 pages, of 4K each
+ - 32K Physical Memory
+    - 8 pages of 4K each
+
+####
+![](img/page_tables.png)
 
 ## Page Table
-pic
+![](img/page_table.png)
 
 ## Page Fault
 What if required page not in memory?
@@ -111,7 +125,7 @@ What if required page not in memory?
  3. Instruction is restarted
 
 ## Typical Page Table Entry
-pic
+![](img/pt_entry.png)
 
 ## Performance
  - The address translation is done on every memory reference
@@ -126,6 +140,12 @@ pic
     - Performance reasons (cache)
  - Inverted Page Table
     - Large address spaces
+
+## Memory Management with Linked Lists
+ - Maintaining a linked list of allocated and free memory segments
+ - First fit
+ - Best fit
+ - Worst fit
 
 ## Question
 Where is the page table stored?
