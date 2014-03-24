@@ -46,22 +46,31 @@ Real World
  - Provide efficient management of available storage
 
 ## Base and Bounds Registers
+<!---
+Base and Limit registers in book
+Base - program start
+limit - program length.
+during reference (both fetch and read/write), add base value to address generated
+-->
 ![](img/base_bound.png)
 
 ## Swapping
 ![](img/swapping.png)
 
 ## Address Space
+<!---
+Discuss memory management with bitmaps and linked lists.
+-->
  - Each process has it's own "address space" - set of addresses the program generates
  - Memory Manager maps the address space onto Physical Memory + Secondary Storage
  - Address spaces of different processes don't overlap
+
+# Virtual Memory
 
 ## Advantages of Virtual Memory
  - Program size can be larger than physical memory
     - Some pages in memory, some on the disk
  - Processes can run fast as long as all their active pages are in memory (compare with swapping)
-
-# Virtual Memory
 
 ## Virtual Memory
 ![](img/virtual_memory.png)

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <meta name="dcterms.date" content="2014-03-24" />
+  <title>Lecture 28 - Memory Management</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 28 - Memory Management</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">March 24, 2014</h3>
+</section>
+
+<section><section id="memory-management" class="titleslide slide level1"><h1>Memory Management</h1></section><section id="overview" class="slide level2">
+<h1>Overview</h1>
+<p>Ideal World (for the programmer):</p>
+<ul>
+<li>I'm the only process in the world</li>
+<li>I have a huge amount of memory at my disposal</li>
+</ul>
+<p>Real World</p>
+<ul>
+<li>Many processes in the system</li>
+<li>Not enough memory for them all</li>
+</ul>
+</section><section id="goal-of-memory-management" class="slide level2">
+<h1>Goal of Memory Management</h1>
+<ul>
+<li>Present the ideal world view to the programmer, yet implement it on a real system</li>
+</ul>
+</section><section id="simple-memory-management" class="slide level2">
+<h1>Simple Memory Management</h1>
+<ul>
+<li>One program at a time (not ideal for performance)</li>
+<li>What does running a program involve?
+<ul>
+<li>Load program into memory</li>
+<li>Jump to the first instruction</li>
+</ul></li>
+<li>Issues:
+<ul>
+<li>Need to protect the OS from the user program</li>
+<li>Relocation: User memory references should lead to real memory locations</li>
+</ul></li>
+</ul>
+</section><section id="memory-fence" class="slide level2">
+<h1>Memory Fence</h1>
+<figure>
+<img src="img/fence.png" />
+</figure>
+</section><section id="the-relocation-problem" class="slide level2">
+<h1>The Relocation Problem</h1>
+<ul>
+<li>Your Program is complied and linked
+<ul>
+<li>Generates (absolute) addresses</li>
+</ul></li>
+<li>When being loaded into memory, can't predict which address it will be loaded in</li>
+<li>How to ensure correct memory addresses are used, and to manage protection?</li>
+<li>One solution: at loading time, update all the addresses to reflect correct physical addresses
+<ul>
+<li>Still does not ensure protection</li>
+</ul></li>
+</ul>
+</section></section>
+<section><section id="address-space" class="titleslide slide level1"><h1>Address Space</h1></section><section id="the-address-space-concept" class="slide level2">
+<h1>The Address Space Concept</h1>
+<ul>
+<li>Protect processes from one another</li>
+<li>Protect the OS from user processes</li>
+<li>Provide efficient management of available storage</li>
+</ul>
+</section><section id="base-and-bounds-registers" class="slide level2">
+<h1>Base and Bounds Registers</h1>
+<!---
+Base and Limit registers in book
+Base - program start
+limit - program length.
+during reference (both fetch and read/write), add base value to address generated
+-->
+<figure>
+<img src="img/base_bound.png" />
+</figure>
+</section><section id="swapping" class="slide level2">
+<h1>Swapping</h1>
+<figure>
+<img src="img/swapping.png" />
+</figure>
+</section><section id="address-space-1" class="slide level2">
+<h1>Address Space</h1>
+<!---
+Discuss memory management with bitmaps and linked lists.
+-->
+ 
+<ul>
+<li>Each process has it's own &quot;address space&quot; - set of addresses the program generates</li>
+<li>Memory Manager maps the address space onto Physical Memory + Secondary Storage</li>
+<li>Address spaces of different processes don't overlap</li>
+</ul>
+</section></section>
+<section><section id="virtual-memory" class="titleslide slide level1"><h1>Virtual Memory</h1></section><section id="advantages-of-virtual-memory" class="slide level2">
+<h1>Advantages of Virtual Memory</h1>
+<ul>
+<li>Program size can be larger than physical memory
+<ul>
+<li>Some pages in memory, some on the disk</li>
+</ul></li>
+<li>Processes can run fast as long as all their active pages are in memory (compare with swapping)</li>
+</ul>
+</section><section id="virtual-memory-1" class="slide level2">
+<h1>Virtual Memory</h1>
+<figure>
+<img src="img/virtual_memory.png" />
+</figure>
+</section><section id="memory-management-unit-mmu" class="slide level2">
+<h1>Memory Management Unit (MMU)</h1>
+<figure>
+<img src="img/mmu.png" />
+</figure>
+</section><section id="virtual-memory-2" class="slide level2">
+<h1>Virtual memory</h1>
+<ol type="1">
+<li>Process generates a &quot;virtual address&quot;</li>
+<li>Virtual address is translated into a physical address (translation is more sophisticated than in base + bound registers)
+<ul>
+<li>Base + Bound: add and compare for every memory reference (Translation done differently for different processes)</li>
+</ul></li>
+<li>Physical address goes onto the bus</li>
+</ol>
+</section><section id="structuring-virtual-memory" class="slide level2">
+<h1>Structuring Virtual Memory</h1>
+<ul>
+<li>Paging
+<ul>
+<li>divide the address space into fixed-size pages</li>
+<li>Internal fragmentation</li>
+</ul></li>
+<li>Segmentation
+<ul>
+<li>divide the address space into variable-size segments (typically each corresponding to some logical unit of the program, such as a module or subroutine)</li>
+<li>External fragmentation</li>
+</ul></li>
+<li>Paged segmentation</li>
+</ul>
+</section><section id="mmu---a-closer-look" class="slide level2">
+<h1>MMU - a closer look</h1>
+<p>Lookup the virtual address</p>
+<ul>
+<li>If present in physical memory, they fetch it</li>
+<li>If not, then call upon the operating system (&quot;page fault&quot;)
+<ul>
+<li>OS loads the required page into memory from secondary storage</li>
+<li>Instruction is re-started</li>
+</ul></li>
+</ul>
+</section></section>
+<section><section id="address-translation" class="titleslide slide level1"><h1>Address Translation</h1></section><section id="address-translation-problem" class="slide level2">
+<h1>Address Translation Problem</h1>
+<ul>
+<li>Given the virtual address</li>
+<li>To find:
+<ul>
+<li>If in memory, the physical address</li>
+<li>Else, answer saying &quot;not in memory&quot;</li>
+</ul></li>
+<li>Constraint: Space overhead of translation should be small</li>
+</ul>
+</section><section id="page-tables" class="slide level2">
+<h1>Page Tables</h1>
+<h3 id="section"></h3>
+<h4 id="section-1"></h4>
+<ul>
+<li>64K Virtual Address Space
+<ul>
+<li>Divided into 16 pages, of 4K each</li>
+</ul></li>
+<li>32K Physical Memory
+<ul>
+<li>8 pages of 4K each</li>
+</ul></li>
+</ul>
+<h4 id="section-2"></h4>
+<figure>
+<img src="img/page_tables.png" />
+</figure>
+</section><section id="page-table" class="slide level2">
+<h1>Page Table</h1>
+<figure>
+<img src="img/page_table.png" />
+</figure>
+</section><section id="page-fault" class="slide level2">
+<h1>Page Fault</h1>
+<p>What if required page not in memory?</p>
+<ol type="1">
+<li>Page fault gives control to the OS</li>
+<li>OS fetches it from the disk
+<ul>
+<li>Needs to evict an existing page from memory (page replacement policy)</li>
+</ul></li>
+<li>Instruction is restarted</li>
+</ol>
+</section><section id="typical-page-table-entry" class="slide level2">
+<h1>Typical Page Table Entry</h1>
+<figure>
+<img src="img/pt_entry.png" />
+</figure>
+</section><section id="performance" class="slide level2">
+<h1>Performance</h1>
+<ul>
+<li>The address translation is done on every memory reference</li>
+<li>Maybe twice per instruction
+<ul>
+<li>Instruction fetch</li>
+<li>Fetch Memory operand</li>
+</ul></li>
+<li>The translation better be fast!</li>
+</ul>
+</section><section id="different-schemes-for-address-translation" class="slide level2">
+<h1>Different Schemes for Address Translation</h1>
+<ul>
+<li>Page Table - most popular</li>
+<li>Translation Lookaside Buffer (TLB)
+<ul>
+<li>Performance reasons (cache)</li>
+</ul></li>
+<li>Inverted Page Table
+<ul>
+<li>Large address spaces</li>
+</ul></li>
+</ul>
+</section><section id="memory-management-with-linked-lists" class="slide level2">
+<h1>Memory Management with Linked Lists</h1>
+<ul>
+<li>Maintaining a linked list of allocated and free memory segments</li>
+<li>First fit</li>
+<li>Best fit</li>
+<li>Worst fit</li>
+</ul>
+</section><section id="question" class="slide level2">
+<h1>Question</h1>
+<p>Where is the page table stored?</p>
+<ul>
+<li>Registers?</li>
+<li>Memory?</li>
+</ul>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
