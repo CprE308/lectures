@@ -21,6 +21,10 @@ This repo contains all lecture slides for CprE 308 - Spring 2014.
 | 7 | Deadlocks | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture19/lecture19.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture19/lecture19.pdf?raw=true) |
 | 8 | Deadlocks / Midterm |   |
 | 9 | Process Scheduling | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture25/lecture25.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture25/lecture25.pdf?raw=true) |
+| 10 | Spring Break |  |
+| 11 | Memory Management | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture28/lecture28.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture28/lecture28.pdf?raw=true) |
+|   | MM: Page Replacement | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture30/lecture30.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture30/lecture30.pdf?raw=true) |
+
 
 ------------
 
