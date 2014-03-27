@@ -114,6 +114,10 @@ Lookup the virtual address
 ## Page Tables
 ###
 ####
+<!---
+Virtual addresses split into *pages*
+Physical memory split into *page frames*
+-->
  - 64K Virtual Address Space
     - Divided into 16 pages, of 4K each
  - 32K Physical Memory
@@ -134,6 +138,15 @@ What if required page not in memory?
  3. Instruction is restarted
 
 ## Typical Page Table Entry
+<!---
+Zooming in on a single entry:
+ - Page frame number: physical location of page frame (then add offset)
+ - Present/absent: 1 if entry is valid, 0 if not in memory
+ - Protection: what sorts of accesses permitted. 0 for read/write, 1 for read only.  Or 3 bits: read,write,execute
+ - Modified: Has it been modified?  *Dirty* bit
+ - Referenced: set when referenced. Helps to choose eviction
+ - Cache disabling: for pages that map device registers rather than memory.
+-->
 ![](img/pt_entry.png)
 
 ## Performance

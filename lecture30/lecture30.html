@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <meta name="dcterms.date" content="2014-03-28" />
+  <title>Lecture 30 - Page Replacement</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 30 - Page Replacement</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">March 28, 2014</h3>
+</section>
+
+<section><section id="memory-management" class="titleslide slide level1"><h1>Memory Management</h1></section><section id="overview" class="slide level2">
+<h1>Overview</h1>
+<p>Ideal World (for the programmer):</p>
+<ul>
+<li>I'm the only process in the world</li>
+<li>I have a huge amount of memory at my disposal</li>
+</ul>
+<p>Real World</p>
+<ul>
+<li>Many processes in the system</li>
+<li>Not enough memory for them all</li>
+</ul>
+</section><section id="goal-of-memory-management" class="slide level2">
+<h1>Goal of Memory Management</h1>
+<ul>
+<li>Present the ideal world view to the programmer, yet implement it on a real system</li>
+</ul>
+</section></section>
+<section><section id="page-faults" class="titleslide slide level1"><h1>Page Faults</h1></section><section id="page-fault" class="slide level2">
+<h1>Page Fault</h1>
+<p>What happens if the required page is not in memory?</p>
+<p>&quot;Page-fault&quot; trap is initiated, OS gets control</p>
+<ol type="1">
+<li>Find a free page frame</li>
+<li>Read the desired page from disk into memory</li>
+<li>Modify the page tables</li>
+<li>Restart the interrupted instruction</li>
+</ol>
+</section><section id="os-issues" class="slide level2">
+<h1>OS Issues</h1>
+<!---
+Write these three on the board.
+-->
+ 
+<ul>
+<li>Fetch policy - when to fetch pages into memory?</li>
+<li>Placement policy - where to place pages?</li>
+<li>Replacement policy</li>
+<li>All combined in the handling of a page fault</li>
+</ul>
+</section><section id="a-simple-paging-scheme" class="slide level2">
+<h1>A Simple Paging Scheme</h1>
+<p>Fetch policy</p>
+<ul>
+<li>start process off with no pages in primary storage</li>
+<li>bring in pages on demand (and only on demand)
+<ul>
+<li>this is known as demand paging</li>
+</ul></li>
+</ul>
+<p>Placement policy</p>
+<ul>
+<li>it doesn't matter - put the incoming page in the first available page frame</li>
+</ul>
+<p>Replacement policy</p>
+<ul>
+<li>replace the page that has been in primary storage the longest (FIFO policy)</li>
+</ul>
+</section><section id="improving-the-fetch-policy" class="slide level2">
+<h1>Improving the Fetch Policy</h1>
+<!---
+Idea: Bring in more pages than just used to hopefully trigger less page faults later.
+-->
+<figure>
+<img src="img/fetch_policy.png" />
+</figure>
+</section></section>
+<section><section id="page-replacement" class="titleslide slide level1"><h1>Page Replacement</h1></section><section id="improving-the-replacement-policy" class="slide level2">
+<h1>Improving the Replacement Policy</h1>
+<ul>
+<li>When is replacement done?
+<ul>
+<li>doing it &quot;on demand&quot; causes excessive delays</li>
+<li>should be performed as a separate, concurrent activity</li>
+</ul></li>
+<li>Which pages are replaced?
+<ul>
+<li>FIFO policy is not good</li>
+<li>want to replace those pages least likely to be referenced soon</li>
+</ul></li>
+</ul>
+</section><section id="the-pageout-daemon" class="slide level2">
+<h1>The &quot;Pageout Daemon&quot;</h1>
+<!---
+Daemon keeps track of in use pages.  If a page needs to be cleared, the pageout daemon will clear it.
+If necessary (when modified=1), we will write the page to disk before clearing.
+-->
+<figure>
+<img src="img/pageout_daemon.png" />
+</figure>
+</section><section id="page-replacement-1" class="slide level2">
+<h1>Page Replacement</h1>
+<p>Problem Statement:</p>
+<blockquote>
+<p>A page is being brought into memory which has no free space. Which page should we replace to make space?</p>
+</blockquote>
+</section><section id="page-replacement---mental-exercise" class="slide level2">
+<h1>Page Replacement - Mental Exercise</h1>
+<!---
+Ideal: Remove page that will be used longest in future (or never again)
+-->
+<ul>
+<li class="fragment">What is the optimal policy, if we had the knowledge of the future page requests</li>
+<li class="fragment">Policy: Choose the page which will be referenced farthest in the future</li>
+<li class="fragment">However, we don't know the future
+<ul>
+<li class="fragment">Hope that the next few references will be for pages that were recently referenced</li>
+</ul></li>
+<li class="fragment">What's the use of knowing about this policy?
+<ul>
+<li class="fragment">Will help us access the performance of a real algorithm</li>
+</ul></li>
+</ul>
+</section><section id="choosing-the-page-to-remove" class="slide level2">
+<h1>Choosing the Page to Remove</h1>
+<p>Policies:</p>
+<ul>
+<li>FIFO (First-In-First-Out)</li>
+<li>NRU (Not-Recently-Used)</li>
+<li>Second Chance</li>
+<li>LRU (Least-Recently-Used)</li>
+<li>Clock Algorithm(s)</li>
+<li>Working Set Algorithm</li>
+</ul>
+<p>Two issues:</p>
+<ul>
+<li>How good is the decision?</li>
+<li>Overhead?
+<ul>
+<li>Cost per memory access - should be very small</li>
+<li>Cost per replacement - can be larger</li>
+</ul></li>
+</ul>
+</section><section id="fifo" class="slide level2">
+<h1>FIFO</h1>
+<!---
+First in, first out.
+-->
+<p>Example: 8 pages, 4 page frames</p>
+<figure>
+<img src="img/fifo.png" />
+</figure>
+<p>Hit ratio: 16/33</p>
+</section><section id="help-from-hardware" class="slide level2">
+<h1>Help from Hardware</h1>
+<p>For each page frame:</p>
+<ul>
+<li>Referenced Bit(R) - 1 if page frame has been referenced recently</li>
+<li>Modified Bit(M) - 1 if page has been modified since it has been loaded
+<ul>
+<li>Also known as &quot;dirty bit&quot;</li>
+</ul></li>
+</ul>
+</section><section id="not-recently-used-algorithm-nru" class="slide level2">
+<h1>Not Recently Used Algorithm (NRU)</h1>
+<p>Pages are classified into 4 classes:</p>
+<ul>
+<li>Class 0: not referenced, not modified (R=0, M=0)</li>
+<li>Class 1: not referenced, modified (R=0, M=1)</li>
+<li>Class 2: referenced, not modified (R=1, M=0)</li>
+<li>Class 3: referenced, modified (R=1, M=1)</li>
+</ul>
+<p>NRU removes page at random from lowest number non empty class</p>
+<p>The R bit is cleaned periodically (based on a timer)</p>
+</section><section id="second-chance" class="slide level2">
+<h1>Second Chance</h1>
+<ul>
+<li>Based on FIFO</li>
+<li>Old pages are inspected for replacement
+<ul>
+<li>But are given a &quot;second chance&quot; if they have been used recently</li>
+</ul></li>
+</ul>
+</section><section id="second-chance-algorithm" class="slide level2">
+<h1>Second Chance Algorithm</h1>
+<!---
+If all pages referenced, degenerates into pure FIFO
+-->
+<figure>
+<img src="img/second_chance.png" />
+</figure>
+<ul>
+<li>Pages sorted in FIFO order (time of arrival)</li>
+<li>If earliest page has R=1, then give it a second chance by moving it to the end of the list</li>
+</ul>
+</section><section id="clock-algorithm---another-implementation-of-second-chance" class="slide level2">
+<h1>Clock Algorithm - Another Implementation of Second Chance</h1>
+<!---
+Exact same idea as second chance, but doesn't do a lot of inefficient moving of pages
+-->
+ 
+<ul>
+<li>Order pages in circular list</li>
+<li>&quot;Hand&quot; of the clock points to the page to be replaced currently</li>
+<li>When required to evict a page
+<ul>
+<li>If page pointed to has R=0, then evict it</li>
+<li>If R=1, then reset R and move hand forward</li>
+</ul></li>
+<li>Clock algorithm can be used with NRU (decision based on both R and M bits)</li>
+</ul>
+</section><section id="least-recent-used-lru" class="slide level2">
+<h1>Least Recent Used (LRU)</h1>
+<ul>
+<li>Replace the page in memory which has been unused for the longest time</li>
+<li> pages used in the near past will be used in the near future
+<ul>
+<li>True in typical cases</li>
+</ul></li>
+</ul>
+</section><section id="least-recently-used-lru" class="slide level2">
+<h1>Least Recently Used (LRU)</h1>
+<p>Example: 8 pages, 4 page frames</p>
+<figure>
+<img src="img/lru.png" />
+</figure>
+</section><section id="lru-implementation" class="slide level2">
+<h1>LRU Implementation</h1>
+<!---
+Can also work in hardware with special counter registers
+-->
+<ul>
+<li class="fragment">Think of how you would implement it</li>
+</ul>
+<ul>
+<li class="fragment">One possible implementation:
+<ul>
+<li class="fragment">list of pages, most recently used at front, least at rear</li>
+<li class="fragment">update this list every memory reference</li>
+<li class="fragment">when required to evict a page, choose the one at the rear of the list</li>
+</ul></li>
+</ul>
+<ul>
+<li class="fragment">Way too expensive!</li>
+</ul>
+</section><section id="not-frequently-used-nfu" class="slide level2">
+<h1>Not Frequently Used (NFU)</h1>
+<!---
+Problem? Something used a lot at the beginning but not anymore will stick around too long.
+-->
+ 
+<ul>
+<li>Requires a software counter associated with each page, initially zero</li>
+<li>At each clock interrupt, OS scans all the pages in memory</li>
+<li>For each page, the R bit is added to the counter</li>
+<li>The page with the lowest counter is chosen</li>
+</ul>
+</section><section id="aging---approximating-lru" class="slide level2">
+<h1>Aging - Approximating LRU</h1>
+<!---
+Counters shifted right 1 bit before the R bit is added in.  Then R bit added to leftmost rather than rightmost. (Basically a shift register)
+-->
+<figure>
+<img src="img/aging.png" />
+</figure>
+</section><section id="example" class="slide level2">
+<h1>Example</h1>
+<figure>
+<img src="img/example.png" />
+</figure>
+</section><section id="questions" class="slide level2">
+<h1>Questions:</h1>
+<p>Which page frame will be replaced?</p>
+<ul>
+<li class="fragment">FIFO
+<ul>
+<li class="fragment">PFN 3 since loaded longest ago at time 20</li>
+</ul></li>
+<li class="fragment">LRU
+<ul>
+<li class="fragment">PFN 1 since referenced longest ago at time 160</li>
+</ul></li>
+<li class="fragment">Clock
+<ul>
+<li class="fragment">Clear R in PFN 3 (oldest loaded), clear R in PFN 2 (next oldest loaded), victim PFN is 0 since R=0</li>
+</ul></li>
+</ul>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
