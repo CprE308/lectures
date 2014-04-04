@@ -24,6 +24,7 @@ This repo contains all lecture slides for CprE 308 - Spring 2014.
 | 10 | Spring Break |  |
 | 11 | Memory Management | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture28/lecture28.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture28/lecture28.pdf?raw=true) |
 |   | MM: Page Replacement | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture30/lecture30.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture30/lecture30.pdf?raw=true) |
+| 12 | MM: Performance | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture32/lecture32.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture32/lecture32.pdf?raw=true) |
 
 
 ------------
