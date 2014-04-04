@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <title>Lecture 32 - Memory Management Issues</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 32 - Memory Management Issues</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">April 2, 2014</h3>
+</section>
+
+<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section><section id="overview" class="slide level2">
+<h1>Overview</h1>
+<p>Ideal World (for the programmer):</p>
+<ul>
+<li>I'm the only process in the world</li>
+<li>I have a huge amount of memory at my disposal</li>
+</ul>
+<p>Real World</p>
+<ul>
+<li>Many processes in the system</li>
+<li>Not enough memory for them all</li>
+</ul>
+<p><strong>Goal:</strong> Present the ideal world view to the programmer, yet implement it on a real system</p>
+</section><section id="todays-topics" class="slide level2">
+<h1>Today's topics</h1>
+<p>Memory Management Issues:</p>
+<ul>
+<li>Page frame allocation</li>
+<li>Thrashing</li>
+<li>Working set</li>
+<li>Belady's Anomaly</li>
+</ul>
+<p>Speeding up Page Table Lookups</p>
+<ul>
+<li>Page table caches</li>
+</ul>
+</section></section>
+<section><section id="memory-management-issues" class="titleslide slide level1"><h1>Memory Management Issues</h1></section><section id="memory-management-issues-1" class="slide level2">
+<h1>Memory Management Issues</h1>
+<ul>
+<li>Fetch policy - when to fetch pages into memory?</li>
+<li>Placement policy - where to plae pages?</li>
+<li>Replacement policy</li>
+<li></li>
+</ul>
+</section><section id="page-frame-allocation-global-vs.-local" class="slide level2">
+<h1>Page Frame Allocation: Global vs. Local</h1>
+<p><strong>Global Allocation</strong></p>
+<ul>
+<li>All processes compete for pages from a single pool
+<ul>
+<li>Don't have to desired how many pages go to different processes</li>
+<li>High priority processes might get pages of lower priority processes</li>
+</ul></li>
+</ul>
+<p></p>
+<p><strong>Local Allocation</strong></p>
+<ul>
+<li>each process has its own private pool of page frames
+<ul>
+<li>Equal allocation: processes get equal number of page frames</li>
+<li>Proportional allocation: number of page frames proportional to size of virtual memory used</li>
+</ul></li>
+</ul>
+</section><section id="thrashing" class="slide level2">
+<h1>Thrashing</h1>
+<ul>
+<li>Consider a system that has exactly two page frames:
+<ul>
+<li>process A has a page in frame 1</li>
+<li>process B has a page in frame 2</li>
+<li>process B faults; the page in frame 1 is removed</li>
+<li>process A resumes execution and faults again; the page in frame 2 is removed</li>
+<li>...</li>
+</ul></li>
+<li>The process spends most of the time waiting for disk reads</li>
+<li>A program causing page faults every few instruction is said to be <em>thrashing</em></li>
+</ul>
+</section><section id="working-set" class="slide level2">
+<h1>Working Set</h1>
+<!---
+w(k,t):
+ - t: time instance
+ - k: all pages used by k most recent memory references
+Perhaps draw example on board?
+1 2 1 1 3 2 1 4 5 1 1 1 1 3 1
+calculate w(k,t) at time t=15
+Show graph from page 210
+
+Basic idea of algorithm: find page not in working set
+ - WSClock algorithm
+
+See book for more details
+-->
+ 
+<ul>
+<li>
+<ul>
+<li>During a phase of execution, a process references only a relatively small fraction of its pages.</li>
+</ul></li>
+<li> the <strong>Working Set</strong> of a process is the set of referenced pages in the last <span class="math"><em>k</em></span> memory references</li>
+<li>Each process should have the working set in memory
+<ul>
+<li>Keep track of working set</li>
+<li>Make sure the process' working set is in memory before letting the process run -&gt; loading the pages before letting it run -&gt; prepaging</li>
+<li>Reduce the page fault rate, avoid thrashing this way</li>
+</ul></li>
+</ul>
+</section><section id="beladys-anomaly" class="slide level2">
+<h1>Belady's anomaly</h1>
+<!---
+Idea: Lots of page frames isn't always better.
+-->
+<figure>
+<img src="img/belady.png" />
+</figure>
+</section></section>
+<section><section id="tlb" class="titleslide slide level1"><h1>TLB</h1></section><section id="performance" class="slide level2">
+<h1>Performance</h1>
+<ul>
+<li>Address translation is done on every memory reference</li>
+<li>Maybe twice per instruction
+<ul>
+<li>Instruction fetch</li>
+<li>Fetch Memory operand</li>
+</ul></li>
+<li>Translation better be fast!</li>
+</ul>
+</section><section id="where-do-page-tables-go" class="slide level2">
+<h1>Where do Page Tables Go?</h1>
+<ul>
+<li>Registers
+<ul>
+<li>Fast translation</li>
+<li>Can be used for small page tables (a few 10s of entries)</li>
+</ul></li>
+<li>Context Switch is quite expensive: reload new page translations into registers</li>
+</ul>
+</section><section id="where-do-page-tables-go-1" class="slide level2">
+<h1>Where do Page Tables Go?</h1>
+<!---
+Starting point for optimizations
+-->
+ 
+<ul>
+<li>Memory
+<ul>
+<li>Slow translation</li>
+<li>Large tables can be stored</li>
+</ul></li>
+<li>The page-table base register (PTBR) holds a pointer to the page table location</li>
+<li><strong>Page-table length register</strong> (PTLR) indicates size of the page table</li>
+<li>Context Switch is quick - only need to change this register</li>
+<li>Currently used in most systems, because of the large page tables</li>
+<li>Problem: Cannot afford a memory access for each translation
+<ul>
+<li>4 memory in total for an instruction involving memory operands!</li>
+</ul></li>
+</ul>
+</section><section id="faster-translations" class="slide level2">
+<h1>Faster Translations</h1>
+<ul>
+<li>Translation Lookaside Buffer (=Page Table Cache)</li>
+<li>Frequent translations found in the high-speed cache - TLB hit</li>
+<li>Rest will go to slower-speed memory - (TLB miss)</li>
+</ul>
+</section><section id="associative-register" class="slide level2">
+<h1>Associative Register</h1>
+<p>Associative registers - parallel search</p>
+<figure>
+<img src="img/assoc.png" />
+</figure>
+<p>Address translation (<span class="math"><em>A</em>ʹ, <em>A</em>ʺ</span>) - If <span class="math"><em>A</em>ʹ</span> is in associative register, get frame # out - Otherwise get frame # from page table in memory - This is done by the OS, and takes some time</p>
+</section><section id="tlbs---translation-lookaside-buffers" class="slide level2">
+<h1>TLBs - Translation Lookaside Buffers</h1>
+<!---
+This might be generated by process with loop spanning pages 19,20,21, with data in 129,130; 140.  Stack on 860/861.
+-->
+<figure>
+<img src="img/tlb.png" />
+</figure>
+<ul>
+<li>Speeds up paging by caching recent address translations</li>
+<li>Typically small size - a few 10s of entries</li>
+<li>TLB Hit rates are very important for performance</li>
+</ul>
+</section><section id="tlb-associative-memory" class="slide level2">
+<h1>TLB = Associative Memory</h1>
+<p>Given a virtual address, check all the TLB locations simultaneously for a hit</p>
+<ul>
+<li>requires expensive hardware</li>
+</ul>
+<p>Usually between 64-1024 entries</p>
+<p>Multiple address spaces</p>
+<ul>
+<li>TLB contains translations for only one address space at a time
+<ul>
+<li>TLB flushed on every context switch</li>
+</ul></li>
+<li>Contains translations for all address spaces simultaneously
+<ul>
+<li>Each entry should have an identifier for the address space</li>
+</ul></li>
+</ul>
+</section><section id="tlb-impact-on-aat" class="slide level2">
+<h1>TLB impact on AAT</h1>
+<!---
+Also assume no page fault
+-->
+ 
+<ul>
+<li>Associative Lookup = <span class="math"><em>ε</em></span> time unit</li>
+<li>Assume memory cycle time is <span class="math"><em>m</em></span> microsecond</li>
+<li>Hit ratio - percentage of times that a page number is found in the associative registers
+<ul>
+<li>hit ratio related to number of associative registers</li>
+</ul></li>
+<li>Hit ratio = <span class="math"><em>α</em></span></li>
+<li>Average Access Time (AAT):
+</li>
+</ul>
+</section><section id="impact-of-tlb-on-performance" class="slide level2">
+<h1>Impact of TLB on Performance</h1>
+<p>TLB hit ratio = percent of time a translation can be found in the TLB</p>
+<p><strong>Example:</strong></p>
+<ul>
+<li>80 percent hit ratio</li>
+<li>TLB search = 20 nsec</li>
+<li>Memory access = 100 nsec</li>
+<li>Effective memory access time = ?</li>
+</ul>
+<p></p>
+<p><strong>Answer:</strong> 0.8(120) + 0.2(220) = 140 nsec</p>
+</section></section>
+<section><section id="page-table-size" class="titleslide slide level1"><h1>Page Table Size</h1></section><section id="topics" class="slide level2">
+<h1>Topics</h1>
+<ul>
+<li>Handling large page tables
+<ul>
+<li>Multi-level page tables</li>
+<li>Inverted page table</li>
+</ul></li>
+<li><code>vfork()</code> and Copy-on-Write</li>
+<li>Page Size</li>
+</ul>
+</section><section id="page-table-size-1" class="slide level2">
+<h1>Page-Table Size</h1>
+<p>Consider a full <span class="math">2<sup>32</sup></span>-byte address space</p>
+<ul>
+<li>assume 4096-byte (<span class="math">2<sup>12</sup></span>-byte) pages</li>
+<li>4 bytes per page table entry</li>
+<li>the page table would consist of <span class="math">2<sup>32</sup>/2<sup>12</sup> = 2<sup>20</sup></span> entries</li>
+<li>its size would be <span class="math">2<sup>22</sup></span> bytes (or 4 megabytes)</li>
+</ul>
+<p>Imagine <span class="math">2<sup>64</sup></span>-byte address space</p>
+</section><section id="one-solution" class="slide level2">
+<h1>One Solution</h1>
+<ul>
+<li>Put the page tables themselves in virtual memory</li>
+<li>Only the currently active translations are in physical memory</li>
+</ul>
+</section><section id="multi-level-page-tables" class="slide level2">
+<h1>Multi Level Page Tables</h1>
+<figure>
+<img src="img/mlpt1.png" />
+</figure>
+</section><section id="multi-level-page-tables-1" class="slide level2">
+<h1>Multi Level Page Tables</h1>
+<figure>
+<img src="img/mlpt2.png" />
+</figure>
+</section><section id="multi-level-page-tables-2" class="slide level2">
+<h1>Multi Level Page Tables</h1>
+<figure>
+<img src="img/mlpt3.png" />
+</figure>
+</section><section id="multi-level-page-tables-3" class="slide level2">
+<h1>Multi Level Page Tables</h1>
+<figure>
+<img src="img/mlpt4.png" />
+</figure>
+</section><section id="space-efficiency" class="slide level2">
+<h1>Space Efficiency</h1>
+<!---
+For instance, text, data, and stack at very top.
+-->
+<figure>
+<img src="img/space.png" />
+</figure>
+</section><section id="multi-level-page-tables-4" class="slide level2">
+<h1>Multi Level Page Tables</h1>
+<ul>
+<li>What about page access times?
+<ul>
+<li>Even for successful address translations, 3 memory accesses</li>
+<li>3 fold slowdown is unnacceptable</li>
+</ul></li>
+<li>Hope that the TLB hit ratio is large enough</li>
+</ul>
+</section><section id="inverted-page-tables" class="slide level2">
+<h1>Inverted Page Tables</h1>
+<!---
+Think of 64 bit address space - need 2^52 entries for 4KB pages.  With 8 byte entries, 30 million GB (30 PB) page table.  Per process.
+
+Idea: Page table only lists pages in physical memory.  When you need to get a page, you search for the whole page table for correct entry.
+
+Can combine with TLB to improve.
+
+OR:  Hash tables.
+-->
+<figure>
+<img src="img/inverted.png" />
+</figure>
+</section><section id="unix-and-virtual-memory-the-forkexec-problem" class="slide level2">
+<h1>Unix and Virtual Memory: The <code>fork/exec</code> Problem</h1>
+<p>Naive implementation:</p>
+<ul>
+<li><code>fork()</code> actually makes a copy of the parent's address space for the child</li>
+<li>child executes a few instruction (setting up file descriptors, etc.)</li>
+<li>child calls <code>exec()</code></li>
+<li>result: a lot of time wasted copying the address space, though very little of the copy is actually used</li>
+</ul>
+</section><section id="vfork" class="slide level2">
+<h1><code>vfork()</code></h1>
+<ul>
+<li>A new system call <code>vfork()</code>:
+<ul>
+<li>Don't make a copy of the address space for the child, instead give the address space to the child</li>
+<li>Parent suspended until the child returns it</li>
+<li>The child immediately does an <code>exec</code>: as part of the <code>exec</code>, the address space is handed back to the partent</li>
+</ul></li>
+<li>Advantages
+<ul>
+<li>very efficient</li>
+</ul></li>
+<li>Disadvantages
+<ul>
+<li>works only if child does an <code>exec</code> (programmer has to be careful)</li>
+<li>child shouldn't do anything to the address space</li>
+</ul></li>
+</ul>
+</section><section id="alternative-solution-copy-on-write-1" class="slide level2">
+<h1>Alternative Solution: Copy on Write (1)</h1>
+<figure>
+<img src="img/cow0.png" />
+</figure>
+</section><section id="copy-on-write-2" class="slide level2">
+<h1>Copy on Write (2)</h1>
+<figure>
+<img src="img/cow1.png" />
+</figure>
+</section><section id="how-does-copy-on-write-work" class="slide level2">
+<h1>How does Copy on Write Work?</h1>
+<ul>
+<li>Shared page is marked Copy on Write in the pages tables</li>
+<li>When a process attempts to write
+<ul>
+<li>Page fault causes a trap</li>
+<li>Fault handler makes a copy of the page</li>
+<li>Page Tables changed for both processes</li>
+</ul></li>
+<li>Advantage: May not need to make the copies at all</li>
+</ul>
+</section><section id="page-size" class="slide level2">
+<h1>Page Size</h1>
+<ul>
+<li>Usually 4KB or greater</li>
+<li>Two large - internal fragmentation
+<ul>
+<li>Half of the last page is probably wasted</li>
+</ul></li>
+<li>Two small - number of pages increase
+<ul>
+<li>Larger page table</li>
+<li>Greater overhead in transferring to/from disk</li>
+</ul></li>
+</ul>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>

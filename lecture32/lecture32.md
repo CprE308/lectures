@@ -108,11 +108,14 @@ Idea: Lots of page frames isn't always better.
 
 
 ## Where do Page Tables Go?
+<!---
+Starting point for optimizations
+-->
  - Memory
     - Slow translation
     - Large tables can be stored
  - The page-table base register (PTBR) holds a pointer to the page table location
- - **Page-table length register** (PRLR) indicates size of the page table
+ - **Page-table length register** (PTLR) indicates size of the page table
  - Context Switch is quick - only need to change this register
  - Currently used in most systems, because of the large page tables
  - Problem: Cannot afford a memory access for each translation
@@ -163,7 +166,7 @@ Also assume no page fault
 -->
  - Associative Lookup = $\epsilon$ time unit
  - Assume memory cycle time is $m$ microsecond
- - Hit ratio - percentage of times that a page number is found in the associative registiers
+ - Hit ratio - percentage of times that a page number is found in the associative registers
     - hit ratio related to number of associative registers
  - Hit ratio = $\alpha$
  - Average Access Time (AAT):
@@ -173,7 +176,7 @@ AAT = \alpha (m + \epsilon) + (1 - \alpha)(2m + \epsilon)
 \end{equation*}
 
 ## Impact of TLB on Performance
-TLB hit ratio = percent of time a trnalsation can be found in the TLB
+TLB hit ratio = percent of time a translation can be found in the TLB
 
 **Example:**
 
@@ -196,4 +199,96 @@ TLB hit ratio = percent of time a trnalsation can be found in the TLB
  - `vfork()` and Copy-on-Write
  - Page Size
 
-## TODO
+## Page-Table Size
+
+Consider a full $2^{32}$-byte address space
+
+ - assume 4096-byte ($2^{12}$-byte) pages
+ - 4 bytes per page table entry
+ - the page table would consist of $2^{32}/2^{12} = 2^{20}$ entries
+ - its size would be $2^{22}$ bytes (or 4 megabytes)
+
+Imagine $2^{64}$-byte address space
+
+## One Solution
+ - Put the page tables themselves in virtual memory
+ - Only the currently active translations are in physical memory
+
+## Multi Level Page Tables
+![](img/mlpt1.png)
+
+## Multi Level Page Tables
+![](img/mlpt2.png)
+
+## Multi Level Page Tables
+![](img/mlpt3.png)
+
+## Multi Level Page Tables
+![](img/mlpt4.png)
+
+## Space Efficiency
+<!---
+For instance, text, data, and stack at very top.
+-->
+![](img/space.png)
+
+## Multi Level Page Tables
+ - What about page access times?
+    - Even for successful address translations, 3 memory accesses
+    - 3 fold slowdown is unnacceptable
+ - Hope that the TLB hit ratio is large enough
+
+## Inverted Page Tables
+<!---
+Think of 64 bit address space - need 2^52 entries for 4KB pages.  With 8 byte entries, 30 million GB (30 PB) page table.  Per process.
+
+Idea: Page table only lists pages in physical memory.  When you need to get a page, you search for the whole page table for correct entry.
+
+Can combine with TLB to improve.
+
+OR:  Hash tables.
+-->
+![](img/inverted.png)
+
+## Unix and Virtual Memory: The `fork/exec` Problem
+
+Naive implementation:
+
+ - `fork()` actually makes a copy of the parent's address space for the child
+ - child executes a few instruction (setting up file descriptors, etc.)
+ - child calls `exec()`
+ - result: a lot of time wasted copying the address space, though very little of the copy is actually used
+
+## `vfork()`
+ - A new system call `vfork()`:
+    - Don't make a copy of the address space for the child, instead give the address space to the child
+    - Parent suspended until the child returns it
+    - The child immediately does an `exec`: as part of the `exec`, the address space is handed back to the partent
+ - Advantages
+    - very efficient
+ - Disadvantages
+    - works only if child does an `exec` (programmer has to be careful)
+    - child shouldn't do anything to the address space
+
+## Alternative Solution: Copy on Write (1)
+![](img/cow0.png)
+
+## Copy on Write (2)
+![](img/cow1.png)
+
+## How does Copy on Write Work?
+ - Shared page is marked Copy on Write in the pages tables
+ - When a process attempts to write
+    - Page fault causes a trap
+    - Fault handler makes a copy of the page
+    - Page Tables changed for both processes
+ - Advantage: May not need to make the copies at all
+
+## Page Size
+ - Usually 4KB or greater
+ - Two large - internal fragmentation
+    - Half of the last page is probably wasted
+ - Two small - number of pages increase
+    - Larger page table
+    - Greater overhead in transferring to/from disk
+
