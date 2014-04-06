@@ -26,12 +26,21 @@ Two important tasks of an operating system
  2. Manages resources
 
 ## Requirements
+<!---
+Idea: think of disk as linear sequence of fixed-size blocks that support:
+ 1. Read block k
+ 2. Write block k.
+
+Implement as a file
+-->
  - Permanent storage (usually)
     - resides on disk (or alternatives)
     - survives software and hardware crashes
  - User access
     - Regular users
     - Programmers (convenient programming interface)
+
+# File
 
 ## User View of a File System
 **File Naming**
@@ -48,7 +57,7 @@ Two important tasks of an operating system
 
  - Case insensitive names
  - OS uses extensions to determine which programs to use to open the file
-    - Ex: Clicking on "\structure{milefile.doc}" opens up Microsoft word
+    - Ex: Clicking on "\structure{myfile.doc}" opens up Microsoft word
 
 ## File Naming
 ![](img/filenaming.png)
@@ -78,7 +87,11 @@ Typical file extensions
  - Point to I/O devices
 
 ## Special Files
-
+<!---
+Such as printers
+Block: sequence of numbered blocks.  Each block can be individually addressed/accessed.
+Character: not possible to seek.  Used for printers, mice, etc.
+-->
     ls -l /dev
     crw-------    1 root  root   10,  3 Apr 11  2002  atimouse
     crw-------    1 root  root   14,  4 Apr 11  2002  audio
@@ -143,8 +156,8 @@ Typical file extensions
         int fd;   /* a file descriptor */
         ssize_t nread;  /* # of bytes read */
         char buf[1024]; /* data buffer */
-        /* open the file “data” for reading */
-        fd = open(“C:/mydata.dat”, O_RDONLY);
+        /* open the file "data" for reading */
+        fd = open("C:/mydata.dat", O_RDONLY);
         /* read in the data */
         nread = read(fd, buf, 1024);
         /* close the file */
@@ -175,8 +188,7 @@ Typical file extensions
 ## Standard File Descriptors
 
     main( ) {
-        char buf[100];
-        int n;
+        char buf[100]; int n;
         const char* note = "Write failed\n";
         while ((n = read(0, buf, sizeof(buf))) > 0)
             if (write(1, buf, n) != n) {

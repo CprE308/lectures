@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <title>Lecture 34 - File Systems</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 34 - File Systems</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">April 7, 2014</h3>
+</section>
+
+<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section><section id="file-system" class="slide level2">
+<h1>File System</h1>
+<ul>
+<li>User View</li>
+<li>Programming Interface</li>
+<li>File System Implementation</li>
+</ul>
+</section><section id="permanent-storage" class="slide level2">
+<h1>Permanent Storage</h1>
+<figure>
+<img src="img/storage.png" />
+</figure>
+</section><section id="files" class="slide level2">
+<h1>Files</h1>
+<figure>
+<img src="img/files.png" />
+</figure>
+</section><section id="file-system-1" class="slide level2">
+<h1>File System</h1>
+<figure>
+<img src="img/filesystem.png" />
+</figure>
+</section><section id="roles-of-os" class="slide level2">
+<h1>Roles of OS</h1>
+<p>Two important tasks of an operating system</p>
+<ol type="1">
+<li>Provides easy interface to hardware</li>
+<li>Manages resources</li>
+</ol>
+</section><section id="requirements" class="slide level2">
+<h1>Requirements</h1>
+<!---
+Idea: think of disk as linear sequence of fixed-size blocks that support:
+ 1. Read block k
+ 2. Write block k.
+
+Implement as a file
+-->
+ 
+<ul>
+<li>Permanent storage (usually)
+<ul>
+<li>resides on disk (or alternatives)</li>
+<li>survives software and hardware crashes</li>
+</ul></li>
+<li>User access
+<ul>
+<li>Regular users</li>
+<li>Programmers (convenient programming interface)</li>
+</ul></li>
+</ul>
+</section></section>
+<section><section id="file" class="titleslide slide level1"><h1>File</h1></section><section id="user-view-of-a-file-system" class="slide level2">
+<h1>User View of a File System</h1>
+<p><strong>File Naming</strong></p>
+<ul>
+<li>Usually ASCII characters, with extensions. E.g. </li>
+</ul>
+<p><strong>Unix:</strong></p>
+<ul>
+<li>Case is important &quot;&quot; different from &quot;&quot;</li>
+<li>OS does not use filename extensions
+<ul>
+<li>Programmers might use them</li>
+</ul></li>
+</ul>
+<p><strong>Windows:</strong></p>
+<ul>
+<li>Case insensitive names</li>
+<li>OS uses extensions to determine which programs to use to open the file
+<ul>
+<li>Ex: Clicking on &quot;&quot; opens up Microsoft word</li>
+</ul></li>
+</ul>
+</section><section id="file-naming" class="slide level2">
+<h1>File Naming</h1>
+<figure>
+<img src="img/filenaming.png" />
+</figure>
+<p>Typical file extensions</p>
+</section><section id="hierarchical-directory-structure" class="slide level2">
+<h1>Hierarchical directory structure</h1>
+<figure>
+<img src="img/hierarchy.png" />
+</figure>
+<ul>
+<li>What about user interface for this structure?</li>
+</ul>
+</section><section id="types-of-unix-files" class="slide level2">
+<h1>Types of Unix Files</h1>
+<p><strong>Data Files:</strong></p>
+<ul>
+<li>ASCII files - lines of text
+<ul>
+<li>Special programs to handle these (<code>wc</code>, <code>grep</code>)</li>
+</ul></li>
+<li>Binary Files
+<ul>
+<li>Non ASCII characters (executable code, archive, .dvi, .pdf)</li>
+</ul></li>
+</ul>
+<p><strong>Directories:</strong></p>
+<ul>
+<li>special files whose data contains a list of files</li>
+</ul>
+<p><strong>Special Files:</strong></p>
+<ul>
+<li>Point to I/O devices</li>
+</ul>
+</section><section id="special-files" class="slide level2">
+<h1>Special Files</h1>
+<!---
+Such as printers
+Block: sequence of numbered blocks.  Each block can be individually addressed/accessed.
+Character: not possible to seek.  Used for printers, mice, etc.
+-->
+    
+<p>ls -l /dev crw------- 1 root root 10, 3 Apr 11 2002 atimouse crw------- 1 root root 14, 4 Apr 11 2002 audio crw------- 1 root root 14, 20 Apr 11 2002 audio1 crw------- 1 root root 14, 7 Apr 11 2002 audioctl brw-rw---- 1 root disk 29, 0 Apr 11 2002 aztcd</p>
+<ol type="1">
+<li>Character Special Files (terminal, network device, etc.)
+<ul>
+<li>The device is abstracted by a stream of bytes that can only be accessed in sequential order.</li>
+</ul></li>
+<li>Block Special Files (disks)
+<ul>
+<li>The device driver transfers chunks or blocks of data between the operating system and the device.</li>
+</ul></li>
+</ol>
+</section><section id="file-attributes" class="slide level2">
+<h1>File Attributes</h1>
+<ul>
+<li>Information about the file, but not a part of the file data
+<ul>
+<li>Protection (or permissions)</li>
+<li>Owner</li>
+<li>Time of creation</li>
+<li>Current Size</li>
+<li>Etc..</li>
+</ul></li>
+<li><p>Examples (in Unix)</p>
+<pre><code>-rw-r--r--  1 snt  users  443529 Sep 25 13:49 switching-networks.ps
+drwxr-xr-x  4 snt  users      53 Oct  7 20:07 streams</code></pre></li>
+</ul>
+</section><section id="unix-system-calls-for-files" class="slide level2">
+<h1>Unix System Calls for Files</h1>
+<ul>
+<li><code>int open(const char *pathname, int flags, mode_t mode);</code>
+<ul>
+<li>Returns a file descriptor</li>
+</ul></li>
+<li><code>ssize_t read(int fildes, void *buf, size_t count);</code>
+<ul>
+<li>Use the file descriptor</li>
+</ul></li>
+<li><code>ssize_t write(int fildes, const void *buf, size_t count);</code>
+<ul>
+<li>Use file descriptor</li>
+</ul></li>
+<li><code>off_t lseek(int fildes, off_t offset, int whence);</code>
+<ul>
+<li>Use file descriptor</li>
+</ul></li>
+<li>Delete, read attributes, set attributes, etc.</li>
+</ul>
+</section><section id="the-open-call" class="slide level2">
+<h1>The <code>open()</code> call</h1>
+<pre><code>#include &lt;sys/tyles.h&gt;
+#include &lt;sys/stat.h&gt;
+#include &lt;fcntl.h&gt;
+int open (const char *path, int flags, [mode_t mode]);</code></pre>
+<ul>
+<li><code>char *path</code>: is a string that contains the <em>fully qualified filename</em> of the file to be opened</li>
+<li><code>int flags</code>: specifies the method of access i.e. <em>read_only</em> (O_RDONLY), <em>write_only</em> (O_WRONLY), <em>read_and_write</em> (O_RDWR).</li>
+<li><code>mode_t mode</code>: optional parameter used to set the access mode upon file creation (e.g. O_TRUNC, O_APPEND, ...)</li>
+</ul>
+</section><section id="read-and-write" class="slide level2">
+<h1><code>read()</code> and <code>write()</code></h1>
+<pre><code>#include &lt;fcntl.h&gt;
+ssize_t read(int filedes, void *buffer, size_t n);
+ssize_t write(int filedes, const void *buffer, size_t n);</code></pre>
+<ul>
+<li><code>int filedes</code>: file descriptor that has been obtained though an <code>open()</code> or <code>create()</code> call.</li>
+<li><code>void *buffer</code>: pointer to an array that will hold the data that is read or holds the data to be written.</li>
+<li><code>size_t n</code>: the number of bytes that are to be read/written from/to the file.</li>
+</ul>
+</section><section id="an-example" class="slide level2">
+<h1>An example</h1>
+<pre><code>#include &lt;fcntl.h&gt; 
+#include &lt;unistd.h&gt;
+main() { 
+    int fd;   /* a file descriptor */
+    ssize_t nread;  /* # of bytes read */
+    char buf[1024]; /* data buffer */
+    /* open the file &quot;data&quot; for reading */
+    fd = open(&quot;C:/mydata.dat&quot;, O_RDONLY);
+    /* read in the data */
+    nread = read(fd, buf, 1024);
+    /* close the file */
+     close(fd);
+}</code></pre>
+</section><section id="a-close-call" class="slide level2">
+<h1>A <code>close()</code> call</h1>
+<ul>
+<li>Although all open files are closed by the OS upon completion of the program, it is <em>good programming style</em> to &quot;clean up&quot; after you are done with any system resource.</li>
+<li><p>Please make it a habit to <em>close</em> all files that you program has used as soon as you don't need them anymore!</p>
+<pre><code>#include &lt;fcntl.h&gt;
+int close(int filedes);</code></pre></li>
+<li><p>Remember, closing resources timely can improve system performance and prevent deadlocks from happening (more later)</p></li>
+</ul>
+</section><section id="random-access" class="slide level2">
+<h1>Random Access</h1>
+<pre><code>#include &lt;sys/types.h&gt;
+#include &lt;unistd.h&gt;
+off_t lseek(int fd, off_t offset, int whence)</code></pre>
+<ul>
+<li>sets the file pointer for fd:
+<ul>
+<li>if <em>whence</em> is SEEK_SET, the pointer is set to <em>offset</em> bytes;</li>
+<li>if <em>whence</em> is SEEK_CUR, the pointer is set to its current value plus <em>offset</em> bytes;</li>
+<li>if <em>whence</em> is SEEK_END, the pointer is set to the size of the file plus <em>offset</em> bytes</li>
+</ul></li>
+<li>it returns the (possibly) updated value of the file pointer relative to the beginning of the file. Thus, <code>n = lseek(fd, (off_t)0, SEEK_CUR);</code> returns the current value of the file pointer for fd</li>
+</ul>
+</section><section id="standard-file-descriptors" class="slide level2">
+<h1>Standard File Descriptors</h1>
+<pre><code>main( ) {
+    char buf[100]; int n;
+    const char* note = &quot;Write failed\n&quot;;
+    while ((n = read(0, buf, sizeof(buf))) &gt; 0)
+        if (write(1, buf, n) != n) {
+            (void)write(2, note, strlen(note));
+            exit(EXIT_FAILURE);
+        }
+    return(EXIT_SUCCESS);
+}</code></pre>
+<ul>
+<li>File descriptor 0: standard input</li>
+<li>File descriptor 1: standard output</li>
+<li>File descriptor 2: standard error output</li>
+</ul>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
