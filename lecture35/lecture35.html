@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <title>Lecture 35 - File Systems</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+    </style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 35 - File Systems</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">April 7, 2014</h3>
+</section>
+
+<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section></section>
+<section><section id="directories" class="titleslide slide level1"><h1>Directories</h1></section><section id="unix-directories" class="slide level2">
+<h1>Unix Directories</h1>
+<figure>
+<img src="img/dirs.png" />
+</figure>
+</section><section id="directory-representation" class="slide level2">
+<h1>Directory Representation</h1>
+<figure>
+<img src="img/dir_rep.png" />
+</figure>
+</section></section>
+<section><section id="open-file" class="titleslide slide level1"><h1>Open File</h1></section><section id="representing-an-open-file-1" class="slide level2">
+<h1>Representing an Open File (1)</h1>
+<figure>
+<img src="img/open1.png" />
+</figure>
+</section><section id="allocation-of-file-descriptors" class="slide level2">
+<h1>Allocation of File Descriptors</h1>
+<ul>
+<li>Whenever a process requests a new file descriptor, the lowest numbered file descriptor not already associated with an open file is selected.</li>
+</ul>
+</section><section id="representing-an-open-file-2" class="slide level2">
+<h1>Representing an Open File (2)</h1>
+<!---
+(Book page 793)
+Why not just point directly to the active inode?
+ - every fd has file position.
+Where to store file poistion - in i-node table?
+ - No, if two or more unrelated processes open same file, each has own file position.
+Why not store directly in file descriptor table?
+ - Obscure example of forking shell script
+
+
+-->
+<figure>
+<img src="img/open2.png" />
+</figure>
+</section><section id="reading-from-a-file" class="slide level2">
+<h1>Reading From a File</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#include &lt;sys/types.h&gt;</span>
+<span class="ot">#include &lt;unistd.h&gt;</span>
+ssize_t read(<span class="dt">int</span> fd, <span class="dt">void</span> *buffer, size_t n)</code></pre>
+<ul>
+<li>read up to n bytes of data into buffer</li>
+<li>returns number of bytes transferred</li>
+<li>returns 0 on end of file</li>
+<li>returns –1 on error</li>
+</ul>
+<p></p>
+<p>When will “read” transfer fewer bytes than specified ?</p>
+</section><section id="writing-to-a-file" class="slide level2">
+<h1>Writing To a File</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#include &lt;sys/types.h&gt;</span>
+<span class="ot">#include &lt;unistd.h&gt;</span>
+ssize_t write(<span class="dt">int</span> fd, <span class="dt">void</span> *buffer, size_t n)</code></pre>
+<ul>
+<li>write up to n bytes of data from buffer</li>
+<li>returns number of bytes transferred</li>
+<li>returns –1 on error</li>
+</ul>
+</section><section id="example" class="slide level2">
+<h1>Example</h1>
+<pre class="sourceCode c"><code class="sourceCode c">main( ) {
+    <span class="dt">char</span> buf[BUFSIZE]; <span class="dt">int</span> nread;
+    <span class="dt">const</span> <span class="dt">char</span>* note = <span class="st">&quot;Write failed</span><span class="ch">\n</span><span class="st">&quot;</span>;
+    <span class="kw">while</span> ((nread = read(<span class="dv">0</span>, buf, <span class="kw">sizeof</span>(buf))) &gt; <span class="dv">0</span>) {
+        <span class="dt">int</span> bytes_left = nread; <span class="dt">int</span> bpos = <span class="dv">0</span>;
+        <span class="kw">while</span> ((n = write(<span class="dv">1</span>, &amp;buf[bpos], bytes_left)) &lt; bytes_left) {
+            <span class="kw">if</span> (n == -<span class="dv">1</span>) {
+                write(<span class="dv">2</span>, note, strlen(note));
+                exit(EXIT_FAILURE);
+            }
+            bytes_left -= n; bpos += n;
+        }
+    }
+    <span class="kw">return</span>(EXIT_SUCCESS);
+}</code></pre>
+</section><section id="random-access" class="slide level2">
+<h1>Random Access</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="ot">#include &lt;sys/types.h&gt;</span>
+<span class="ot">#include &lt;unistd.h&gt;</span>
+off_t lseek(<span class="dt">int</span> fd, off_t offset, <span class="dt">int</span> whence)</code></pre>
+<ul>
+<li>sets the file pointer for fd:
+<ul>
+<li>if <em>whence</em> is SEEK_SET, the pointer is set to <em>offset</em> bytes;</li>
+<li>if <em>whence</em> is SEEK_CUR, the pointer is set to its current value plus <em>offset</em> bytes;</li>
+<li>if <em>whence</em> is SEEK_END, the pointer is set to the size of the file plus <em>offset</em> bytes</li>
+</ul></li>
+<li>it returns the (possibly) updated value of the file pointer relative to the beginning of the file. Thus, <code>n = lseek(fd, (off_t)0, SEEK_CUR);</code> returns the current value of the file pointer for fd</li>
+</ul>
+</section><section id="lseek-example" class="slide level2">
+<h1><code>lseek</code> Example</h1>
+<!---
+Sort of a trick question.  Nothing.  Seek should be -2.
+-->
+ 
+<ul>
+<li>What does this piece of code do?</li>
+</ul>
+<pre class="sourceCode c"><code class="sourceCode c">fd = open(<span class="st">&quot;textfile&quot;</span>, O_RDONLY); 
+fptr = lseek(fd, (off_t)-<span class="dv">1</span>, SEEK_END);
+<span class="kw">while</span> (fptr != -<span class="dv">1</span>) {
+    read(fd, buf, <span class="dv">1</span>);
+    write(<span class="dv">1</span>, buf, <span class="dv">1</span>); 
+    fptr = lseek(fd, (off_t)-<span class="dv">1</span>, SEEK_CUR);
+}</code></pre>
+<p></p>
+<p>Should be: <code>fptr = lseek(fd, (off_t)-2, SEEK_CUR);</code></p>
+</section></section>
+<section><section id="multiple-descriptors" class="titleslide slide level1"><h1>Multiple Descriptors</h1></section><section id="representing-an-open-file-3" class="slide level2">
+<h1>Representing an Open File (3)</h1>
+<figure>
+<img src="img/open3.png" />
+</figure>
+</section><section id="multiple-descriptors-one-file" class="slide level2">
+<h1>Multiple Descriptors; One File</h1>
+<ul>
+<li>How are standard file descriptors set up?
+<ul>
+<li>suppose 1 and 2 are opened separately</li>
+</ul></li>
+</ul>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span> ((n = read(<span class="dv">0</span>, buf, <span class="kw">sizeof</span>(buf))) &gt; <span class="dv">0</span>)
+    <span class="kw">if</span> (write(<span class="dv">1</span>, buf, n) != n) {
+    (<span class="dt">void</span>)write(<span class="dv">2</span>, note, strlen(note));
+    exit(EXIT_FAILURE);
+}</code></pre>
+<ul>
+<li>error message clobbers data bytes!</li>
+</ul>
+</section><section id="dup-system-calls" class="slide level2">
+<h1><code>dup</code> System Calls</h1>
+<ul>
+<li><code>dup</code> returns a new file descriptor referring to the same file as its argument
+<ul>
+<li><code>int dup(int fd)</code></li>
+</ul></li>
+<li><code>dup2</code> is similar, but it allows you to specify the new file descriptor
+<ul>
+<li><code>int dup2(int oldfd, int newfd)</code></li>
+</ul></li>
+</ul>
+</section><section id="dup-example" class="slide level2">
+<h1><code>dup</code> Example</h1>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="co">/* redirect stdout and stderr to same file */</span>
+<span class="co">/* assumes file descriptor 0 is in use */</span>
+close(<span class="dv">1</span>);
+open(<span class="st">&quot;file&quot;</span>, O_WRONLY|O_CREAT, <span class="dv">0666</span>);
+close(<span class="dv">2</span>);
+dup(<span class="dv">1</span>);
+
+<span class="co">/* alternatively, replace last two lines with: */</span>
+dup2(<span class="dv">1</span>, <span class="dv">2</span>);</code></pre>
+</section><section id="representing-an-open-file-4" class="slide level2">
+<h1>Representing an Open File (4)</h1>
+<figure>
+<img src="img/open4.png" />
+</figure>
+</section><section id="representing-an-open-file-5" class="slide level2">
+<h1>Representing an Open File (5)</h1>
+<figure>
+<img src="img/open5.png" />
+</figure>
+</section><section id="io-redirection" class="slide level2">
+<h1>I/O Redirection</h1>
+<p><code>% who &gt; file &amp;</code></p>
+<pre class="sourceCode c"><code class="sourceCode c"><span class="kw">if</span> (fork( ) == <span class="dv">0</span>) {
+    <span class="dt">char</span> *args[ ] = {<span class="st">&quot;who&quot;</span>, <span class="dv">0</span>};
+    close(<span class="dv">1</span>);
+    open(<span class="st">&quot;file&quot;</span>, O_WRONLY|O_TRUNC, <span class="dv">0666</span>);
+    execv(<span class="st">&quot;who&quot;</span>, args);
+    printf(<span class="st">&quot;you screwed up</span><span class="ch">\n</span><span class="st">&quot;</span>);
+    exit(<span class="dv">1</span>);
+}</code></pre>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
