@@ -28,6 +28,7 @@ This repo contains all lecture slides for CprE 308 - Spring 2014.
 | 13 | File Systems Intro | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture34/lecture34.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture34/lecture34.pdf?raw=true) |
 |    | FS: Open Files | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture35/lecture35.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture35/lecture35.pdf?raw=true) |
 |    | FS: Implementation | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture36/lecture36.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture36/lecture36.pdf?raw=true) |
+| 14 | FS: Performance | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture37/lecture37.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture37/lecture37.pdf?raw=true) |
 
 
 
