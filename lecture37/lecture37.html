@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <meta name="dcterms.date" content="2014-04-14" />
+  <title>Lecture 37 - File Systems: Shared Files, Performance</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 37 - File Systems: Shared Files, Performance</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">April 14, 2014</h3>
+</section>
+
+<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section><section id="todays-topics-file-system-implementation" class="slide level2">
+<h1>Todays topics: File System Implementation</h1>
+<ul>
+<li>Shared Files</li>
+<li>Buffer Cache and File System Consistency</li>
+</ul>
+</section></section>
+<section><section id="sharing" class="titleslide slide level1"><h1>Sharing</h1></section><section id="sharing-of-files" class="slide level2">
+<h1>Sharing of Files</h1>
+<ul>
+<li>In UNIX: <code>ln src dest</code></li>
+<li>Two ways of linking files
+<ul>
+<li>&quot;hard&quot; links</li>
+<li>Symbolic links</li>
+</ul></li>
+</ul>
+</section><section id="hard-links" class="slide level2">
+<h1>Hard links</h1>
+<ul>
+<li>Both files point to the same inode</li>
+<li><code>ln /home/guan/f1 /home/guan/f2</code></li>
+</ul>
+<figure>
+<img src="img/hard_links.png" />
+</figure>
+</section><section id="hard-links-1" class="slide level2">
+<h1>Hard Links</h1>
+<!---
+Removal: C can 'delete' it, but it still exists to user B.
+May be good or bad depending on how you want it.
+-->
+<figure>
+<img src="img/hard_links2.png" />
+</figure>
+</section><section id="symbolic-links" class="slide level2">
+<h1>Symbolic links</h1>
+<!---
+If owner deletes it, file is truly destroyed.  Second user will not be able to use it because system can't find the file.
+
+Also, overhead of symbolic link because you have to follow the full path.
+-->
+ 
+<ul>
+<li>Files point to different inodes</li>
+<li><code>ln -s /home/guan/f1 /home/guan/f2</code></li>
+</ul>
+<figure>
+<img src="img/symbolic_links.png" />
+</figure>
+</section></section>
+<section><section id="performance" class="titleslide slide level1"><h1>Performance</h1></section><section id="performance-of-file-system" class="slide level2">
+<h1>Performance of File System</h1>
+<ul>
+<li>Where does your data go after a <code>write()</code> system call?</li>
+<li>Where does the data come from for a <code>read()</code>?</li>
+<li>Think about performance</li>
+</ul>
+</section><section id="the-buffer-cache" class="slide level2">
+<h1>The Buffer Cache</h1>
+<figure>
+<img src="img/buffer_cache.png" />
+</figure>
+</section><section id="buffer-cache" class="slide level2">
+<h1>Buffer Cache</h1>
+<p><code>Read(block)</code></p>
+<ol type="1">
+<li>See if block present in buffer cache
+<ul>
+<li>If yes, then return buffer</li>
+</ul></li>
+<li>Initiate disk read for the block</li>
+<li>Sleep till read is complete</li>
+<li>Return buffer</li>
+</ol>
+</section><section id="read-ahead" class="slide level2">
+<h1>Read Ahead</h1>
+<!---
+Computer may intelligently decide if reading in "sequential access mode" or "random access mode" to see if it should continue doing it.  If random access, then reading ahead is not helpful (and actually hurtful).
+-->
+<figure>
+<img src="img/read_ahead.png" />
+</figure>
+</section><section id="buffer-cache---write" class="slide level2">
+<h1>Buffer Cache - Write</h1>
+<!---
+Write-back on UNIX, write-through on old Windows.
+-->
+<p><code>Write(block) // assume block in cache</code></p>
+<ul>
+<li>(Usually) Write to cache and return; the write to disk is done later </li>
+<li>(Sometimes) Write to cache, schedule a write to disk and return </li>
+<li>(Exceptional cases) Write to cache, do a synchronous (blocking) write to disk, and return</li>
+</ul>
+</section><section id="write" class="slide level2">
+<h1>Write</h1>
+<ul>
+<li>Write-back more efficient than write-through</li>
+<li>A disk crash might cause a more serious problem with write-back</li>
+<li>What happens when:
+<ul>
+<li>The system is turned off without a shutdown</li>
+<li>A floppy is removed from the drive without unmounting</li>
+</ul></li>
+<li>System to the rescue: Every 30 seconds or do, a <code>sync</code> is done, writing all cache contents to disk</li>
+</ul>
+</section><section id="structure-of-cache" class="slide level2">
+<h1>Structure of Cache</h1>
+<ul>
+<li>Memory allocated by the system</li>
+<li>Lookup:
+<ul>
+<li>hash tables</li>
+</ul></li>
+<li>Page Replacement:
+<ul>
+<li>LRU</li>
+<li>Keep a list sorted according to time of use</li>
+</ul></li>
+</ul>
+</section><section id="structure-of-the-cache" class="slide level2">
+<h1>Structure of the Cache</h1>
+<figure>
+<img src="img/cache_structure.png" />
+</figure>
+</section><section id="file-system-consistency-1" class="slide level2">
+<h1>File-System Consistency (1)</h1>
+<figure>
+<img src="img/consistency.png" />
+</figure>
+</section><section id="file-system-consistency-2" class="slide level2">
+<h1>File-System Consistency (2)</h1>
+<figure>
+<img src="img/consistency2.png" />
+</figure>
+</section><section id="keeping-it-consistent" class="slide level2">
+<h1>Keeping It Consistent</h1>
+<!---
+Point, sometimes things get messed up - check!
+Also, journaling file systems.
+
+In practice, use modified LRU.  Put blocks to use again near end
+-->
+<figure>
+<img src="img/consistency3.png" />
+</figure>
+</section><section id="file-systems-do-crash" class="slide level2">
+<h1>File Systems do Crash</h1>
+<ul>
+<li>Bring to a consistent state using <code>fsck</code> on Unix</li>
+<li>Make sure every disk block in exactly one file or on the free list</li>
+<li>Go through all directories, and count the number of links per file - check for inconsistencies</li>
+<li>Might prompt the user before taking action</li>
+</ul>
+</section><section id="log-structured-file-systems" class="slide level2">
+<h1>Log Structured File Systems</h1>
+<!---
+Introduce to show variety, and options.
+Mention cleaner - like circular buffer.
+Way better for lots of short writes, and as good for reading and long writes.  However, still complex and not compatible with existing file systems so not widely used.
+-->
+ 
+<ul>
+<li>If there's lots of caching, then most operations to the file system are <em>writes</em></li>
+<li>Writes are quickest when there is no need to do a seek</li>
+<li>Thus: perform writes wherever the disk head happens to be</li>
+</ul>
+<figure>
+<img src="img/log.png" />
+</figure>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
