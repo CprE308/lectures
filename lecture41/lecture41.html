@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <meta name="dcterms.date" content="2014-04-23" />
+  <title>Lecture 41 - OS Security</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+    </style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 41 - OS Security</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">April 23, 2014</h3>
+</section>
+
+<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section><section id="what-have-we-learned-about-os-so-far" class="slide level2">
+<h1>What have we learned about OS so far?</h1>
+<p><strong>OS</strong></p>
+<ul>
+<li>Goals
+<ul>
+<li>Resource Manager</li>
+<li>User Interface</li>
+</ul></li>
+<li>Important things we have discussed
+<ul>
+<li>Multi-user, multi-process, multi-thread</li>
+<li>Synchronization, Mutual Exclusion, Deadlock</li>
+<li>Scheduling</li>
+<li>Memory</li>
+<li>I/O Devices</li>
+<li>Files, and File Systems</li>
+</ul></li>
+</ul>
+</section><section id="what-are-the-problems" class="slide level2">
+<h1>What are the problems?</h1>
+<p>Top 25 Most Dangerous Software Errors</p>
+<p><a href="http://www.sans.org/top25-software-errors/#cat1">http://www.sans.org/top25-software-errors/#cat1</a></p>
+<p>Version 3.0, June 2011</p>
+</section></section>
+<section><section id="problems-and-fixes" class="titleslide slide level1"><h1>Problems and Fixes</h1></section><section id="problem-cleartext-transmitstorage-of-sensitive-info" class="slide level2">
+<h1>Problem: Cleartext Transmit/Storage of Sensitive Info</h1>
+<figure>
+<img src="img/cleartext.png" />
+</figure>
+<div class="fragment">
+<p><strong>Fix:</strong></p>
+<ul>
+<li>Encrypt data with standard, reliable encryption before transmission</li>
+<li>Whole-drive/File Encryption</li>
+</ul>
+</div>
+</section><section id="problem-adopting-untrusted-software" class="slide level2">
+<h1>Problem: Adopting Untrusted Software</h1>
+<h3 id="section"></h3>
+<h4 id="section-1"></h4>
+<p><strong>Fix:</strong></p>
+<ul>
+<li>Use monitoring tools that examine processes as it interacts with the OS
+<ul>
+<li>Truss (Solaris)</li>
+<li>Strace (Linux)</li>
+<li>FileMon, RegMon, Process Monitor, Sysinternals (Windows)</li>
+<li>Sniffers, Protocol analyzers</li>
+</ul></li>
+</ul>
+<h4 id="section-2"></h4>
+<figure>
+<img src="img/download.png" />
+</figure>
+<p>Free Software ... Is it Safe?</p>
+</section><section id="problem-incorrect-input" class="slide level2">
+<h1>Problem: Incorrect Input</h1>
+<figure>
+<img src="img/incorrect.png" />
+</figure>
+</section><section id="problem-buffer-overflow" class="slide level2">
+<h1>Problem: Buffer Overflow</h1>
+<h3 id="section-3"></h3>
+<h4 id="section-4"></h4>
+<figure>
+<img src="img/buffer.png" />
+</figure>
+<h4 id="section-5"></h4>
+<p>Enter Name: Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz</p>
+</section><section id="fix-input-validation" class="slide level2">
+<h1>Fix: Input Validation</h1>
+<h3 id="section-6"></h3>
+<h4 id="section-7"></h4>
+<p>Assume all input is malicious! Validate:</p>
+<ul>
+<li>Length</li>
+<li>Type</li>
+<li>Syntax</li>
+<li>Context: Business Rules</li>
+</ul>
+<p>Or use:</p>
+<ul>
+<li>Special input checkers</li>
+<li>Whitelist: List of acceptable input</li>
+<li>Blacklist: Reject suspect input</li>
+</ul>
+<h4 id="section-8"></h4>
+<figure>
+<img src="img/validate.png" />
+</figure>
+</section><section id="problem-race-condition" class="slide level2">
+<h1>Problem: Race Condition</h1>
+<p>Threads both using same variables.</p>
+<div class="fragment">
+<p><strong>Fix:</strong></p>
+<ul>
+<li>Use Synchronization Primitives around critical code</li>
+<li>Measure use of shared resources</li>
+<li>Test using artificial delays in race window</li>
+<li>Identify and trigger error conditions</li>
+</ul>
+</div>
+</section><section id="problem-os-command-injection" class="slide level2">
+<h1>Problem: OS Command Injection</h1>
+<h3 id="section-9"></h3>
+<h4 id="section-10"></h4>
+<p>Problem: Command Injection into SQL</p>
+<p>Inserts <code>|shell(&quot;cmd /c echo &quot; &amp; char(124) &amp; &quot;format c:&quot;)|</code></p>
+<ul>
+<li>Data and control can traverse same path</li>
+</ul>
+<h4 id="section-11"></h4>
+<figure>
+<img src="img/injection.png" />
+</figure>
+</section><section id="fix-avoid-os-command-injection" class="slide level2">
+<h1>Fix: Avoid OS Command Injection</h1>
+<ul>
+<li>Separate control information from data information.
+<ul>
+<li>E.G. where data -&gt; database, control defines application</li>
+</ul></li>
+<li>Use library calls instead of external processes</li>
+<li>Avoid external control of command input</li>
+<li>Run code in &quot;jail&quot; or other sandbox environment</li>
+<li>Provide lowest possible permissions for executable</li>
+</ul>
+<figure>
+<img src="img/avoid_injection.png" />
+</figure>
+</section><section id="problem-external-control-of-critical-state-data" class="slide level2">
+<h1>Problem: External Control of Critical State Data</h1>
+<h3 id="section-12"></h3>
+<h4 id="section-13"></h4>
+<p>User - side data can be modified</p>
+<ul>
+<li>Cookies</li>
+<li>Configuration files</li>
+<li>Profiles</li>
+<li>Hidden form fields</li>
+<li>Environmental variables</li>
+<li>Registry keys</li>
+</ul>
+<h4 id="section-14"></h4>
+<figure>
+<img src="img/ext_control.png" />
+</figure>
+</section><section id="fix-control-critical-state-data" class="slide level2">
+<h1>Fix: Control Critical State Data</h1>
+<ul>
+<li>Understand all locations that are accessible to attackers</li>
+<li>Do not keep state info on client without using encryption and integrity checking (e.g. HMAC)</li>
+<li>Store state info on server side only: ASP.NET View State, OWASP ESAPI Session Mgmt</li>
+</ul>
+</section><section id="problem-insecure-interaction-between-components" class="slide level2">
+<h1>Problem: Insecure Interaction Between Components</h1>
+<figure>
+<img src="img/interaction.png" />
+</figure>
+</section><section id="problem-insecure-interaction-between-components-1" class="slide level2">
+<h1>Problem: Insecure Interaction Between Components</h1>
+<h3 id="section-15"></h3>
+<h4 id="section-16"></h4>
+<ul>
+<li>Web servers are memoryless</li>
+<li>Do not remember sending a form to a client - what type, info</li>
+<li>Client side can remove checks, insert other code, return unexpected data, etc.</li>
+</ul>
+<h4 id="section-17"></h4>
+<figure>
+<img src="img/interaction2.png" />
+</figure>
+</section><section id="problem-forgery" class="slide level2">
+<h1>Problem: Forgery</h1>
+<figure>
+<img src="img/forgery.png" />
+</figure>
+</section><section id="fix-prevent-forgery" class="slide level2">
+<h1>Fix: Prevent Forgery</h1>
+<h3 id="section-18"></h3>
+<h4 id="section-19"></h4>
+<ul>
+<li>Use a nonce for each form</li>
+<li>Not predictable</li>
+<li>If dangerous operation, send a separate confirmation request</li>
+</ul>
+<h4 id="section-20"></h4>
+<figure>
+<img src="img/prevent_forgery.png" />
+</figure>
+</section><section id="problem-improper-access-control" class="slide level2">
+<h1>Problem: Improper Access Control</h1>
+<figure>
+<img src="img/access_control.png" />
+</figure>
+</section><section id="fix-access-permissions" class="slide level2">
+<h1>Fix: Access Permissions</h1>
+<ul>
+<li>Use Role-Based Access
+<ul>
+<li>At least permissions: anonymous, normal, privileged, administrative</li>
+</ul></li>
+<li>Verify access control at server side</li>
+<li>Sensitive pages are never cached and must have active authorization token</li>
+<li>Only provide higher level access when you need it; always run with the minimum possible authorization level</li>
+<li>Check that files read have the required access level permissions; administrators may not set them properly.</li>
+<li>Use a good random number generator when generating random session keys – if not random, attackers will figure out next key sequence</li>
+</ul>
+</section><section id="problem-external-control-of-path" class="slide level2">
+<h1>Problem: External Control of Path</h1>
+<ul>
+<li>If you download an external file or navigate to a URL - and execute</li>
+<li>If you provide access to a file on your system</li>
+<li>Attacker can insert <code>../../</code> and access files outside privilege.</li>
+</ul>
+<p><strong>Fix:</strong></p>
+<ul>
+<li>Run as low-privilege user</li>
+<li>Provide fixed input values</li>
+<li>Run code in 'jail': Unix chroot jail and AppArmor</li>
+</ul>
+<figure>
+<img src="img/path.png" />
+</figure>
+</section></section>
+<section><section id="examples" class="titleslide slide level1"><h1>Examples</h1></section><section id="problem-some-security-errors" class="slide level2">
+<h1>Problem: Some Security Errors</h1>
+<p>Find the errors:</p>
+<pre class="sourceCode c"><code class="sourceCode c">Security() {
+    String contents, environment;
+    String spath = <span class="st">&quot;security.dat&quot;</span>
+    File security = new File;
+    <span class="kw">if</span> (security.open(<span class="st">&quot;spath&quot;</span>) &gt;<span class="dv">0</span>)
+        contents = security.read();
+        environment = security.read();
+    <span class="kw">else</span>
+        print(<span class="st">&quot;Error: Security.dat not found&quot;</span>);
+}</code></pre>
+</section><section id="problem-some-security-errors-1" class="slide level2">
+<h1>Problem: Some Security Errors</h1>
+<ol type="1">
+<li>Variables contents &amp; Environment not initialized
+<ul>
+<li>Can cause problems if executed in certain ways</li>
+<li>Attacker can initialize or read variables from previous session</li>
+</ul></li>
+<li>&quot;security.dat&quot; is not full pathname
+<ul>
+<li>File can be replaced if run from another location</li>
+</ul></li>
+<li>File 'security' not closed
+<ul>
+<li>Leaves file open to attack</li>
+<li>Keeps unnecessary resources busy</li>
+</ul></li>
+<li>Error message indicates file name
+<ul>
+<li>Can give attacker important info</li>
+</ul></li>
+</ol>
+</section><section id="problem-more-security-errors" class="slide level2">
+<h1>Problem: More Security Errors</h1>
+<p>Find the errors:</p>
+<pre class="sourceCode c"><code class="sourceCode c">purchaseProduct() {
+    password = <span class="st">&quot;N23m**2d3&quot;</span>;
+    count = form.quantity;
+    total = count * product.cost();
+    Message m = new Message(
+        name,product,total);
+    m.myEncrypt();
+    server.send(m);
+}</code></pre>
+</section><section id="problem-more-security-errors-1" class="slide level2">
+<h1>Problem: More Security Errors</h1>
+<ol type="1">
+<li>Password is hardcoded
+<ul>
+<li>If attacker find it, every system can be broken into before software is changed on all computers</li>
+<li>Passwords may only be stored in encrypted file</li>
+</ul></li>
+<li>Total may overflow, producing very small number
+<ul>
+<li>Input is not checked (could be zero or invalid)</li>
+</ul></li>
+<li>Encryption should be standard algorithm
+<ul>
+<li>Home-written variety can be broken into easily</li>
+</ul></li>
+</ol>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
