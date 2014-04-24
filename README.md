@@ -30,6 +30,8 @@ This repo contains all lecture slides for CprE 308 - Spring 2014.
 |    | FS: Implementation | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture36/lecture36.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture36/lecture36.pdf?raw=true) |
 | 14 | FS: Performance | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture37/lecture37.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture37/lecture37.pdf?raw=true) |
 |    | FS: Disk Scheduling | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture38/lecture38.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture38/lecture38.pdf?raw=true) |
+| 15 | Security Overview | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture41/lecture41.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture41/lecture41.pdf?raw=true) |
+|    | Security: Authentication | [HTML](https://rawgithub.com/CprE308/lectures/master/lecture42/lecture42.html) / [PDF](https://github.com/CprE308/lectures/blob/master/lecture42/lecture42.pdf?raw=true) |
 
 
 
