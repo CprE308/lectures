@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="CprE 308" />
+  <meta name="dcterms.date" content="2014-04-23" />
+  <title>Lecture 42 - OS Security</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
+    <style type="text/css">code{white-space: pre;}</style>
+    <link rel="stylesheet" href="../slides.css"/>
+  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
+  <!--[if lt IE 9]>
+  <script src="../reveal.js/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Lecture 42 - OS Security</h1>
+    <h2 class="author">CprE 308</h2>
+    <h3 class="date">April 23, 2014</h3>
+</section>
+
+<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section><section id="security-countermeasures" class="slide level2">
+<h1>Security Countermeasures</h1>
+<p><strong>What do we really need?</strong></p>
+<ul>
+<li>From user perspective</li>
+<li>From process/thread perspective</li>
+<li>From file/directory/file system perspective</li>
+<li>From memory management and other I/O device perspective</li>
+<li>From service perspective</li>
+<li>From network perspective</li>
+<li>.....</li>
+</ul>
+</section><section id="what-we-need-in-terms-of-security" class="slide level2">
+<h1>What we need in terms of security</h1>
+<ul>
+<li>Authentication
+<ul>
+<li>Username/password</li>
+<li>One-time password</li>
+<li>Smartcards/Activebadge</li>
+<li>Biometrics</li>
+</ul></li>
+<li>Access Control
+<ul>
+<li>User-based</li>
+<li>Role-based</li>
+<li>Location-based</li>
+<li>Separation/Interaction, Multi-level Security</li>
+</ul></li>
+<li>Data Confidentiality &amp; Integrity
+<ul>
+<li>Encrypted file</li>
+<li>Encrypted file system</li>
+</ul></li>
+<li>Service/system availability/reliability
+<ul>
+<li>Redundancy: RAID, Multi-Core, etc.</li>
+</ul></li>
+</ul>
+</section><section id="access-control-fundamentals" class="slide level2">
+<h1>Access Control Fundamentals</h1>
+<ul>
+<li>Lampson's Access Matrix</li>
+<li>Reference Monitor</li>
+<li>A secure OS is the one that satisfies:
+<ul>
+<li>Complete Mediation: TOCTTOU (Time-of-check-to-time-of-use)</li>
+<li>Tamperproof</li>
+<li>Verifiable</li>
+</ul></li>
+<li>Assessment Criteria</li>
+</ul>
+</section><section id="verifiable-security-goals" class="slide level2">
+<h1>Verifiable Security Goals</h1>
+<ul>
+<li>Information Flow</li>
+<li>IF Secrecy
+<ul>
+<li>Denning's Lattice Model</li>
+<li>Bell-LaPadula Model</li>
+</ul></li>
+<li>IF Integrity
+<ul>
+<li>Biba Integrity Model</li>
+<li>Low-water Mark Integrity</li>
+<li>Clar-Wilson Integrity</li>
+</ul></li>
+<li>Covert Channels</li>
+</ul>
+</section><section id="history-of-secure-oses" class="slide level2">
+<h1>History of Secure OSes</h1>
+<!---
+TPM - Trusted Platform Modules - cryptoprocessor with storage for keys
+
+-->
+ 
+<ul>
+<li>Multics</li>
+<li>UNIX/Windows Security</li>
+<li>Security Kernels/TCB/SELinux</li>
+<li>Microkernels/MicroVM</li>
+<li><p>TPM</p></li>
+<li>System Assurance
+<ul>
+<li>Orange BOok</li>
+<li>Common Criteria</li>
+</ul></li>
+</ul>
+</section></section>
+<section><section id="cryptography" class="titleslide slide level1"><h1>Cryptography</h1></section><section id="crypto-building-blocks" class="slide level2">
+<h1>Crypto Building Blocks</h1>
+<ul>
+<li>Data Confidentiality &amp; Integrity
+<ul>
+<li>Encrypted file</li>
+<li>Encrypted file system</li>
+</ul></li>
+<li>Hash Function</li>
+</ul>
+</section><section id="cryptography-1" class="slide level2">
+<h1>Cryptography</h1>
+<ul>
+<li>Concerns the algorithms in security systems
+<ul>
+<li>Encryption, digital signatures, etc.</li>
+</ul></li>
+<li>Cryptography insecure - system insecure</li>
+<li>Cryptography secure - system might still be insecure!</li>
+</ul>
+</section><section id="encryption-and-decryption" class="slide level2">
+<h1>Encryption and Decryption</h1>
+<figure>
+<img src="img/crypt.png" />
+</figure>
+<p>Relationship between the plaintext and the ciphertext</p>
+</section><section id="secret-key-and-public-key" class="slide level2">
+<h1>Secret-key and Public-key</h1>
+<ul>
+<li>Secret keys
+<ul>
+<li>Encryption and decryption keys are private</li>
+<li>Need a way to transfer these keys securely one time</li>
+</ul></li>
+<li>Public Keys
+<ul>
+<li>Encryption key is common knowledge (public)</li>
+<li>Decryption key is private</li>
+</ul></li>
+</ul>
+</section><section id="symmetric-secret-key-cryptography" class="slide level2">
+<h1>(Symmetric) Secret Key Cryptography</h1>
+<ul>
+<li>Same (private) key used to encrypt and ecrypt
+<ul>
+<li>hence &quot;symmetric&quot;</li>
+</ul></li>
+<li>Encryption and Decryption functions public</li>
+<li>Requirement: Need a way to securely pass the key to the receiver</li>
+</ul>
+</section><section id="secret-key-example-substitution-cipher" class="slide level2">
+<h1>Secret Key Example: Substitution Cipher</h1>
+<h3 id="section"></h3>
+<h4 id="section-1"></h4>
+<p>A - X</p>
+<p>B - F</p>
+<p>C - G</p>
+<p>..</p>
+<p>..</p>
+<p>Z - Y</p>
+<p>Substitution Ciphers can be (easily) broken</p>
+<h4 id="section-2"></h4>
+<ul>
+<li>Plain Text: &quot;Meet at four pm tomorrow&quot;</li>
+<li>Cipher Text: &quot;Tddi xi hosa ...&quot;</li>
+<li>26 char Encryption Key: &quot;XFG...Y&quot;</li>
+<li>If the encryption key is known, decryption is easy.</li>
+</ul>
+</section><section id="secret-key-cryptography" class="slide level2">
+<h1>Secret Key Cryptography</h1>
+<ul>
+<li>Substitution Ciphers are not secure enough, but</li>
+<li>Commonly used schemes:
+<ul>
+<li>Block Ciphers (work on blocks of data rather than individual characters)</li>
+<li>Stream Ciphers (use the position of each character in the stream)</li>
+</ul></li>
+<li>Requirement: Need a way to securely transmit the key to receiver</li>
+</ul>
+</section><section id="asymmetric-public-key-cryptography" class="slide level2">
+<h1>(Asymmetric) Public Key Cryptography</h1>
+<ul>
+<li>Different keys for encryption and decryption, hence &quot;Asymmetric&quot;
+<ul>
+<li>Encryption key is public</li>
+<li>Decryption key is private</li>
+</ul></li>
+<li>If Alice wants to send a secure message to Bob:
+<ul>
+<li>Alice encrypts message using Bob's public key</li>
+<li>Bob decrypts using his private key</li>
+<li>An eavesdropper (Eve) can't make sense out of the message unless she knows Bob's private key</li>
+</ul></li>
+<li>Diffie and Hellman, 1976</li>
+</ul>
+</section><section id="public-key-cryptography" class="slide level2">
+<h1>Public Key Cryptography</h1>
+<ul>
+<li>Keys are generated as a pair (P,S) for each user
+<ul>
+<li>P = public, S = secret key</li>
+<li>Usually inverses of each other</li>
+<li>S(P(message)) = message</li>
+<li>P(S(message)) = message</li>
+</ul></li>
+<li>No need for sender and receiver to agree on keys beforehand</li>
+<li>Public key dissemination through email, webpage, phonebooks(?)</li>
+</ul>
+</section><section id="rsa-cryptosystem" class="slide level2">
+<h1>RSA Cryptosystem</h1>
+<ul>
+<li>ivest, hamir, and dleman in 1977</li>
+<li>Rests upon the difficulty of factoring large numbers (which are the product of two primes)</li>
+<li>If factoring is easy, then RSA can be broken</li>
+<li>Converse is not proven!</li>
+</ul>
+</section></section>
+<section><section id="unix-passwords" class="titleslide slide level1"><h1>UNIX Passwords</h1></section><section id="case-studies" class="slide level2">
+<h1>Case Studies</h1>
+<ul>
+<li>UNIX Password</li>
+<li>Unix/Linux Access Control
+<ul>
+<li>Users and groups</li>
+<li>File systems controls</li>
+</ul></li>
+<li>(HW) Windows NT/XP Security Executive
+<ul>
+<li>Access Tokens</li>
+<li>Security descriptors</li>
+<li>ACLs</li>
+</ul></li>
+<li>(HW) Windows Vista
+<ul>
+<li>Security additions</li>
+</ul></li>
+</ul>
+</section><section id="unix-reading-material" class="slide level2">
+<h1>Unix Reading Material</h1>
+<ul>
+<li>Man pages
+<ul>
+<li>groups, newgroup</li>
+<li>chmod, chown, ghgrp</li>
+</ul></li>
+<li>Unix and Security: The Influences of History
+<ul>
+<li>ftp://coast.cs.purdue.edu/pub/doc/misc/spaf-influences-of-history.ps.Z</li>
+</ul></li>
+</ul>
+</section><section id="basic-unix-security-model" class="slide level2">
+<h1>Basic Unix Security Model</h1>
+<ul>
+<li>User authenticated on logon
+<ul>
+<li>User ID associated with process</li>
+<li>Default Group ID associated with process</li>
+<li>Default Process listed in passwd file</li>
+</ul></li>
+<li>Groups defined in <code>/etc/groups</code>
+<ul>
+<li>Set of users listed with each group definition</li>
+<li>User can be member of multiple groups</li>
+</ul></li>
+</ul>
+</section><section id="passwords-in-unix" class="slide level2">
+<h1>Passwords in UNIX</h1>
+<ul>
+<li>Login: <code>bpeck</code></li>
+<li><p>Password: <code>cpre308</code></p></li>
+<li>How does the system check if the password is correct?</li>
+<li>One solution:
+<ul>
+<li>Password has (username, password) pairs</li>
+<li>Store <code>[bpeck, cpre308]</code> in <code>/etc/passwd</code></li>
+<li>Password file readable only by privileged user</li>
+</ul></li>
+<li>Privileged users can get your password
+<ul>
+<li>Why is this a problem?</li>
+</ul></li>
+</ul>
+</section><section id="solution-one-way-functions" class="slide level2">
+<h1>Solution: One-Way Functions</h1>
+<ul>
+<li><span class="math"><em>f</em>(<em>x</em>)</span> is easy to compute</li>
+<li><span class="math"><em>f</em><sup> − 1</sup>(<em>x</em>)</span> is extremely difficult, if not impossible, to compute</li>
+<li>Unix password file contains image of each password
+<ul>
+<li><code>/etc/password</code> contains <code>bpeck:y</code></li>
+<li>bpeck logs in, supplies <code>x</code></li>
+<li>if <code>f(x) == y</code>, then okay</li>
+</ul></li>
+<li>Password file can now be world-readable</li>
+</ul>
+</section><section id="dictionary-attack-morris-and-thompson" class="slide level2">
+<h1>Dictionary Attack (Morris and Thompson)</h1>
+<ul>
+<li>For all words in dictionary, compute <span class="math"><em>f</em>(<em>w</em><em>o</em><em>r</em><em>d</em>)</span></li>
+<li>Find word such that <span class="math"><em>f</em>(<em>w</em><em>o</em><em>r</em><em>d</em>) =  = <em>y</em></span></li>
+<li>Many users use simple passwords</li>
+<li>Systems that employ just one-way functions to protect their passwords are vulnerable to dictionary attacks</li>
+</ul>
+</section><section id="counterattack" class="slide level2">
+<h1>Counterattack</h1>
+<p><strong>Salt</strong></p>
+<ul>
+<li>for each password, create random &quot;salt&quot; value</li>
+<li><code>/etc/passwd</code> contains <span class="math"><em>f</em>(<em>a</em><em>p</em><em>p</em><em>e</em><em>n</em><em>d</em>(<em>w</em><em>o</em><em>r</em><em>d</em>, <em>s</em><em>a</em><em>l</em><em>t</em>)), <em>s</em><em>a</em><em>l</em><em>t</em>)</span></li>
+<li>12-bit salt values in Unix</li>
+<li>attacker must do dictionary attack 4096 times, for each salt value
+<ul>
+<li>done ...</li>
+<li>Feldmeier and Karn produced list of 732,000 most common passwords concatenated with each of 4096 salt values: covers ~30% of all passwords</li>
+</ul></li>
+</ul>
+</section><section id="shadow-files" class="slide level2">
+<h1>Shadow Files</h1>
+<ul>
+<li><code>/etc/passwd</code> and <code>/etc/group</code> must be readable by everyone</li>
+<li>Both files contain crypt'ed passwords
+<ul>
+<li>Access enable offline attacks</li>
+</ul></li>
+<li>Add shadow versions of each file
+<ul>
+<li>Password obscured in passwords and group</li>
+<li>Stored in more restricted shadow version of these files</li>
+</ul></li>
+</ul>
+</section><section id="authentication" class="slide level2">
+<h1>Authentication</h1>
+<!---
+3-factors:
+
+ 1. Something the user knows
+ 2. Something the user has.
+ 3. Something the user is.
+-->
+ 
+<ul>
+<li>Username/password</li>
+<li>One-time password</li>
+<li>Smartcards/Activebadge</li>
+<li>Biomatrics</li>
+</ul>
+</section></section>
+<section><section id="access-control" class="titleslide slide level1"><h1>Access Control</h1></section><section id="unix-access-control" class="slide level2">
+<h1>Unix Access Control</h1>
+<!---
+Give basic theory here: draw domain/object matrix.  Access List by columns, capabilities list by rows.
+-->
+ 
+<ul>
+<li>Three permission octets associated with each file and directory
+<ul>
+<li>Owner, group, and other</li>
+<li>Read, write, execute</li>
+</ul></li>
+<li>For each file/directory
+<ul>
+<li>Can specify RWX permission sfor one owner, one group, and one other</li>
+</ul></li>
+</ul>
+</section><section id="directory-permissions" class="slide level2">
+<h1>Directory Permissions</h1>
+<ul>
+<li>To list the contents of a directory (do an <code>ls</code>), do we need:
+<ul>
+<li>read permission?</li>
+<li>execute permission?</li>
+<li>both?</li>
+</ul></li>
+<li>To create/delete files?</li>
+<li>To change directory to <code>/home/abc</code>, what permission do we need on <code>/home</code>?</li>
+<li>To rename files <code>mv /home/abc/f1 /home/abc/f2</code>, what permissions do we need on:
+<ul>
+<li><code>/home/abc</code>,</li>
+<li><code>/home/abc/f1</code></li>
+</ul></li>
+</ul>
+</section><section id="unix-access-check" class="slide level2">
+<h1>Unix Access Check</h1>
+<ul>
+<li>First test effective user ID against owner
+<ul>
+<li>If match, then use owner rights</li>
+</ul></li>
+<li>Then test all groups user is a member of against group
+<ul>
+<li>If match, then use group rights</li>
+</ul></li>
+<li>Otherwise, use other rights</li>
+<li>Can view as rwx, or a value from 0-7
+<ul>
+<li>E.g. <code>rx = 5</code>, and <code>rw = 6</code></li>
+</ul></li>
+</ul>
+</section><section id="constraining-control-of-new-objects" class="slide level2">
+<h1>Constraining Control of New Objects</h1>
+<ul>
+<li>Umask can be set to constrain allowed access on new objects created by user</li>
+<li>Expressed as a 3 octet mask
+<ul>
+<li>E.g. 0022</li>
+</ul></li>
+<li>Inverse of umask anded by requested access for new object
+<ul>
+<li>E.g. open requests 0666 (read and write for all)</li>
+<li>0666 &amp; ~0022 = 0666 &amp; 755 = 644</li>
+</ul></li>
+</ul>
+</section><section id="other-bits" class="slide level2">
+<h1>Other Bits</h1>
+<ul>
+<li>Set UID and Set GUID bits
+<ul>
+<li>When set, the process created by executing file takes on user ID or group ID associated with file</li>
+</ul></li>
+<li>Sticky bit
+<ul>
+<li>On directories, prevents anyone but owner of file removing file in directory</li>
+</ul></li>
+</ul>
+</section><section id="file-system-extensions" class="slide level2">
+<h1>File System Extensions</h1>
+<ul>
+<li>Ext2 extra attributes
+<ul>
+<li>a: append only</li>
+<li>c: compressed</li>
+<li>s: secure deletion</li>
+<li>u: undeletable</li>
+<li>i: immutable</li>
+</ul></li>
+</ul>
+</section><section id="access-control-1" class="slide level2">
+<h1>Access Control</h1>
+<ul>
+<li>User-based</li>
+<li>Role-based</li>
+<li>Location-based</li>
+<li>Separation/Interaction, Multi-level Security</li>
+</ul>
+</section><section id="unix-security-problems" class="slide level2">
+<h1>Unix Security Problems</h1>
+<ul>
+<li>Created as a subset of more complete Multics model
+<ul>
+<li>Expedient at this time</li>
+<li>Limits modern expressibility</li>
+</ul></li>
+<li>Security evolved over 30 years
+<ul>
+<li>Inconsistencies</li>
+</ul></li>
+<li>Early evolution occurred in open university environments
+<ul>
+<li>Encourages bad habits</li>
+</ul></li>
+</ul>
+</section></section>
+    </div>
+  </div>
+
+  <script src="../reveal.js/lib/js/head.min.js"></script>
+  <script src="../reveal.js/js/reveal.min.js"></script>
+
+  <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: '../reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '../reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: '../reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+//          { src: '../reveal.js/plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; }, }
+//          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+]});
+    </script>
+  </body>
+</html>
