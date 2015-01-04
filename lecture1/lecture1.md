@@ -1,20 +1,24 @@
 % Lecture 1
 % CprE 308
-% January 13, 2013
+% January 12, 2015
 
 # Welcome!
 
-## About Me
- - Brian Peck
- - bpeck@iastate.edu
- - Research Interests: Wireless technologies and mobile systems
+## Instructor
+ - Jeramie Vens
+ - Vens@iastate.edu
+ - Research Interests: Sensor Networks & Control Systems
 
 ## Course Info
  - Grades on Blackboard
  - Course materials on Blackboard and Github: [https://github.com/CprE308](https://github.com/CprE308).
  - Announcements on Blackboard and Twitter: [\@cpre308](https://twitter.com/cpre308)
+ - IRC Channel on Freenode: #CprE308-ISU
 
 # Why learn about Operating Systems?
+
+## A quick history lesson
+ - Computerphile video (6:30 to end): [https://youtube.com](https://www.youtube.com/watch?v=-rPPqm44xLs#t=390)
 
 ## A computer, and ....
 ![](img/fig1.png)
