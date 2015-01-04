@@ -12,8 +12,9 @@
 ## Course Info
  - Grades on Blackboard
  - Course materials on Blackboard and Github: [https://github.com/CprE308](https://github.com/CprE308).
- - Announcements on Blackboard and Twitter: [\@cpre308](https://twitter.com/cpre308)
+ - Announcements on Blackboard.
  - IRC Channel on Freenode: #CprE308-ISU
+  - Access via IRC client or [http://webchat.freenode.net](http://webchat.freenode.net)
 
 # Why learn about Operating Systems?
 
