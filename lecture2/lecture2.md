@@ -1,6 +1,6 @@
 % Lecture 2
 % CprE 308
-% January 15, 2013
+% January 14, 2015
 
 # Computer Hardware Review
 
