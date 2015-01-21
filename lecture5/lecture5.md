@@ -1,6 +1,6 @@
 % Lecture 5
 % CprE 308
-% January 22, 2013
+% January 21, 2015
 
 # Review from Last Week
 
