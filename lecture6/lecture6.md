@@ -1,6 +1,6 @@
 % Lecture 6
 % CprE 308
-% January 24, 2013
+% January 23, 2015
 
 # Intro
 
@@ -57,7 +57,8 @@ void main(void) {
     printf("I am the parent\n");
   else if (pid == 0)
     printf("I am the child\n");
-  printf("ERROR!\n");
+  else
+    printf("ERROR!\n");
 }
 ```
 
