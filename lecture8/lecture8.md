@@ -1,6 +1,6 @@
 % Lecture 8
 % CprE 308
-% January 29, 2013
+% January 28, 2015
 
 # Intro
 
@@ -42,7 +42,7 @@ Will the following get sped up with multiprogramming?
 ## Process Creation and Termination
 When do new processes get created?
 
- - Any command -- Ex: Click on the IE icon
+ - Any command -- Ex: Click on the Chrome icon
  - First process?
 
 When do processes get terminated?
