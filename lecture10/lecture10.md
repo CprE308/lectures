@@ -1,6 +1,6 @@
 % Lecture 10
 % CprE 308
-% February 3, 2013
+% February 2, 2015
 
 # Intro
 
