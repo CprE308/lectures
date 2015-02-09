@@ -1,6 +1,6 @@
 % Lecture 1
 % CprE 308
-% January 12, 2015
+% January 12, 2015 
 
 # Welcome!
 

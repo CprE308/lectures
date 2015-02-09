@@ -3,9 +3,9 @@
 % February 9, 2014
 
 # Intro
-
+ 
 ## Today's Topics
- - Mutual Exclusion (Mutex)
+ - Mutual Exclusion (Mutex) 
  - Implementing Mutex
 
 # Threads and Mutual Exclusion
