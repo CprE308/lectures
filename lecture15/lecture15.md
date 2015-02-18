@@ -23,9 +23,7 @@
  - Buffer Empty
 
 ## How is this solution?
-###
-####
-##### Producer
+## Producer
 ```c
 while(TRUE) {
   item = produce();
@@ -33,8 +31,7 @@ while(TRUE) {
   count++;
 }
 ```
-####
-##### Consumer
+## Consumer
 ```c
 while(TRUE) {
   item = remove(buffer);
@@ -46,9 +43,7 @@ while(TRUE) {
 <!---
 Trying to add mutexes.  Prevents weird buffer accesses, but doesn't prevent filling buffer or trying to read from an empty buffer.
 -->
-###
-####
-##### Producer
+## Producer
 ```c
 while(TRUE) {
   item = produce();
@@ -58,8 +53,7 @@ while(TRUE) {
   unlock(mutex);
 }
 ```
-####
-##### Consumer
+## Consumer
 ```c
 while(TRUE) {
   lock(mutex);
@@ -73,13 +67,13 @@ while(TRUE) {
  - Cannot be solved by mutexes alone
  - Need a way to block till some condition is satisfied
     - Condition variables (preferred with `pthreads`)
-    - Semaphores (not part of the `pthreads` package)
+    - Semaphores
 
 # Sleep and Wakeup
 
 ## Sleep and Wakeup Variables
 
-##### Shared Variables
+## Shared Variables
  - count (number of items in buffer)
  - buffer
  - N (maximum size of buffer)
@@ -88,9 +82,7 @@ while(TRUE) {
 <!---
 Still not great: unrestricted buffer access.
 -->
-###
-####
-##### Producer
+## Producer
 ```c
 while(TRUE) {
   item = produce();
@@ -102,8 +94,7 @@ while(TRUE) {
     wakeup(consumer);
 }
 ```
-####
-##### Consumer
+## Consumer
 ```c
 while(TRUE) {
   if(count==0)
@@ -124,9 +115,7 @@ This example is also bad.  If consumer reads 0 right before a context switch, th
 
 Possible solution: wakeup waiting bit. In above scenario, producer sets bit to 1.  When consumer then sleeps, it turns bit off and stays awake.  "Piggy Bank" of staying awake.
 -->
-###
-####
-##### Producer
+## Producer
 ```c
 while(TRUE) {
   item = produce();
@@ -140,8 +129,7 @@ while(TRUE) {
     wakeup(consumer);
 }
 ```
-####
-##### Consumer
+## Consumer
 ```c
 while(TRUE) {
   if(count==0)
@@ -163,8 +151,7 @@ while(TRUE) {
 Down (P) -> sleep - like checking the wakeup bit
 Up (V) -> Wakeup - like telling the other process to wakeup, adding to the 'piggy bank'
 -->
-###
-####
+##
  - S: Integer value
  - `Down(S)`:
 ```c
@@ -176,8 +163,7 @@ when(S>0)
 S = S + 1;
 ```
 
-####
-#####
+##
  - Atomic actions
  - Down might block
  - Up never blocks
@@ -202,19 +188,17 @@ Disable interrupts in kernel for implementation.  Will be short, so okay.
 Both the above are done **atomically**
 
 ## Producer Consumer using Semaphores
-##### Shared Variables
+## Shared Variables
  - count (number of items in buffer)
  - buffer
  - N (maximum size of buffer)
 
-##### Semaphores
+## Semaphores
  - Empty - semaphore initialized to N (number of free slots in buffer)
  - Full - semaphore initialized to zero (number of items in buffer)
 
 ## Producer Consumer using Semaphores (Example)
-###
-####
-##### Producer
+## Producer
 ```c
 while(TRUE) {
   item = produce();
@@ -226,8 +210,7 @@ while(TRUE) {
   up(Full);
 }
 ```
-####
-##### Consumer
+## Consumer
 ```c
 while(TRUE) {
   down(Full);
@@ -257,9 +240,8 @@ while(TRUE) {
     - `Up(S)` while leaving
 
 ## Producer Consumer using Semaphores with Mutexes
-###
-####
-##### Producer
+
+## Producer
 ```c
 while(TRUE) {
   item = produce();
@@ -270,8 +252,7 @@ while(TRUE) {
   up(Full);
 }
 ```
-####
-##### Consumer
+## Consumer
 ```c
 while(TRUE) {
   down(Full);
@@ -294,7 +275,7 @@ while(TRUE) {
     - `Up()` once thread finishes
 
 ## POSIX Semaphores
-##### `man sem_overview`
+ - `man sem_overview`
  - `int sem_init(sem_t *sem, int pshared, unsigned int value);`
  - `int sem_wait(sem_t *sem); /* decrement */`
  - `int sem_trywait(sem_t *sem);`
@@ -311,9 +292,7 @@ Why is order important?
 
 If consumer locks mutex first, it's possible that down actually sleeps on an empty buffer.  The producer would never be able to add anything to the buffer and we'd have deadlock.
 -->
-###
-####
-##### Producer
+## Producer
 ```c
 while(TRUE) {
   item = produce();
@@ -325,8 +304,7 @@ while(TRUE) {
   up(Full);
 }
 ```
-####
-##### Consumer
+## Consumer
 ```c
 while(TRUE) {
   lock(mutex);
@@ -364,9 +342,7 @@ Alternative to cond_signal is pthread_cond_broadcast(&condition_variable);
  - `pthread_cond_t condition_variable`
  - `pthread_mutex_t mutex;`
 
-###
-####
-##### Waiting Thread
+## Waiting Thread
 ```c
 pthread_mutex_t(&mutex);
 while(!cond. satisfied) {
@@ -374,11 +350,11 @@ while(!cond. satisfied) {
     &condition_variable,
     &mutex);
 }
+// critical section
 pthread_mutex_unlock(
   &mutex);
 ```
-####
-##### Signaling Thread
+## Signaling Thread
 ```c
 pthread_mutex_lock(&mutex);
 /* change variable value */
@@ -393,7 +369,7 @@ pthread_mutex_unlock(
 ## Condition variable and mutex
  - A mutex is passed into wait:
 `pthread_cond_wait(cond_var,mutex)`
- - Mutex is released before t he thread sleeps
+ - Mutex is released before the thread sleeps
  - Mutex is locked again before `pthread_cond_wait()` returns
  - Safe to use `pthread_cond_wait()` in a while loop and check condition again before proceeding
 
@@ -406,18 +382,14 @@ pthread_mutex_unlock(
 
 ## Solved using condition variables
 
-###
-####
-##### Global
+## Global
 ```c
 int thread1_done = 0;
 pthread_cond_t cv;
 pthread_mutex_t mutex;
 ```
 
-. . .
-
-##### Thread 1
+## Thread 1
 ```c
 printf("hello");
 pthread_mutex_lock(&mutex);
@@ -427,10 +399,7 @@ pthread_mutex_unlock(
   &mutex);
 ```
 
-. . . 
-
-####
-##### Thread 2
+## Thread 2
 ```c
 pthread_mutex_lock(&mutex);
 while(thread1_done == 0) {

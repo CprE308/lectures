@@ -80,16 +80,15 @@ code > span.er { color: #ff0000; font-weight: bold; }
 </ul>
 </section><section id="how-is-this-solution" class="slide level2">
 <h1>How is this solution?</h1>
-<h3 id="section"></h3>
-<h4 id="section-1"></h4>
-<h5 id="producer">Producer</h5>
+</section><section id="producer" class="slide level2">
+<h1>Producer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   item = produce();
   insert(item,buffer);
   count++;
 }</code></pre>
-<h4 id="section-2"></h4>
-<h5 id="consumer">Consumer</h5>
+</section><section id="consumer" class="slide level2">
+<h1>Consumer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   item = remove(buffer);
   count--;
@@ -100,9 +99,8 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <!---
 Trying to add mutexes.  Prevents weird buffer accesses, but doesn't prevent filling buffer or trying to read from an empty buffer.
 -->
-<h3 id="section-3"></h3>
-<h4 id="section-4"></h4>
-<h5 id="producer-1">Producer</h5>
+</section><section id="producer-1" class="slide level2">
+<h1>Producer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   item = produce();
   lock(mutex);
@@ -110,8 +108,8 @@ Trying to add mutexes.  Prevents weird buffer accesses, but doesn't prevent fill
   count++;
   unlock(mutex);
 }</code></pre>
-<h4 id="section-5"></h4>
-<h5 id="consumer-1">Consumer</h5>
+</section><section id="consumer-1" class="slide level2">
+<h1>Consumer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   lock(mutex);
   item = remove(buffer);
@@ -126,13 +124,14 @@ Trying to add mutexes.  Prevents weird buffer accesses, but doesn't prevent fill
 <li>Need a way to block till some condition is satisfied
 <ul>
 <li>Condition variables (preferred with <code>pthreads</code>)</li>
-<li>Semaphores (not part of the <code>pthreads</code> package)</li>
+<li>Semaphores</li>
 </ul></li>
 </ul>
 </section></section>
 <section><section id="sleep-and-wakeup" class="titleslide slide level1"><h1>Sleep and Wakeup</h1></section><section id="sleep-and-wakeup-variables" class="slide level2">
 <h1>Sleep and Wakeup Variables</h1>
-<h5 id="shared-variables">Shared Variables</h5>
+</section><section id="shared-variables" class="slide level2">
+<h1>Shared Variables</h1>
 <ul>
 <li>count (number of items in buffer)</li>
 <li>buffer</li>
@@ -143,9 +142,8 @@ Trying to add mutexes.  Prevents weird buffer accesses, but doesn't prevent fill
 <!---
 Still not great: unrestricted buffer access.
 -->
-<h3 id="section-6"></h3>
-<h4 id="section-7"></h4>
-<h5 id="producer-2">Producer</h5>
+</section><section id="producer-2" class="slide level2">
+<h1>Producer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   item = produce();
   <span class="kw">if</span>(count==N)
@@ -155,8 +153,8 @@ Still not great: unrestricted buffer access.
   <span class="kw">if</span>(count==<span class="dv">1</span>)
     wakeup(consumer);
 }</code></pre>
-<h4 id="section-8"></h4>
-<h5 id="consumer-2">Consumer</h5>
+</section><section id="consumer-2" class="slide level2">
+<h1>Consumer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   <span class="kw">if</span>(count==<span class="dv">0</span>)
     sleep();
@@ -175,9 +173,8 @@ This example is also bad.  If consumer reads 0 right before a context switch, th
 
 Possible solution: wakeup waiting bit. In above scenario, producer sets bit to 1.  When consumer then sleeps, it turns bit off and stays awake.  "Piggy Bank" of staying awake.
 -->
-<h3 id="section-9"></h3>
-<h4 id="section-10"></h4>
-<h5 id="producer-3">Producer</h5>
+</section><section id="producer-3" class="slide level2">
+<h1>Producer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   item = produce();
   <span class="kw">if</span>(count==N)
@@ -189,8 +186,8 @@ Possible solution: wakeup waiting bit. In above scenario, producer sets bit to 1
   <span class="kw">if</span>(count==<span class="dv">1</span>)
     wakeup(consumer);
 }</code></pre>
-<h4 id="section-11"></h4>
-<h5 id="consumer-3">Consumer</h5>
+</section><section id="consumer-3" class="slide level2">
+<h1>Consumer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   <span class="kw">if</span>(count==<span class="dv">0</span>)
     sleep();
@@ -209,8 +206,8 @@ Possible solution: wakeup waiting bit. In above scenario, producer sets bit to 1
 Down (P) -> sleep - like checking the wakeup bit
 Up (V) -> Wakeup - like telling the other process to wakeup, adding to the 'piggy bank'
 -->
-<h3 id="section-12"></h3>
-<h4 id="section-13"></h4>
+</section><section id="section" class="slide level2">
+<h1></h1>
 <ul>
 <li>S: Integer value</li>
 <li><p><code>Down(S)</code>:</p>
@@ -219,8 +216,8 @@ Up (V) -> Wakeup - like telling the other process to wakeup, adding to the 'pigg
 <li><p><code>Up(S)</code>:</p>
 <pre class="sourceCode c"><code class="sourceCode c">S = S + <span class="dv">1</span>;</code></pre></li>
 </ul>
-<h4 id="section-14"></h4>
-<h5 id="section-15"></h5>
+</section><section id="section-1" class="slide level2">
+<h1></h1>
 <ul>
 <li>Atomic actions</li>
 <li>Down might block</li>
@@ -251,22 +248,23 @@ Disable interrupts in kernel for implementation.  Will be short, so okay.
 <p>Both the above are done <strong>atomically</strong></p>
 </section><section id="producer-consumer-using-semaphores" class="slide level2">
 <h1>Producer Consumer using Semaphores</h1>
-<h5 id="shared-variables-1">Shared Variables</h5>
+</section><section id="shared-variables-1" class="slide level2">
+<h1>Shared Variables</h1>
 <ul>
 <li>count (number of items in buffer)</li>
 <li>buffer</li>
 <li>N (maximum size of buffer)</li>
 </ul>
-<h5 id="semaphores-1">Semaphores</h5>
+</section><section id="semaphores-1" class="slide level2">
+<h1>Semaphores</h1>
 <ul>
 <li>Empty - semaphore initialized to N (number of free slots in buffer)</li>
 <li>Full - semaphore initialized to zero (number of items in buffer)</li>
 </ul>
 </section><section id="producer-consumer-using-semaphores-example" class="slide level2">
 <h1>Producer Consumer using Semaphores (Example)</h1>
-<h3 id="section-16"></h3>
-<h4 id="section-17"></h4>
-<h5 id="producer-4">Producer</h5>
+</section><section id="producer-4" class="slide level2">
+<h1>Producer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   item = produce();
   down(Empty);
@@ -276,8 +274,8 @@ Disable interrupts in kernel for implementation.  Will be short, so okay.
   unlock(mutex);
   up(Full);
 }</code></pre>
-<h4 id="section-18"></h4>
-<h5 id="consumer-4">Consumer</h5>
+</section><section id="consumer-4" class="slide level2">
+<h1>Consumer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   down(Full);
   lock(mutex);
@@ -313,9 +311,8 @@ Disable interrupts in kernel for implementation.  Will be short, so okay.
 </ul>
 </section><section id="producer-consumer-using-semaphores-with-mutexes" class="slide level2">
 <h1>Producer Consumer using Semaphores with Mutexes</h1>
-<h3 id="section-19"></h3>
-<h4 id="section-20"></h4>
-<h5 id="producer-5">Producer</h5>
+</section><section id="producer-5" class="slide level2">
+<h1>Producer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   item = produce();
   down(Empty);
@@ -324,8 +321,8 @@ Disable interrupts in kernel for implementation.  Will be short, so okay.
   up(mutex);
   up(Full);
 }</code></pre>
-<h4 id="section-21"></h4>
-<h5 id="consumer-5">Consumer</h5>
+</section><section id="consumer-5" class="slide level2">
+<h1>Consumer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   down(Full);
   down(mutex);
@@ -354,8 +351,8 @@ Disable interrupts in kernel for implementation.  Will be short, so okay.
 </div>
 </section><section id="posix-semaphores" class="slide level2">
 <h1>POSIX Semaphores</h1>
-<h5 id="man-sem_overview"><code>man sem_overview</code></h5>
 <ul>
+<li><code>man sem_overview</code></li>
 <li><code>int sem_init(sem_t *sem, int pshared, unsigned int value);</code></li>
 <li><code>int sem_wait(sem_t *sem); /* decrement */</code></li>
 <li><code>int sem_trywait(sem_t *sem);</code></li>
@@ -375,9 +372,8 @@ Why is order important?
 
 If consumer locks mutex first, it's possible that down actually sleeps on an empty buffer.  The producer would never be able to add anything to the buffer and we'd have deadlock.
 -->
-<h3 id="section-22"></h3>
-<h4 id="section-23"></h4>
-<h5 id="producer-6">Producer</h5>
+</section><section id="producer-6" class="slide level2">
+<h1>Producer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   item = produce();
   down(Empty);
@@ -387,8 +383,8 @@ If consumer locks mutex first, it's possible that down actually sleeps on an emp
   unlock(mutex);
   up(Full);
 }</code></pre>
-<h4 id="section-24"></h4>
-<h5 id="consumer-6">Consumer</h5>
+</section><section id="consumer-6" class="slide level2">
+<h1>Consumer</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="kw">while</span>(TRUE) {
   lock(mutex);
   down(Full);
@@ -434,19 +430,19 @@ Alternative to cond_signal is pthread_cond_broadcast(&condition_variable);
 <li><code>pthread_cond_t condition_variable</code></li>
 <li><code>pthread_mutex_t mutex;</code></li>
 </ul>
-<h3 id="section-25"></h3>
-<h4 id="section-26"></h4>
-<h5 id="waiting-thread">Waiting Thread</h5>
+</section><section id="waiting-thread" class="slide level2">
+<h1>Waiting Thread</h1>
 <pre class="sourceCode c"><code class="sourceCode c">pthread_mutex_t(&amp;mutex);
 <span class="kw">while</span>(!cond. satisfied) {
   pthread_cond_wait(
     &amp;condition_variable,
     &amp;mutex);
 }
+<span class="co">// critical section</span>
 pthread_mutex_unlock(
   &amp;mutex);</code></pre>
-<h4 id="section-27"></h4>
-<h5 id="signaling-thread">Signaling Thread</h5>
+</section><section id="signaling-thread" class="slide level2">
+<h1>Signaling Thread</h1>
 <pre class="sourceCode c"><code class="sourceCode c">pthread_mutex_lock(&amp;mutex);
 <span class="co">/* change variable value */</span>
 <span class="kw">if</span>(cond. satisfied) {
@@ -459,7 +455,7 @@ pthread_mutex_unlock(
 <h1>Condition variable and mutex</h1>
 <ul>
 <li>A mutex is passed into wait: <code>pthread_cond_wait(cond_var,mutex)</code></li>
-<li>Mutex is released before t he thread sleeps</li>
+<li>Mutex is released before the thread sleeps</li>
 <li>Mutex is locked again before <code>pthread_cond_wait()</code> returns</li>
 <li>Safe to use <code>pthread_cond_wait()</code> in a while loop and check condition again before proceeding</li>
 </ul>
@@ -476,23 +472,21 @@ pthread_mutex_unlock(
 </ul>
 </section><section id="solved-using-condition-variables" class="slide level2">
 <h1>Solved using condition variables</h1>
-<h3 id="section-28"></h3>
-<h4 id="section-29"></h4>
-<h5 id="global">Global</h5>
+</section><section id="global" class="slide level2">
+<h1>Global</h1>
 <pre class="sourceCode c"><code class="sourceCode c"><span class="dt">int</span> thread1_done = <span class="dv">0</span>;
 pthread_cond_t cv;
 pthread_mutex_t mutex;</code></pre>
-<p>. . .</p>
-<h5 id="thread-1">Thread 1</h5>
+</section><section id="thread-1" class="slide level2">
+<h1>Thread 1</h1>
 <pre class="sourceCode c"><code class="sourceCode c">printf(<span class="st">&quot;hello&quot;</span>);
 pthread_mutex_lock(&amp;mutex);
 thread1_done = <span class="dv">1</span>;
 pthread_cond_signal(cv);
 pthread_mutex_unlock(
   &amp;mutex);</code></pre>
-<p>. . .</p>
-<h4 id="section-30"></h4>
-<h5 id="thread-2">Thread 2</h5>
+</section><section id="thread-2" class="slide level2">
+<h1>Thread 2</h1>
 <pre class="sourceCode c"><code class="sourceCode c">pthread_mutex_lock(&amp;mutex);
 <span class="kw">while</span>(thread1_done == <span class="dv">0</span>) {
   pthread_cond_wait(
