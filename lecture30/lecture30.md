@@ -18,6 +18,14 @@ Real World
 ## Goal of Memory Management
  - Present the ideal world view to the programmer, yet implement it on a real system
 
+##
+<!---
+Source: http://www.tldp.org/LDP/tlk/mm/memory.html
+
+"To make this translation easier, virtual and physical memory are divided into handy sized chunks called pages. These pages are all the same size, they need not be but if they were not, the system would be very hard to administer. Linux on Alpha AXP systems uses 8 Kbyte pages and on Intel x86 systems it uses 4 Kbyte pages. Each of these pages is given a unique number; the page frame number (PFN)."
+-->
+![](img/abstract_memory_model.gif)
+
 # Page Faults
 
 ## Page Fault
