@@ -1,30 +1,66 @@
-% Lecture 30 - Page Replacement 
+% Lecture 30 - Paging and Page Faults
 % CprE 308
-% March 28, 2014
+% March 27, 2015
 
-# Memory Management
+# Paging
 
-## Overview
+## Review
 Ideal World (for the programmer):
 
  - I'm the only process in the world
- - I have a huge amount of memory at my disposal
+ - I have more memory than I need at my disposal
 
 Real World
 
  - Many processes in the system
  - Not enough memory for them all
+ - Not all processes play nicely
 
 ## Goal of Memory Management
  - Present the ideal world view to the programmer, yet implement it on a real system
+ - Add memory protections without getting in the way of the programmer
 
 ##
-<!---
+<!--
 Source: http://www.tldp.org/LDP/tlk/mm/memory.html
 
 "To make this translation easier, virtual and physical memory are divided into handy sized chunks called pages. These pages are all the same size, they need not be but if they were not, the system would be very hard to administer. Linux on Alpha AXP systems uses 8 Kbyte pages and on Intel x86 systems it uses 4 Kbyte pages. Each of these pages is given a unique number; the page frame number (PFN)."
 -->
-![](img/abstract_memory_model.gif)
+![Abstract Memory Model](img/abstract_memory_model.gif)
+
+## Structuring Virtual Memory
+<!--
+In paging the address space is divided into a sequence of fixed size units called page frames. A logical (virtual) address takes the form of a tuple <page, offset into page frame>.
+
+In segmentation, the address space is divided into a preset number of segments like data segment (read/write), code segment (read-only), stack (read/write) etc. The logical components of programs are divided into these segments accordingly and the OS kernel enforces the security restrictions of each segment. A logical (virtual) address is represented as tuple <segment, offset into segment>.
+
+Paging helps reduce fragmentation and ensures better memory management, while segmentation offers better security protections (ex: data fields can't be executed).  Most modern OS's employ a mixture of the two schemes.  Instead of an actual memory location the segment information includes the address of a page table for the segment. When a program references a memory location the offset is translated to a memory address using the page table. A segment can be extended simply by allocating another memory page and adding it to the segment's page table.
+-->
+ - Paging
+    - Divides the address space into fixed-sized pages
+    - Reduces fragmentation, increases efficiency
+ - Segmentation
+    - Divides the address space into variable-sized segments
+    - Enables memory protections (Ex: data, code, uninitialized, shared memory, etc.)
+ - Modern OS's use a mixture of both schemes (paged segmentation)
+ 
+## Typical Page Table Entry
+<!--
+Zooming in on a single entry:
+ - Page frame number: physical location of page frame (then add offset)
+ - Present/absent: 1 if entry is valid, 0 if not in memory
+ - Protection: what sorts of accesses permitted. 0 for read/write, 1 for read only.  Or 3 bits: read,write,execute
+ - Modified: Has it been modified?  *Dirty* bit
+ - Referenced: set when referenced. Helps to choose eviction
+ - Cache disabling: for pages that map device registers rather than memory.
+-->
+![Page Table Entry Fields](img/pt_entry.png)
+
+## Paging Example
+- Consider a virtual memory system with two processes
+    - The physical memory consists of 24 words and the page size is four words. 
+    - Process 1 consists of 16 words (a through p)
+    - Process 2 has 12 words (A through L)
 
 # Page Faults
 
@@ -66,7 +102,7 @@ Replacement policy
 <!---
 Idea: Bring in more pages than just used to hopefully trigger less page faults later.
 -->
-![](img/fetch_policy.png)
+![Fetch Policy](img/fetch_policy.png)
 
 # Page Replacement
 
