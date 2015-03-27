@@ -176,30 +176,71 @@ Zooming in on a single entry:
 <figure>
 <img src="img/physical_memory_7.png" alt="Physical Memory" /><figcaption>Physical Memory</figcaption>
 </figure>
-</section><section id="paging-example-physical-memory-9" class="slide level2">
-<h1>Paging Example (Physical Memory)</h1>
+</section><section id="paging-example-page-faults" class="slide level2">
+<h1>Paging Example (Page Faults)</h1>
 <ul>
 <li>Suppose process 1 is running and it tries to access the contents of the virtual address <strong>15</strong>, what is the result?
 <ul>
 <li>Virtual address <strong>15</strong> is in process 1's virtual page <strong>3</strong>. According to the page table for process 1, the virtual page <strong>3</strong> is paged in physical memory as page <strong>4</strong>, which means the value <strong>p</strong> will be immediately fetched from memory.</li>
 </ul></li>
 </ul>
-</section><section id="paging-example-physical-memory-10" class="slide level2">
-<h1>Paging Example (Physical Memory)</h1>
+</section><section id="paging-example-page-faults-1" class="slide level2">
+<h1>Paging Example (Page Faults)</h1>
 <ul>
 <li>Suppose process 1 is running and it tries to access the contents of the virtual address <strong>9</strong>, what is the result?</li>
 </ul>
-</section><section id="paging-example-physical-memory-11" class="slide level2">
-<h1>Paging Example (Physical Memory)</h1>
+</section><section id="paging-example-page-faults-2" class="slide level2">
+<h1>Paging Example (Page Faults)</h1>
 <figure>
 <img src="img/physical_memory_7.png" alt="Physical Memory" /><figcaption>Physical Memory</figcaption>
 </figure>
-</section><section id="paging-example-physical-memory-12" class="slide level2">
-<h1>Paging Example (Physical Memory)</h1>
+</section><section id="paging-example-page-faults-3" class="slide level2">
+<h1>Paging Example (Page Faults)</h1>
 <ul>
 <li>Suppose process 1 is running and it tries to access the contents of the virtual address <strong>9</strong>, what is the result?
 <ul>
 <li>Virtual address <strong>9</strong> is in process 1's virtual page <strong>2</strong>. According to the page table for process 1, virtual page <strong>2</strong> is not paged in physical memory (flagged as invalid in the page table). A <strong>page fault</strong> occurs, and physical memory will need to be swapped before the value <strong>j</strong> can be fetched from memory.</li>
+</ul></li>
+</ul>
+</section><section id="paging-example-address-translation" class="slide level2">
+<h1>Paging Example (Address Translation)</h1>
+<p>Process 1</p>
+<ul>
+<li>Virtual Address <strong>2</strong> to Physical Address</li>
+<li>Physical Address <strong>5</strong> to Virtual Address</li>
+</ul>
+<p>Process 2</p>
+<ul>
+<li>Virtual Address <strong>2</strong> to Physical Address</li>
+<li>Physical Address <strong>22</strong> to Virtual Address</li>
+</ul>
+</section><section id="paging-example-address-translation-1" class="slide level2">
+<h1>Paging Example (Address Translation)</h1>
+<figure>
+<img src="img/physical_memory_7.png" alt="Physical Memory" /><figcaption>Physical Memory</figcaption>
+</figure>
+</section><section id="paging-example-address-translation-2" class="slide level2">
+<h1>Paging Example (Address Translation)</h1>
+<p>Process 1</p>
+<ul>
+<li>Virtual Address <strong>2</strong> to Physical Address
+<ul>
+<li><strong>10</strong></li>
+</ul></li>
+<li>Physical Address <strong>5</strong> to Virtual Address
+<ul>
+<li><strong>5</strong></li>
+</ul></li>
+</ul>
+<p>Process 2</p>
+<ul>
+<li>Virtual Address <strong>2</strong> to Physical Address
+<ul>
+<li><strong>14</strong></li>
+</ul></li>
+<li>Physical Address <strong>22</strong> to Virtual Address
+<ul>
+<li><strong>10</strong></li>
 </ul></li>
 </ul>
 </section><section id="implementation-notes" class="slide level2">

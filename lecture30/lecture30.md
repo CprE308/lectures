@@ -101,20 +101,51 @@ Zooming in on a single entry:
 ## Paging Example (Physical Memory)
 ![Physical Memory](img/physical_memory_7.png)
 
-## Paging Example (Physical Memory)
+## Paging Example (Page Faults)
 - Suppose process 1 is running and it tries to access the contents of the virtual address **15**, what is the result?
     - Virtual address **15** is in process 1's virtual page **3**.  According to the page table for process 1, the virtual page **3** is paged in physical memory as page **4**, which means the value **p** will be immediately fetched from memory.
 
-## Paging Example (Physical Memory)
+## Paging Example (Page Faults)
 - Suppose process 1 is running and it tries to access the contents of the virtual address **9**, what is the result?
 
-## Paging Example (Physical Memory)
+## Paging Example (Page Faults)
 ![Physical Memory](img/physical_memory_7.png)
 
 
-## Paging Example (Physical Memory)
+## Paging Example (Page Faults)
 - Suppose process 1 is running and it tries to access the contents of the virtual address **9**, what is the result?
     - Virtual address **9** is in process 1's virtual page **2**.  According to the page table for process 1, virtual page **2** is not paged in physical memory (flagged as invalid in the page table).  A **page fault** occurs, and physical memory will need to be swapped before the value **j** can be fetched from memory.
+    
+## Paging Example (Address Translation)
+
+Process 1
+
+- Virtual Address **2** to Physical Address
+- Physical Address **5** to Virtual Address
+
+Process 2
+
+- Virtual Address **2** to Physical Address
+- Physical Address **22** to Virtual Address
+
+## Paging Example (Address Translation)
+![Physical Memory](img/physical_memory_7.png)
+
+## Paging Example (Address Translation)
+
+Process 1
+
+- Virtual Address **2** to Physical Address
+    - **10**
+- Physical Address **5** to Virtual Address
+    - **5**
+
+Process 2
+
+- Virtual Address **2** to Physical Address
+    - **14**
+- Physical Address **22** to Virtual Address
+    - **10**
 
 ## Implementation Notes
 - Virtual memory is just a concept
