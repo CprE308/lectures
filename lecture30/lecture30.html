@@ -36,9 +36,9 @@
     <h3 class="date">March 27, 2015</h3>
 </section>
 
-<section><section id="paging" class="titleslide slide level1"><h1>Paging</h1></section><section id="review" class="slide level2">
-<h1>Review</h1>
-<p>Ideal World (for the programmer):</p>
+<section><section id="paging" class="titleslide slide level1"><h1>Paging</h1></section><section id="review-scenario" class="slide level2">
+<h1>Review: Scenario</h1>
+<p>Ideal World (for the programmer)</p>
 <ul>
 <li>I'm the only process in the world</li>
 <li>I have more memory than I need at my disposal</li>
@@ -49,14 +49,14 @@
 <li>Not enough memory for them all</li>
 <li>Not all processes play nicely</li>
 </ul>
-</section><section id="goal-of-memory-management" class="slide level2">
-<h1>Goal of Memory Management</h1>
+</section><section id="review-goal-of-memory-management" class="slide level2">
+<h1>Review: Goal of Memory Management</h1>
 <ul>
 <li>Present the ideal world view to the programmer, yet implement it on a real system</li>
 <li>Add memory protections without getting in the way of the programmer</li>
 </ul>
-</section><section id="section" class="slide level2">
-<h1></h1>
+</section><section id="review-virtual-memory" class="slide level2">
+<h1>Review: Virtual Memory</h1>
 <!--
 Source: http://www.tldp.org/LDP/tlk/mm/memory.html
 
@@ -83,7 +83,7 @@ Paging helps reduce fragmentation and ensures better memory management, while se
 <li>Segmentation
 <ul>
 <li>Divides the address space into variable-sized segments</li>
-<li>Enables memory protections (Ex: data, code, uninitialized, shared memory, etc.)</li>
+<li>Enables memory protections (Example: data, code, uninitialized, shared memory, etc.)</li>
 </ul></li>
 <li>Modern OS's use a mixture of both schemes (paged segmentation)</li>
 </ul>
@@ -106,11 +106,147 @@ Zooming in on a single entry:
 <ul>
 <li>Consider a virtual memory system with two processes
 <ul>
-<li>The physical memory consists of 24 words and the page size is four words.</li>
+<li>Let the physical memory consist of 24 words and the page frame size of four words</li>
 <li>Process 1 consists of 16 words (a through p)</li>
-<li>Process 2 has 12 words (A through L)</li>
+<li>Process 2 consists of 12 words (A through L)</li>
 </ul></li>
 </ul>
+</section><section id="paging-example-process-1-virtual-memory" class="slide level2">
+<h1>Paging Example (Process 1 Virtual Memory)</h1>
+<figure>
+<img src="img/process1_1.png" alt="Process 1 Virtual Memory" /><figcaption>Process 1 Virtual Memory</figcaption>
+</figure>
+</section><section id="paging-example-process-1-virtual-memory-1" class="slide level2">
+<h1>Paging Example (Process 1 Virtual Memory)</h1>
+<figure>
+<img src="img/process1_2.png" alt="Process 1 Virtual Memory" /><figcaption>Process 1 Virtual Memory</figcaption>
+</figure>
+</section><section id="paging-example-process-2-virtual-memory" class="slide level2">
+<h1>Paging Example (Process 2 Virtual Memory)</h1>
+<figure>
+<img src="img/process2_1.png" alt="Process 2 Virtual Memory" /><figcaption>Process 2 Virtual Memory</figcaption>
+</figure>
+</section><section id="paging-example-process-2-virtual-memory-1" class="slide level2">
+<h1>Paging Example (Process 2 Virtual Memory)</h1>
+<figure>
+<img src="img/process2_2.png" alt="Process 2 Virtual Memory" /><figcaption>Process 2 Virtual Memory</figcaption>
+</figure>
+</section><section id="paging-example-physical-memory" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<figure>
+<img src="img/physical_memory_1.png" alt="Physical Memory - What are the contents of page 0?" /><figcaption>Physical Memory - What are the contents of page 0?</figcaption>
+</figure>
+</section><section id="paging-example-physical-memory-1" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<figure>
+<img src="img/physical_memory_2.png" alt="Physical Memory - What are the contents of page 1?" /><figcaption>Physical Memory - What are the contents of page 1?</figcaption>
+</figure>
+</section><section id="paging-example-physical-memory-2" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<figure>
+<img src="img/physical_memory_3.png" alt="Physical Memory - What are the contents of page 2?" /><figcaption>Physical Memory - What are the contents of page 2?</figcaption>
+</figure>
+</section><section id="paging-example-physical-memory-3" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<figure>
+<img src="img/physical_memory_4.png" alt="Physical Memory - What are the contents of page 3?" /><figcaption>Physical Memory - What are the contents of page 3?</figcaption>
+</figure>
+</section><section id="paging-example-physical-memory-4" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<figure>
+<img src="img/physical_memory_5.png" alt="Physical Memory - What are the contents of page 4?" /><figcaption>Physical Memory - What are the contents of page 4?</figcaption>
+</figure>
+</section><section id="paging-example-physical-memory-5" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<figure>
+<img src="img/physical_memory_6.png" alt="Physical Memory - What are the contents of page 5?" /><figcaption>Physical Memory - What are the contents of page 5?</figcaption>
+</figure>
+</section><section id="paging-example-physical-memory-6" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<figure>
+<img src="img/physical_memory_7.png" alt="Physical Memory" /><figcaption>Physical Memory</figcaption>
+</figure>
+</section><section id="paging-example-physical-memory-7" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<ul>
+<li>Suppose process 1 is running and it tries to access the contents of the virtual address <strong>15</strong>, what is the result?</li>
+</ul>
+</section><section id="paging-example-physical-memory-8" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<figure>
+<img src="img/physical_memory_7.png" alt="Physical Memory" /><figcaption>Physical Memory</figcaption>
+</figure>
+</section><section id="paging-example-physical-memory-9" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<ul>
+<li>Suppose process 1 is running and it tries to access the contents of the virtual address <strong>15</strong>, what is the result?
+<ul>
+<li>Virtual address <strong>15</strong> is in process 1's virtual page <strong>3</strong>. According to the page table for process 1, the virtual page <strong>3</strong> is paged in physical memory as page <strong>4</strong>, which means the value <strong>p</strong> will be immediately fetched from memory.</li>
+</ul></li>
+</ul>
+</section><section id="paging-example-physical-memory-10" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<ul>
+<li>Suppose process 1 is running and it tries to access the contents of the virtual address <strong>9</strong>, what is the result?</li>
+</ul>
+</section><section id="paging-example-physical-memory-11" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<figure>
+<img src="img/physical_memory_7.png" alt="Physical Memory" /><figcaption>Physical Memory</figcaption>
+</figure>
+</section><section id="paging-example-physical-memory-12" class="slide level2">
+<h1>Paging Example (Physical Memory)</h1>
+<ul>
+<li>Suppose process 1 is running and it tries to access the contents of the virtual address <strong>9</strong>, what is the result?
+<ul>
+<li>Virtual address <strong>9</strong> is in process 1's virtual page <strong>2</strong>. According to the page table for process 1, virtual page <strong>2</strong> is not paged in physical memory (flagged as invalid in the page table). A <strong>page fault</strong> occurs, and physical memory will need to be swapped before the value <strong>j</strong> can be fetched from memory.</li>
+</ul></li>
+</ul>
+</section><section id="implementation-notes" class="slide level2">
+<h1>Implementation Notes</h1>
+<ul>
+<li>Virtual memory is just a concept
+<ul>
+<li>It's addresses/values are always contiguous</li>
+<li>It's values only really exist in physical memory</li>
+<li>Page frames are just logical groupings (that can be calculated on the fly)</li>
+</ul></li>
+<li>Only need to store page tables</li>
+</ul>
+</section><section id="implementation-notes-1" class="slide level2">
+<h1>Implementation Notes</h1>
+<figure>
+<img src="img/implementation_1.png" alt="Implementation Overview" /><figcaption>Implementation Overview</figcaption>
+</figure>
+</section><section id="implementation-notes-2" class="slide level2">
+<h1>Implementation Notes</h1>
+<ul>
+<li>Virtual page frames are always in order starting at 0
+<ul>
+<li>No need to store virtual page numbers in page table (just store physical page numbers in order)</li>
+</ul></li>
+<li>Techinically we don't &quot;store&quot; addresses either</li>
+</ul>
+</section><section id="implementation-notes-3" class="slide level2">
+<h1>Implementation Notes</h1>
+<figure>
+<img src="img/implementation_2.png" alt="Implementation Overview" /><figcaption>Implementation Overview</figcaption>
+</figure>
+</section><section id="implementation-notes-4" class="slide level2">
+<h1>Implementation Notes</h1>
+<!--
+ 2 bits are required to store 4 virtual pages indexes
+ 2 bits are required to store 4 possible offsets in each page
+-->
+<ul>
+<li>If our page table stores 4 virtual pages mappings how many bits do we need to represent each page?</li>
+<li>If our page size is 4 words, how many bits do we need to represent each possible page offset?</li>
+</ul>
+</section><section id="implementation-notes-5" class="slide level2">
+<h1>Implementation Notes</h1>
+<figure>
+<img src="img/address_translation.png" alt="Address Translation" /><figcaption>Address Translation</figcaption>
+</figure>
 </section></section>
 <section><section id="page-faults" class="titleslide slide level1"><h1>Page Faults</h1></section><section id="page-fault" class="slide level2">
 <h1>Page Fault</h1>
@@ -124,9 +260,6 @@ Zooming in on a single entry:
 </ol>
 </section><section id="os-issues" class="slide level2">
 <h1>OS Issues</h1>
-<!---
-Write these three on the board.
--->
 <ul>
 <li>Fetch policy - when to fetch pages into memory?</li>
 <li>Placement policy - where to place pages?</li>

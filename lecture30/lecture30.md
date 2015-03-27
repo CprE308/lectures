@@ -4,8 +4,8 @@
 
 # Paging
 
-## Review
-Ideal World (for the programmer):
+## Review: Scenario
+Ideal World (for the programmer)
 
  - I'm the only process in the world
  - I have more memory than I need at my disposal
@@ -16,11 +16,11 @@ Real World
  - Not enough memory for them all
  - Not all processes play nicely
 
-## Goal of Memory Management
+## Review: Goal of Memory Management
  - Present the ideal world view to the programmer, yet implement it on a real system
  - Add memory protections without getting in the way of the programmer
 
-##
+## Review: Virtual Memory
 <!--
 Source: http://www.tldp.org/LDP/tlk/mm/memory.html
 
@@ -41,7 +41,7 @@ Paging helps reduce fragmentation and ensures better memory management, while se
     - Reduces fragmentation, increases efficiency
  - Segmentation
     - Divides the address space into variable-sized segments
-    - Enables memory protections (Ex: data, code, uninitialized, shared memory, etc.)
+    - Enables memory protections (Example: data, code, uninitialized, shared memory, etc.)
  - Modern OS's use a mixture of both schemes (paged segmentation)
  
 ## Typical Page Table Entry
@@ -58,9 +58,92 @@ Zooming in on a single entry:
 
 ## Paging Example
 - Consider a virtual memory system with two processes
-    - The physical memory consists of 24 words and the page size is four words. 
+    - Let the physical memory consist of 24 words and the page frame size of four words 
     - Process 1 consists of 16 words (a through p)
-    - Process 2 has 12 words (A through L)
+    - Process 2 consists of 12 words (A through L)
+    
+## Paging Example (Process 1 Virtual Memory)
+![Process 1 Virtual Memory](img/process1_1.png)
+
+## Paging Example (Process 1 Virtual Memory)
+![Process 1 Virtual Memory](img/process1_2.png)
+
+## Paging Example (Process 2 Virtual Memory)
+![Process 2 Virtual Memory](img/process2_1.png)
+
+## Paging Example (Process 2 Virtual Memory)
+![Process 2 Virtual Memory](img/process2_2.png)
+
+## Paging Example (Physical Memory)
+![Physical Memory - What are the contents of page 0?](img/physical_memory_1.png)
+
+## Paging Example (Physical Memory)
+![Physical Memory - What are the contents of page 1?](img/physical_memory_2.png)
+
+## Paging Example (Physical Memory)
+![Physical Memory - What are the contents of page 2?](img/physical_memory_3.png)
+
+## Paging Example (Physical Memory)
+![Physical Memory - What are the contents of page 3?](img/physical_memory_4.png)
+
+## Paging Example (Physical Memory)
+![Physical Memory - What are the contents of page 4?](img/physical_memory_5.png)
+
+## Paging Example (Physical Memory)
+![Physical Memory - What are the contents of page 5?](img/physical_memory_6.png)
+
+## Paging Example (Physical Memory)
+![Physical Memory](img/physical_memory_7.png)
+
+## Paging Example (Physical Memory)
+- Suppose process 1 is running and it tries to access the contents of the virtual address **15**, what is the result?
+
+## Paging Example (Physical Memory)
+![Physical Memory](img/physical_memory_7.png)
+
+## Paging Example (Physical Memory)
+- Suppose process 1 is running and it tries to access the contents of the virtual address **15**, what is the result?
+    - Virtual address **15** is in process 1's virtual page **3**.  According to the page table for process 1, the virtual page **3** is paged in physical memory as page **4**, which means the value **p** will be immediately fetched from memory.
+
+## Paging Example (Physical Memory)
+- Suppose process 1 is running and it tries to access the contents of the virtual address **9**, what is the result?
+
+## Paging Example (Physical Memory)
+![Physical Memory](img/physical_memory_7.png)
+
+
+## Paging Example (Physical Memory)
+- Suppose process 1 is running and it tries to access the contents of the virtual address **9**, what is the result?
+    - Virtual address **9** is in process 1's virtual page **2**.  According to the page table for process 1, virtual page **2** is not paged in physical memory (flagged as invalid in the page table).  A **page fault** occurs, and physical memory will need to be swapped before the value **j** can be fetched from memory.
+
+## Implementation Notes
+- Virtual memory is just a concept
+    - It's addresses/values are always contiguous
+    - It's values only really exist in physical memory
+    - Page frames are just logical groupings (that can be calculated on the fly)
+- Only need to store page tables
+
+## Implementation Notes
+![Implementation Overview](img/implementation_1.png)
+
+## Implementation Notes
+- Virtual page frames are always in order starting at 0
+    - No need to store virtual page numbers in page table (just store physical page numbers in order)
+- Techinically we don't "store" addresses either
+
+## Implementation Notes
+![Implementation Overview](img/implementation_2.png)
+
+## Implementation Notes
+<!--
+ 2 bits are required to store 4 virtual pages indexes
+ 2 bits are required to store 4 possible offsets in each page
+-->
+- If our page table stores 4 virtual pages mappings how many bits do we need to represent each page?
+- If our page size is 4 words, how many bits do we need to represent each possible page offset?
+
+## Implementation Notes
+![Address Translation](img/address_translation.png)
 
 # Page Faults
 
@@ -75,9 +158,6 @@ What happens if the required page is not in memory?
  4. Restart the interrupted instruction
 
 ## OS Issues
-<!---
-Write these three on the board.
--->
  - Fetch policy - when to fetch pages into memory?
  - Placement policy - where to place pages?
  - Replacement policy
