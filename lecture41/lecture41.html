@@ -4,341 +4,213 @@
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
   <meta name="author" content="CprE 308" />
-  <meta name="dcterms.date" content="2014-04-23" />
-  <title>Lecture 41 - OS Security</title>
+  <meta name="dcterms.date" content="2015-04-20" />
+  <title>Lecture 41 - OS Security Concepts</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="../reveal.js/css/reveal.min.css"/>
     <style type="text/css">code{white-space: pre;}</style>
-    <style type="text/css">
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; }
-code > span.dt { color: #902000; }
-code > span.dv { color: #40a070; }
-code > span.bn { color: #40a070; }
-code > span.fl { color: #40a070; }
-code > span.ch { color: #4070a0; }
-code > span.st { color: #4070a0; }
-code > span.co { color: #60a0b0; font-style: italic; }
-code > span.ot { color: #007020; }
-code > span.al { color: #ff0000; font-weight: bold; }
-code > span.fu { color: #06287e; }
-code > span.er { color: #ff0000; font-weight: bold; }
-    </style>
     <link rel="stylesheet" href="../slides.css"/>
-  <link rel="stylesheet" media="print" href="../reveal.js/css/print/pdf.css" />
-  <!--[if lt IE 9]>
-  <script src="../reveal.js/lib/js/html5shiv.js"></script>
-  <![endif]-->
+    <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+    <script>
+      if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = '../reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+      }
+    </script>
+    <!--[if lt IE 9]>
+    <script src="../reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
 </head>
 <body>
   <div class="reveal">
     <div class="slides">
 
 <section>
-    <h1 class="title">Lecture 41 - OS Security</h1>
+    <h1 class="title">Lecture 41 - OS Security Concepts</h1>
     <h2 class="author">CprE 308</h2>
-    <h3 class="date">April 23, 2014</h3>
+    <h3 class="date">April 20, 2015</h3>
 </section>
 
-<section><section id="intro" class="titleslide slide level1"><h1>Intro</h1></section><section id="what-have-we-learned-about-os-so-far" class="slide level2">
-<h1>What have we learned about OS so far?</h1>
-<p><strong>OS</strong></p>
+<section><section id="os-security-concepts" class="titleslide slide level1"><h1>OS Security Concepts</h1></section><section id="what-have-we-learned-about-operating-systems-so-far" class="slide level2">
+<h1>What have we learned about Operating Systems so far?</h1>
 <ul>
-<li>Goals
+<li>OS Goals
 <ul>
 <li>Resource Manager</li>
 <li>User Interface</li>
 </ul></li>
-<li>Important things we have discussed
+<li>Important concepts we have discussed
 <ul>
 <li>Multi-user, multi-process, multi-thread</li>
-<li>Synchronization, Mutual Exclusion, Deadlock</li>
+<li>Synchronization, Mutual Exclusion, Deadlocks</li>
 <li>Scheduling</li>
-<li>Memory</li>
+<li>Memory Management</li>
 <li>I/O Devices</li>
-<li>Files, and File Systems</li>
+<li>Files and File Systems</li>
 </ul></li>
 </ul>
-</section><section id="what-are-the-problems" class="slide level2">
-<h1>What are the problems?</h1>
+</section><section id="what-do-we-need-in-terms-of-security" class="slide level2">
+<h1>What do we need in terms of security?</h1>
+<figure>
+<img src="./img/cia_triad.png" alt="CIA Triad" /><figcaption>CIA Triad</figcaption>
+</figure>
+</section><section id="what-are-the-biggest-problems" class="slide level2">
+<h1>What are the biggest problems?</h1>
 <p>Top 25 Most Dangerous Software Errors</p>
-<p><a href="http://www.sans.org/top25-software-errors/#cat1">http://www.sans.org/top25-software-errors/#cat1</a></p>
+<p><a href="http://www.sans.org/top25-software-errors/" class="uri">http://www.sans.org/top25-software-errors/</a></p>
 <p>Version 3.0, June 2011</p>
-</section></section>
-<section><section id="problems-and-fixes" class="titleslide slide level1"><h1>Problems and Fixes</h1></section><section id="problem-cleartext-transmitstorage-of-sensitive-info" class="slide level2">
-<h1>Problem: Cleartext Transmit/Storage of Sensitive Info</h1>
-<figure>
-<img src="img/cleartext.png" />
-</figure>
-<div class="fragment">
-<p><strong>Fix:</strong></p>
+</section><section id="general-security-goals" class="slide level2">
+<h1>General Security Goals</h1>
 <ul>
-<li>Encrypt data with standard, reliable encryption before transmission</li>
-<li>Whole-drive/File Encryption</li>
-</ul>
-</div>
-</section><section id="problem-adopting-untrusted-software" class="slide level2">
-<h1>Problem: Adopting Untrusted Software</h1>
-<h3 id="section"></h3>
-<h4 id="section-1"></h4>
-<p><strong>Fix:</strong></p>
+<li>Information Flow Secrecy
 <ul>
-<li>Use monitoring tools that examine processes as it interacts with the OS
+<li><a href="https://en.wikipedia.org/wiki/Lattice-based_access_control">Denning's Lattice Model</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Bell%E2%80%93LaPadula_model">Bell-LaPadula Model</a></li>
+</ul></li>
+<li>Information Flow Integrity
 <ul>
-<li>Truss (Solaris)</li>
-<li>Strace (Linux)</li>
-<li>FileMon, RegMon, Process Monitor, Sysinternals (Windows)</li>
-<li>Sniffers, Protocol analyzers</li>
+<li><a href="https://en.wikipedia.org/wiki/Chinese_wall#Computer_science">Brewer and Nash (Chinese Wall) Model</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Biba_Model">Biba Integrity Model</a></li>
+<li><a href="https://en.wikipedia.org/wiki/High-water_mark_%28computer_security%29">High/Low-water Mark Integrity</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Clark%E2%80%93Wilson_model">Clark-Wilson Integrity Model</a></li>
+</ul></li>
+<li><a href="https://en.wikipedia.org/wiki/Covert_channel">Covert Channels</a>
+<ul>
+<li>The capability to transfer information between processes that are not supposed to be allowed to communicate by the computer security policy</li>
 </ul></li>
 </ul>
-<h4 id="section-2"></h4>
-<figure>
-<img src="img/download.png" />
-</figure>
-<p>Free Software ... Is it Safe?</p>
-</section><section id="problem-incorrect-input" class="slide level2">
-<h1>Problem: Incorrect Input</h1>
-<figure>
-<img src="img/incorrect.png" />
-</figure>
-</section><section id="problem-buffer-overflow" class="slide level2">
-<h1>Problem: Buffer Overflow</h1>
-<h3 id="section-3"></h3>
-<h4 id="section-4"></h4>
-<figure>
-<img src="img/buffer.png" />
-</figure>
-<h4 id="section-5"></h4>
-<p>Enter Name: Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz</p>
-</section><section id="fix-input-validation" class="slide level2">
-<h1>Fix: Input Validation</h1>
-<h3 id="section-6"></h3>
-<h4 id="section-7"></h4>
-<p>Assume all input is malicious! Validate:</p>
+</section><section id="is-open-source-more-secure-than-proprietary" class="slide level2">
+<h1>Is open source more secure than proprietary?</h1>
 <ul>
-<li>Length</li>
-<li>Type</li>
-<li>Syntax</li>
-<li>Context: Business Rules</li>
-</ul>
-<p>Or use:</p>
+<li>&quot;Security through Obscurity&quot; is no security at all
 <ul>
-<li>Special input checkers</li>
-<li>Whitelist: List of acceptable input</li>
-<li>Blacklist: Reject suspect input</li>
-</ul>
-<h4 id="section-8"></h4>
-<figure>
-<img src="img/validate.png" />
-</figure>
-</section><section id="problem-race-condition" class="slide level2">
-<h1>Problem: Race Condition</h1>
-<p>Threads both using same variables.</p>
-<div class="fragment">
-<p><strong>Fix:</strong></p>
-<ul>
-<li>Use Synchronization Primitives around critical code</li>
-<li>Measure use of shared resources</li>
-<li>Test using artificial delays in race window</li>
-<li>Identify and trigger error conditions</li>
-</ul>
-</div>
-</section><section id="problem-os-command-injection" class="slide level2">
-<h1>Problem: OS Command Injection</h1>
-<h3 id="section-9"></h3>
-<h4 id="section-10"></h4>
-<p>Problem: Command Injection into SQL</p>
-<p>Inserts <code>|shell(&quot;cmd /c echo &quot; &amp; char(124) &amp; &quot;format c:&quot;)|</code></p>
-<ul>
-<li>Data and control can traverse same path</li>
-</ul>
-<h4 id="section-11"></h4>
-<figure>
-<img src="img/injection.png" />
-</figure>
-</section><section id="fix-avoid-os-command-injection" class="slide level2">
-<h1>Fix: Avoid OS Command Injection</h1>
-<ul>
-<li>Separate control information from data information.
-<ul>
-<li>E.G. where data -&gt; database, control defines application</li>
+<li><a href="https://en.wikipedia.org/wiki/Kerckhoffs%27s_principle">Kerckhoffs's principle</a> (assume the enemy knows the system)</li>
 </ul></li>
-<li>Use library calls instead of external processes</li>
-<li>Avoid external control of command input</li>
-<li>Run code in &quot;jail&quot; or other sandbox environment</li>
-<li>Provide lowest possible permissions for executable</li>
+<li>Open Source &quot;potentially&quot; gets more eyes
+<ul>
+<li>Is that a false sense of security?</li>
+<li>Are the right people looking?</li>
+<li>Is the project well funded/staffed?</li>
+</ul></li>
+</ul>
+</section><section id="code-snippet-found-in-linux-kernel" class="slide level2">
+<h1>Code snippet found in Linux Kernel</h1>
+<p>A bug or malware?</p>
+<figure>
+<img src="./img/bug_or_malware1.png" alt="Bug or Malware" /><figcaption>Bug or Malware</figcaption>
+</figure>
+</section><section id="code-snippet-found-in-linux-kernel-1" class="slide level2">
+<h1>Code snippet found in Linux Kernel</h1>
+<p>A bug or malware?</p>
+<figure>
+<img src="./img/bug_or_malware2.png" alt="Bug or Malware" /><figcaption>Bug or Malware</figcaption>
+</figure>
+</section><section id="backdoor-attempt-found-in-linux-kernel" class="slide level2">
+<h1>Backdoor attempt found in Linux Kernel</h1>
+<p>Source: <a href="https://freedom-to-tinker.com/blog/felten/the-linux-backdoor-attempt-of-2003" class="uri">https://freedom-to-tinker.com/blog/felten/the-linux-backdoor-attempt-of-2003</a></p>
+<figure>
+<img src="./img/bug_or_malware3.png" alt="Bug or Malware" /><figcaption>Bug or Malware</figcaption>
+</figure>
+</section><section id="wheres-the-problem" class="slide level2">
+<h1>Where's the problem?</h1>
+<figure>
+<img src="./img/bug_or_malware4.png" alt="Bug or Malware" /><figcaption>Bug or Malware</figcaption>
+</figure>
+</section><section id="apple-ssl-cve-2014-1266-goto-fail-bug" class="slide level2">
+<h1>Apple SSL CVE-2014-1266 (GOTO Fail Bug)</h1>
+<figure>
+<img src="./img/bug_or_malware5.png" alt="Bug or Malware" /><figcaption>Bug or Malware</figcaption>
+</figure>
+</section><section id="apple-ssl-cve-2014-1266-goto-fail-bug-1" class="slide level2">
+<h1>Apple SSL CVE-2014-1266 (GOTO Fail Bug)</h1>
+<ul>
+<li>Should have been caught by automated tools</li>
+<li>Survived almost a year</li>
+<li>Affected OSX and iOS (because of shared code branches)</li>
+</ul>
+</section><section id="wheres-the-problem-1" class="slide level2">
+<h1>Where's the problem?</h1>
+<figure>
+<img src="./img/bug_or_malware6.png" alt="Bug or Malware" /><figcaption>Bug or Malware</figcaption>
+</figure>
+</section><section id="heartbleed" class="slide level2">
+<h1>Heartbleed</h1>
+<figure>
+<img src="./img/bug_or_malware7.png" alt="Bug or Malware" /><figcaption>Bug or Malware</figcaption>
+</figure>
+</section><section id="heartbleed-1" class="slide level2">
+<h1>Heartbleed</h1>
+<ul>
+<li>Much less obvious error</li>
+<li>Survived several professional code audits (for ~2 years)</li>
+<li>&quot;Catastrophic&quot; is the right word. On the scale of 1 to 10, this is an 11. ~Bruce Schneier</li>
 </ul>
 <figure>
-<img src="img/avoid_injection.png" />
+<img src="./img/heartbleed.png" alt="Heartbleed" /><figcaption>Heartbleed</figcaption>
 </figure>
-</section><section id="problem-external-control-of-critical-state-data" class="slide level2">
-<h1>Problem: External Control of Critical State Data</h1>
-<h3 id="section-12"></h3>
-<h4 id="section-13"></h4>
-<p>User - side data can be modified</p>
-<ul>
-<li>Cookies</li>
-<li>Configuration files</li>
-<li>Profiles</li>
-<li>Hidden form fields</li>
-<li>Environmental variables</li>
-<li>Registry keys</li>
-</ul>
-<h4 id="section-14"></h4>
+</section><section id="wheres-the-problem-2" class="slide level2">
+<h1>Where's the problem?</h1>
 <figure>
-<img src="img/ext_control.png" />
+<img src="./img/bug_or_malware8.png" alt="Bug or Malware" /><figcaption>Bug or Malware</figcaption>
 </figure>
-</section><section id="fix-control-critical-state-data" class="slide level2">
-<h1>Fix: Control Critical State Data</h1>
+</section><section id="shellshock" class="slide level2">
+<h1>Shellshock</h1>
 <ul>
-<li>Understand all locations that are accessible to attackers</li>
-<li>Do not keep state info on client without using encryption and integrity checking (e.g. HMAC)</li>
-<li>Store state info on server side only: ASP.NET View State, OWASP ESAPI Session Mgmt</li>
+<li>Bug is the due to the absence of code (validation checks)</li>
+<li>Present for 25 years!?</li>
+<li>Even more complicated to find</li>
+<li>Still learning the extent of this bug</li>
 </ul>
-</section><section id="problem-insecure-interaction-between-components" class="slide level2">
-<h1>Problem: Insecure Interaction Between Components</h1>
+</section><section id="shellshock-1" class="slide level2">
+<h1>Shellshock</h1>
 <figure>
-<img src="img/interaction.png" />
+<img src="./img/shellshock.png" alt="Bug or Malware" /><figcaption>Bug or Malware</figcaption>
 </figure>
-</section><section id="problem-insecure-interaction-between-components-1" class="slide level2">
-<h1>Problem: Insecure Interaction Between Components</h1>
-<h3 id="section-15"></h3>
-<h4 id="section-16"></h4>
+</section><section id="passwords" class="slide level2">
+<h1>Passwords</h1>
+<p>Does your computer &quot;store&quot; your password?</p>
+<p>Should it?</p>
+</section><section id="password-hashing" class="slide level2">
+<h1>Password Hashing</h1>
+<p>Goal: Don't store passwords!</p>
+<p>Ideal Goal: Don't even &quot;encrypt&quot; passwords</p>
 <ul>
-<li>Web servers are memoryless</li>
-<li>Do not remember sending a form to a client - what type, info</li>
-<li>Client side can remove checks, insert other code, return unexpected data, etc.</li>
+<li><code>hash(x) == hash(x)</code></li>
+<li><code>hash(x) != hash(y)</code></li>
+<li>if <code>hash(x) == hash(x')</code> then <code>x</code> has not changed</li>
+<li>given <code>hash(x)</code>, <code>x</code> cannot be recovered</li>
+<li>it is infeasible to find a collision such that <code>hash(m1) == hash(m2)</code></li>
 </ul>
-<h4 id="section-17"></h4>
-<figure>
-<img src="img/interaction2.png" />
-</figure>
-</section><section id="problem-forgery" class="slide level2">
-<h1>Problem: Forgery</h1>
-<figure>
-<img src="img/forgery.png" />
-</figure>
-</section><section id="fix-prevent-forgery" class="slide level2">
-<h1>Fix: Prevent Forgery</h1>
-<h3 id="section-18"></h3>
-<h4 id="section-19"></h4>
+</section><section id="trusting-trust" class="slide level2">
+<h1>Trusting Trust</h1>
 <ul>
-<li>Use a nonce for each form</li>
-<li>Not predictable</li>
-<li>If dangerous operation, send a separate confirmation request</li>
+<li>In 1984 Ken Thompson was presented with the ACM Turing Award
+<ul>
+<li>Famous acceptance speech &quot;Reflections On Trusting Trust&quot;</li>
+<li>Highly encourage to read the speech</li>
+<li>Link: <a href="http://cs.unc.edu/~fabian/course_papers/trust.pdf">3 Page PDF</a></li>
+</ul></li>
 </ul>
-<h4 id="section-20"></h4>
-<figure>
-<img src="img/prevent_forgery.png" />
-</figure>
-</section><section id="problem-improper-access-control" class="slide level2">
-<h1>Problem: Improper Access Control</h1>
-<figure>
-<img src="img/access_control.png" />
-</figure>
-</section><section id="fix-access-permissions" class="slide level2">
-<h1>Fix: Access Permissions</h1>
+</section><section id="resources" class="slide level2">
+<h1>Resources</h1>
 <ul>
-<li>Use Role-Based Access
-<ul>
-<li>At least permissions: anonymous, normal, privileged, administrative</li>
-</ul></li>
-<li>Verify access control at server side</li>
-<li>Sensitive pages are never cached and must have active authorization token</li>
-<li>Only provide higher level access when you need it; always run with the minimum possible authorization level</li>
-<li>Check that files read have the required access level permissions; administrators may not set them properly.</li>
-<li>Use a good random number generator when generating random session keys – if not random, attackers will figure out next key sequence</li>
+<li><a href="http://www.iac.iastate.edu/courses/#InfoSysSec">CprE 431/531 Information System Security</a></li>
+<li><a href="http://www.iac.iastate.edu/courses/#InfoWarfare">CprE 532 Information Warefare</a></li>
+<li><a href="http://www.iac.iastate.edu/courses/#Crypto">CprE 533 Cryptography</a></li>
+<li><a href="http://www.iac.iastate.edu/courses/#Forensics">CprE 536 Computer and Network Forensics</a></li>
+<li><a href="http://iase.disa.mil/stigs/Pages/index.aspx">Security Technical Implementation Guides (STIGs)</a></li>
 </ul>
-</section><section id="problem-external-control-of-path" class="slide level2">
-<h1>Problem: External Control of Path</h1>
-<ul>
-<li>If you download an external file or navigate to a URL - and execute</li>
-<li>If you provide access to a file on your system</li>
-<li>Attacker can insert <code>../../</code> and access files outside privilege.</li>
-</ul>
-<p><strong>Fix:</strong></p>
-<ul>
-<li>Run as low-privilege user</li>
-<li>Provide fixed input values</li>
-<li>Run code in 'jail': Unix chroot jail and AppArmor</li>
-</ul>
-<figure>
-<img src="img/path.png" />
-</figure>
-</section></section>
-<section><section id="examples" class="titleslide slide level1"><h1>Examples</h1></section><section id="problem-some-security-errors" class="slide level2">
-<h1>Problem: Some Security Errors</h1>
-<p>Find the errors:</p>
-<pre class="sourceCode c"><code class="sourceCode c">Security() {
-    String contents, environment;
-    String spath = <span class="st">&quot;security.dat&quot;</span>
-    File security = new File;
-    <span class="kw">if</span> (security.open(<span class="st">&quot;spath&quot;</span>) &gt;<span class="dv">0</span>)
-        contents = security.read();
-        environment = security.read();
-    <span class="kw">else</span>
-        print(<span class="st">&quot;Error: Security.dat not found&quot;</span>);
-}</code></pre>
-</section><section id="problem-some-security-errors-1" class="slide level2">
-<h1>Problem: Some Security Errors</h1>
-<ol type="1">
-<li>Variables contents &amp; Environment not initialized
-<ul>
-<li>Can cause problems if executed in certain ways</li>
-<li>Attacker can initialize or read variables from previous session</li>
-</ul></li>
-<li>&quot;security.dat&quot; is not full pathname
-<ul>
-<li>File can be replaced if run from another location</li>
-</ul></li>
-<li>File 'security' not closed
-<ul>
-<li>Leaves file open to attack</li>
-<li>Keeps unnecessary resources busy</li>
-</ul></li>
-<li>Error message indicates file name
-<ul>
-<li>Can give attacker important info</li>
-</ul></li>
-</ol>
-</section><section id="problem-more-security-errors" class="slide level2">
-<h1>Problem: More Security Errors</h1>
-<p>Find the errors:</p>
-<pre class="sourceCode c"><code class="sourceCode c">purchaseProduct() {
-    password = <span class="st">&quot;N23m**2d3&quot;</span>;
-    count = form.quantity;
-    total = count * product.cost();
-    Message m = new Message(
-        name,product,total);
-    m.myEncrypt();
-    server.send(m);
-}</code></pre>
-</section><section id="problem-more-security-errors-1" class="slide level2">
-<h1>Problem: More Security Errors</h1>
-<ol type="1">
-<li>Password is hardcoded
-<ul>
-<li>If attacker find it, every system can be broken into before software is changed on all computers</li>
-<li>Passwords may only be stored in encrypted file</li>
-</ul></li>
-<li>Total may overflow, producing very small number
-<ul>
-<li>Input is not checked (could be zero or invalid)</li>
-</ul></li>
-<li>Encryption should be standard algorithm
-<ul>
-<li>Home-written variety can be broken into easily</li>
-</ul></li>
-</ol>
+<p>Compete to win free security training invitation</p>
+<p><a href="http://www.uscyberchallenge.org/">US Cyber Challenge</a> (<a href="http://uscc.cyberquests.org/">http://uscc.cyberquests.org</a>)</p>
 </section></section>
     </div>
   </div>
+
 
   <script src="../reveal.js/lib/js/head.min.js"></script>
   <script src="../reveal.js/js/reveal.min.js"></script>
@@ -364,5 +236,5 @@ code > span.er { color: #ff0000; font-weight: bold; }
 //          { src: '../reveal.js/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
 ]});
     </script>
-  </body>
+    </body>
 </html>

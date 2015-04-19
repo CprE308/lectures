@@ -1,263 +1,150 @@
-% Lecture 41 -  OS Security
+% Lecture 41 -  OS Security Concepts
 % CprE 308
-% April 23, 2014
+% April 20, 2015
 
-# Intro
+# OS Security Concepts
 
-## What have we learned about OS so far?
-
-**OS**
-
- - Goals
+## What have we learned about Operating Systems so far?
+ - OS Goals
     - Resource Manager
     - User Interface
- - Important things we have discussed
+ - Important concepts we have discussed
     - Multi-user, multi-process, multi-thread
-    - Synchronization, Mutual Exclusion, Deadlock
+    - Synchronization, Mutual Exclusion, Deadlocks
     - Scheduling
-    - Memory
+    - Memory Management
     - I/O Devices
-    - Files, and File Systems
+    - Files and File Systems
+    
+## What do we need in terms of security?
 
-## What are the problems?
+![CIA Triad](./img/cia_triad.png)
+
+## What are the biggest problems?
 
 Top 25 Most Dangerous Software Errors
 
-[http://www.sans.org/top25-software-errors/#cat1](http://www.sans.org/top25-software-errors/#cat1)
+[http://www.sans.org/top25-software-errors/](http://www.sans.org/top25-software-errors/)
 
 Version 3.0, June 2011
 
-# Problems and Fixes
-
-## Problem: Cleartext Transmit/Storage of Sensitive Info
-![](img/cleartext.png)
-
-. . .
-
-**Fix:**
-
- - Encrypt data with standard, reliable encryption before transmission
- - Whole-drive/File Encryption
-
-## Problem: Adopting Untrusted Software
-
-###
-
-####
-
-**Fix:**
-
- - Use monitoring tools that examine processes as it interacts with the OS
-    - Truss (Solaris)
-    - Strace (Linux)
-    - FileMon, RegMon, Process Monitor, Sysinternals (Windows)
-    - Sniffers, Protocol analyzers
-
-#### 
-![](img/download.png)
-
-Free Software ... Is it Safe?
-
-## Problem: Incorrect Input
-![](img/incorrect.png)
-
-## Problem: Buffer Overflow
-
-###
-
-####
-![](img/buffer.png)
-
-####
-Enter Name: Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
-
-## Fix: Input Validation
-###
-####
-Assume all input is malicious! Validate:
-
- - Length
- - Type
- - Syntax
- - Context: Business Rules
-
-Or use:
-
- - Special input checkers
- - Whitelist: List of acceptable input
- - Blacklist: Reject suspect input
-
-####
-![](img/validate.png)
-
-## Problem: Race Condition
-Threads both using same variables.
-
-. . .
-
-**Fix:**
-
- - Use Synchronization Primitives around critical code
- - Measure use of shared resources
- - Test using artificial delays in race window
- - Identify and trigger error conditions
-
-## Problem: OS Command Injection
-###
-####
-
-Problem: Command Injection into SQL
-
-Inserts `|shell("cmd /c echo " & char(124) & "format c:")|`
-
-  - Data and control can traverse same path
+## General Security Goals
+ - Information Flow Secrecy
+    - [Denning's Lattice Model](https://en.wikipedia.org/wiki/Lattice-based_access_control)
+    - [Bell-LaPadula Model](https://en.wikipedia.org/wiki/Bell%E2%80%93LaPadula_model)
+ - Information Flow Integrity
+    - [Brewer and Nash (Chinese Wall) Model](https://en.wikipedia.org/wiki/Chinese_wall#Computer_science)
+    - [Biba Integrity Model](https://en.wikipedia.org/wiki/Biba_Model)
+    - [High/Low-water Mark Integrity](https://en.wikipedia.org/wiki/High-water_mark_%28computer_security%29)
+    - [Clark-Wilson Integrity Model](https://en.wikipedia.org/wiki/Clark%E2%80%93Wilson_model)
+ - [Covert Channels](https://en.wikipedia.org/wiki/Covert_channel)
+    - The capability to transfer information between processes that are not supposed to be allowed to communicate by the computer security policy
  
-####
-![](img/injection.png)
+## Is open source more secure than proprietary?
 
-## Fix: Avoid OS Command Injection
+- "Security through Obscurity" is no security at all
+     - [Kerckhoffs's principle](https://en.wikipedia.org/wiki/Kerckhoffs%27s_principle) (assume the enemy knows the system)
+- Open Source "potentially" gets more eyes
+     - Is that a false sense of security?
+     - Are the right people looking?
+     - Is the project well funded/staffed?
 
- - Separate control information from data information.
-    - E.G. where data -> database, control defines application
- - Use library calls instead of external processes
- - Avoid external control of command input
- - Run code in "jail" or other sandbox environment
- - Provide lowest possible permissions for executable
+## Code snippet found in Linux Kernel
 
-![](img/avoid_injection.png)
+A bug or malware?
 
-## Problem: External Control of Critical State Data
+![Bug or Malware](./img/bug_or_malware1.png)
 
-###
-####
-User - side data can be modified
+## Code snippet found in Linux Kernel
 
- - Cookies
- - Configuration files
- - Profiles
- - Hidden form fields
- - Environmental variables
- - Registry keys
+A bug or malware?
 
-####
-![](img/ext_control.png)
+![Bug or Malware](./img/bug_or_malware2.png)
 
-## Fix: Control Critical State Data
+## Backdoor attempt found in Linux Kernel
 
- - Understand all locations that are accessible to attackers
- - Do not keep state info on client without using encryption and integrity checking (e.g. HMAC)
- - Store state info on server side only: ASP.NET View State, OWASP ESAPI Session Mgmt
+Source: [https://freedom-to-tinker.com/blog/felten/the-linux-backdoor-attempt-of-2003](https://freedom-to-tinker.com/blog/felten/the-linux-backdoor-attempt-of-2003)
 
-## Problem: Insecure Interaction Between Components
-![](img/interaction.png)
+![Bug or Malware](./img/bug_or_malware3.png)
 
+## Where's the problem?
 
-## Problem: Insecure Interaction Between Components
+![Bug or Malware](./img/bug_or_malware4.png)
 
-###
-####
- - Web servers are memoryless
- - Do not remember sending a form to a client - what type, info
- - Client side can remove checks, insert other code, return unexpected data, etc.
+## Apple SSL CVE-2014-1266 (GOTO Fail Bug)
 
-####
-![](img/interaction2.png)
+![Bug or Malware](./img/bug_or_malware5.png)
 
-## Problem: Forgery
-![](img/forgery.png)
+## Apple SSL CVE-2014-1266 (GOTO Fail Bug)
 
-## Fix: Prevent Forgery
+- Should have been caught by automated tools
+- Survived almost a year
+- Affected OSX and iOS (because of shared code branches)
 
-###
-####
- - Use a nonce for each form
- - Not predictable
- - If dangerous operation, send a separate confirmation request
+## Where's the problem?
 
-####
-![](img/prevent_forgery.png)
+![Bug or Malware](./img/bug_or_malware6.png)
 
-## Problem: Improper Access Control
-![](img/access_control.png)
+## Heartbleed
 
-## Fix: Access Permissions
- - Use Role-Based Access
-    - At least permissions: anonymous, normal, privileged, administrative
- - Verify access control at server side
- - Sensitive pages are never cached and must have active authorization token
- - Only provide higher level access when you need it; always run with the minimum possible authorization level
- - Check that files read have the required access level permissions; administrators may not set them properly.
- - Use a good random number generator when generating random session keys – if not random, attackers will figure out next key sequence
+![Bug or Malware](./img/bug_or_malware7.png)
 
-## Problem: External Control of Path
+## Heartbleed
 
- - If you download an external file or navigate to a URL - and execute
- - If you provide access to a file on your system
- - Attacker can insert `../../` and access files outside privilege.
+- Much less obvious error
+- Survived several professional code audits (for ~2 years)
+- "Catastrophic" is the right word. On the scale of 1 to 10, this is an 11. ~Bruce Schneier
 
-**Fix:**
+![Heartbleed](./img/heartbleed.png)
 
- - Run as low-privilege user
- - Provide fixed input values
- - Run code in 'jail': Unix chroot jail and AppArmor
+## Where's the problem?
 
-![](img/path.png)
+![Bug or Malware](./img/bug_or_malware8.png)
 
-# Examples
+## Shellshock
 
-## Problem: Some Security Errors
+- Bug is the due to the absence of code (validation checks)
+- Present for 25 years!?
+- Even more complicated to find
+- Still learning the extent of this bug
 
-Find the errors:
+## Shellshock
 
-```c
-Security() {
-    String contents, environment;
-    String spath = "security.dat"
-    File security = new File;
-    if (security.open("spath") >0)
-        contents = security.read();
-        environment = security.read();
-    else
-        print("Error: Security.dat not found");
-}
-```
+![Bug or Malware](./img/shellshock.png)
 
-## Problem: Some Security Errors
+## Passwords
 
- 1. Variables contents & Environment not initialized
-    - Can cause problems if executed in certain ways
-    - Attacker can initialize or read variables from previous session
- 2. "security.dat" is not full pathname
-    - File can be replaced if run from another location
- 3. File 'security' not closed
-    - Leaves file open to attack
-    - Keeps unnecessary resources busy
- 4. Error message indicates file name
-    - Can give attacker important info
+Does your computer "store" your password?
 
-## Problem: More Security Errors
-Find the errors:
+Should it?
 
-```c
-purchaseProduct() {
-    password = "N23m**2d3";
-    count = form.quantity;
-    total = count * product.cost();
-    Message m = new Message(
-        name,product,total);
-    m.myEncrypt();
-    server.send(m);
-}
-```
+## Password Hashing
 
-## Problem: More Security Errors
+Goal: Don't store passwords!
 
- 1. Password is hardcoded
-    - If attacker find it, every system can be broken into before software is changed on all computers
-    - Passwords may only be stored in encrypted file
- 2. Total may overflow, producing very small number
-    - Input is not checked (could be zero or invalid)
- 3. Encryption should be standard algorithm
-    - Home-written variety can be broken into easily
+Ideal Goal: Don't even "encrypt" passwords
 
+- `hash(x) == hash(x)`
+- `hash(x) != hash(y)`
+- if `hash(x) == hash(x')` then `x` has not changed
+- given `hash(x)`, `x` cannot be recovered
+- it is infeasible to find a collision such that `hash(m1) == hash(m2)`
 
+## Trusting Trust
+
+- In 1984 Ken Thompson was presented with the ACM Turing Award
+    - Famous acceptance speech "Reflections On Trusting Trust"
+    - Highly encourage to read the speech
+    - Link: [3 Page PDF](http://cs.unc.edu/~fabian/course_papers/trust.pdf)
+
+## Resources
+
+- [CprE 431/531 Information System Security](http://www.iac.iastate.edu/courses/#InfoSysSec)
+- [CprE 532 Information Warefare](http://www.iac.iastate.edu/courses/#InfoWarfare)
+- [CprE 533 Cryptography](http://www.iac.iastate.edu/courses/#Crypto)
+- [CprE 536 Computer and Network Forensics](http://www.iac.iastate.edu/courses/#Forensics)
+- [Security Technical Implementation Guides (STIGs)](http://iase.disa.mil/stigs/Pages/index.aspx)
+
+Compete to win free security training invitation
+
+[US Cyber Challenge](http://www.uscyberchallenge.org/) ([http://uscc.cyberquests.org](http://uscc.cyberquests.org/))
