@@ -135,7 +135,7 @@ Ideal Goal: Don't even "encrypt" passwords
 - In 1984 Ken Thompson was presented with the ACM Turing Award
     - Famous acceptance speech "Reflections On Trusting Trust"
     - Highly encourage to read the speech
-    - Link: [3 Page PDF](http://cs.unc.edu/~fabian/course_papers/trust.pdf)
+    - Link: [3 Page PDF](https://github.com/CprE308/lectures/raw/master/lecture41/reflections_on_trusting_trust.pdf)
 
 ## Resources
 
