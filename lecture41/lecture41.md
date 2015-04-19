@@ -137,6 +137,17 @@ Ideal Goal: Don't even "encrypt" passwords
     - Highly encourage to read the speech
     - Link: [3 Page PDF](https://github.com/CprE308/lectures/raw/master/lecture41/reflections_on_trusting_trust.pdf)
 
+## Misconfigurations
+
+Probably the biggest contributor to insecure operating systems
+
+- Running a web server as root
+- Default usernames and password
+- Anonymous read/write FTP access
+- Storing passwords in cleartext
+- Improper permissions on files/executables
+- Unpatched/old software, disabling system updates
+
 ## Resources
 
 - [CprE 431/531 Information System Security](http://www.iac.iastate.edu/courses/#InfoSysSec)
